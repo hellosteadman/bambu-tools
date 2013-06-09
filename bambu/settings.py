@@ -3,11 +3,12 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
 MANAGERS = ADMINS
+COUNTRY_ID = 1
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '',
+        'NAME': 'bambu',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -60,3 +61,10 @@ INSTALLED_APPS = (
 DATAPORTABILITY_IMPORT_ROOT = ''
 DATAPORTABILITY_EXPORT_ROOT = ''
 MEGAPHONE_PROVIDERS = ()
+
+PAYMENT_GATEWAYS = (
+	('bambu.payments.gateways.paypal.PayPalGateway', 'paypal'),
+)
+
+HAYSTACK_SITECONF = 'marksteadman.search'
+HAYSTACK_SEARCH_ENGINE = 'dummy'

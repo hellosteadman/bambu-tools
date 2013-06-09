@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.grids.models &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.grids.models</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">ManyToManyField</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.db.models.query</span> <span class="kn">import</span> <span class="n">QuerySet</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.utils.datastructures</span> <span class="kn">import</span> <span class="n">SortedDict</span>
+<span class="kn">from</span> <span class="nn">bambu.grids.grids</span> <span class="kn">import</span> <span class="n">Grid</span>
+<span class="kn">from</span> <span class="nn">bambu.grids.renderers</span> <span class="kn">import</span> <span class="n">ModelFilterRenderer</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
+
+<div class="viewcode-block" id="ModelGrid"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid">[docs]</a><span class="k">class</span> <span class="nc">ModelGrid</span><span class="p">(</span><span class="n">Grid</span><span class="p">):</span>
+	<span class="n">model</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="n">filter_renderer</span> <span class="o">=</span> <span class="n">ModelFilterRenderer</span>
+	<span class="n">columns</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">exclude</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">search</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">column_verbose_names</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+			<span class="n">queryset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+		<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Manager</span><span class="p">):</span>
+			<span class="n">queryset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+		<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">):</span>
+			<span class="n">queryset</span> <span class="o">=</span> <span class="n">data</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Data attribute must extend Model or QuerySet&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">queryset</span><span class="o">.</span><span class="n">model</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Data queryset must match the Model defined for this ModelGrid&#39;</span><span class="p">)</span>
+		
+		<span class="n">exclude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="ow">or</span> <span class="p">[]</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">ModelGrid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">empty_label</span> <span class="o">=</span> <span class="s">u&#39;There are no </span><span class="si">%s</span><span class="s"> in this view.&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">ordering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">ordering</span>
+	
+<div class="viewcode-block" id="ModelGrid.get_columns"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.get_columns">[docs]</a>	<span class="k">def</span> <span class="nf">get_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+			<span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+			<span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+			
+			<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">local_fields</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">opts</span><span class="o">.</span><span class="n">pk</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">editable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
+					<span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+		
+		<span class="k">return</span> <span class="n">columns</span>
+	</div>
+<div class="viewcode-block" id="ModelGrid.get_friendly_name"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.get_friendly_name">[docs]</a>	<span class="k">def</span> <span class="nf">get_friendly_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_verbose_names</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_verbose_names</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="s">&#39;__unicode__&#39;</span><span class="p">:</span>
+			<span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">verbose_name</span>
+			
+			<span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+				<span class="k">return</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">return</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+		
+		<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+			<span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s">&#39;friendly_name&#39;</span><span class="p">):</span>
+				<span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">friendly_name</span>
+		
+		<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">column</span><span class="p">:</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">verbose_name</span>
+				
+				<span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+					<span class="k">return</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">return</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+		
+		<span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ModelGrid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_friendly_name</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelGrid.prepare"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.prepare">[docs]</a>	<span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="n">row</span> <span class="o">=</span> <span class="n">SortedDict</span><span class="p">()</span>
+		
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+			<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+				<span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+				<span class="n">col</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+				<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s">&#39;safe&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">col</span><span class="o">.</span><span class="n">safe</span><span class="p">:</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">col</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+				
+				<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s">&#39;link&#39;</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_link_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+					<span class="k">elif</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nonlink_columns</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_nonlink_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+			
+			<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s">&#39;__&#39;</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+				<span class="n">parts</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;__&#39;</span><span class="p">)</span>
+				<span class="n">parent</span> <span class="o">=</span> <span class="n">obj</span>
+				
+				<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="n">part</span> <span class="o">=</span> <span class="n">parts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+					<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">part</span><span class="p">):</span>
+						<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+							<span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+							<span class="s">&#39;</span><span class="si">%s</span><span class="s"> not found in </span><span class="si">%s</span><span class="s"> or </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+								<span class="n">part</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+							<span class="p">)</span>
+						<span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+					<span class="s">&#39;</span><span class="si">%s</span><span class="s"> not found in </span><span class="si">%s</span><span class="s"> or </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+						<span class="n">column</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+					<span class="p">)</span>
+				<span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">value</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;prepare_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">column</span><span class="p">):</span>
+				<span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;prepare_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">column</span><span class="p">)(</span><span class="n">value</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+				<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">column</span><span class="p">:</span>
+						<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&#39;choices&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;get_</span><span class="si">%s</span><span class="s">_display&#39;</span> <span class="o">%</span> <span class="n">column</span><span class="p">):</span>
+							<span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_value</span><span class="p">(</span>
+								<span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;get_</span><span class="si">%s</span><span class="s">_display&#39;</span> <span class="o">%</span> <span class="n">column</span><span class="p">)</span>
+							<span class="p">)</span>
+						
+						<span class="k">break</span>
+		
+		<span class="k">return</span> <span class="n">row</span>
+	</div>
+<div class="viewcode-block" id="ModelGrid.field_is_sortable"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.field_is_sortable">[docs]</a>	<span class="k">def</span> <span class="nf">field_is_sortable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+		<span class="n">before</span><span class="p">,</span> <span class="n">underscores</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s">&#39;__&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;pk&#39;</span><span class="p">,</span> <span class="s">&#39;-pk&#39;</span><span class="p">,</span> <span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;-id&#39;</span><span class="p">):</span>
+			<span class="k">return</span> <span class="bp">True</span>
+		
+		<span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+			<span class="k">return</span> <span class="n">field</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">]</span>
+		
+		<span class="k">return</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">]</span>
+	</div>
+<div class="viewcode-block" id="ModelGrid.order"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.order">[docs]</a>	<span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+		<span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span>
+			<span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_is_sortable</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+		<span class="p">]</span>
+		
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">)):</span>
+			<span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="o">*</span><span class="n">ordering</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">data</span>
+	</div>
+	<span class="k">def</span> <span class="nf">_validate_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span>
+		<span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_many_to_many</span>
+		<span class="p">]</span>
+		
+		<span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">fieldnames</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Filter on unknown field &quot;</span><span class="si">%s</span><span class="s">&quot; not supported&#39;</span> <span class="o">%</span> <span class="nb">filter</span><span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">_get_filter_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+		<span class="n">field</span> <span class="o">=</span> <span class="bp">None</span>
+		
+		<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="nb">filter</span><span class="p">:</span>
+				<span class="n">field</span> <span class="o">=</span> <span class="n">f</span>
+		
+		<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_many_to_many</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="nb">filter</span><span class="p">:</span>
+				<span class="n">field</span> <span class="o">=</span> <span class="n">f</span>
+		
+		<span class="k">if</span> <span class="n">field</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">field</span><span class="o">.</span><span class="n">get_choices</span><span class="p">()</span>
+	
+	<span class="k">def</span> <span class="nf">_get_search_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">values_lowered</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">):</span>
+				<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">column</span> <span class="ow">and</span> <span class="n">column</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">column</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">values_lowered</span><span class="p">:</span>
+						<span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+						<span class="n">values_lowered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+		
+		<span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="ModelGrid.perform_filter"><a class="viewcode-back" href="../../../api/bambu.grids.html#bambu.grids.models.ModelGrid.perform_filter">[docs]</a>	<span class="k">def</span> <span class="nf">perform_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">):</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+		
+		<span class="n">search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="ow">and</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">-search&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">or</span> <span class="s">&#39;search&#39;</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">search</span><span class="p">))]</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="n">words</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span> <span class="ow">and</span> <span class="n">search</span><span class="p">:</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">Q</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+					<span class="n">q</span> <span class="o">|=</span> <span class="n">Q</span><span class="p">(</span>
+						<span class="o">**</span><span class="p">{</span>
+							<span class="s">&#39;</span><span class="si">%s</span><span class="s">__icontains&#39;</span> <span class="o">%</span> <span class="n">column</span><span class="p">:</span> <span class="n">word</span>
+						<span class="p">}</span>
+					<span class="p">)</span>
+			
+			<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">data</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

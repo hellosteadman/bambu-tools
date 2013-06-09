@@ -1,0 +1,9 @@
+#!/bin/sh
+
+find ../bambu/ -name '._*' -exec rm -v {} \;
+find . -name '._*' -exec rm -v {} \;
+sphinx-apidoc -o api ../bambu
+# rm api/bambu.search.rst
+# rm api/bambu.settings.rst
+rm api/modules.rst
+make html

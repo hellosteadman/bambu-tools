@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.dataportability.management.commands.importdata &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="bambu.dataportability" href="../../../dataportability.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../dataportability.html" accesskey="U">bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.dataportability.management.commands.importdata</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.core.management.base</span> <span class="kn">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span> <span class="nn">django.db.models.loading</span> <span class="kn">import</span> <span class="n">get_model</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.core.files</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">make_option</span>
+<span class="kn">from</span> <span class="nn">bambu.dataportability.models</span> <span class="kn">import</span> <span class="n">ImportJob</span>
+<span class="kn">from</span> <span class="nn">bambu.dataportability</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">sys</span><span class="p">,</span> <span class="n">path</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../api/bambu.dataportability.management.commands.html#bambu.dataportability.management.commands.importdata.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+	<span class="n">args</span> <span class="o">=</span> <span class="s">&#39;&lt;model object_id handler filename&gt;&#39;</span>
+	<span class="n">requires_model_validation</span> <span class="o">=</span> <span class="bp">True</span>
+	
+	<span class="n">option_list</span> <span class="o">=</span> <span class="n">BaseCommand</span><span class="o">.</span><span class="n">option_list</span> <span class="o">+</span> <span class="p">(</span>
+		<span class="n">make_option</span><span class="p">(</span>
+			<span class="s">&#39;--username&#39;</span><span class="p">,</span>
+			<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Username of user to import data as. If not supplied, the first superuser is selected&#39;</span>
+		<span class="p">),</span>
+	<span class="p">)</span>
+	
+	<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Import data&#39;</span>
+	
+<div class="viewcode-block" id="Command.handle"><a class="viewcode-back" href="../../../../../api/bambu.dataportability.management.commands.html#bambu.dataportability.management.commands.importdata.Command.handle">[docs]</a>	<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+		<span class="n">handlers</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DATAPORTABILITY_HANDLERS&#39;</span><span class="p">,</span> <span class="p">{})</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">model</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">args</span>
+		<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;Specify the model, object ID, import handler and filename to base the import on&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">])</span>
+			<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;User </span><span class="si">%s</span><span class="s"> not found&#39;</span> <span class="o">%</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_superuser</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;No root user found&#39;</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="o">*</span><span class="n">model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">))</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;Model </span><span class="si">%s</span><span class="s"> not found&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">obj_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj_id</span><span class="p">)</span>
+		<span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;Object ID must be an integer&#39;</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">obj_id</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">model</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span>
+				<span class="s">&#39;</span><span class="si">%s</span><span class="s"> with ID </span><span class="si">%d</span><span class="s"> not found&#39;</span> <span class="o">%</span> <span class="p">(</span>
+					<span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span> <span class="n">obj_id</span>
+				<span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;Import handler </span><span class="si">%s</span><span class="s"> not found&#39;</span> <span class="o">%</span> <span class="n">handler</span><span class="p">)</span>
+		
+		<span class="n">job</span> <span class="o">=</span> <span class="n">ImportJob</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+			<span class="n">handler</span> <span class="o">=</span> <span class="n">handlers</span><span class="p">[</span><span class="n">handler</span><span class="p">],</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">,</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)),</span>
+			<span class="n">parser</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_parser_for_file</span><span class="p">(</span>
+				<span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+			<span class="p">),</span>
+			<span class="n">content_object</span> <span class="o">=</span> <span class="n">obj</span>
+		<span class="p">)</span>
+		
+		<span class="n">job</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../dataportability.html" >bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

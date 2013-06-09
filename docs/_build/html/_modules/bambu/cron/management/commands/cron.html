@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.cron.management.commands.cron &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="bambu.cron" href="../../../cron.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../cron.html" accesskey="U">bambu.cron</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.cron.management.commands.cron</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.core.management.base</span> <span class="kn">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">make_option</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../api/bambu.cron.management.commands.html#bambu.cron.management.commands.cron.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+	<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Run tasks at scheduled intervals&#39;</span>
+	<span class="n">option_list</span> <span class="o">=</span> <span class="n">BaseCommand</span><span class="o">.</span><span class="n">option_list</span> <span class="o">+</span> <span class="p">(</span>
+		<span class="n">make_option</span><span class="p">(</span><span class="s">&#39;--setup&#39;</span><span class="p">,</span>
+			<span class="n">action</span> <span class="o">=</span> <span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+			<span class="n">dest</span> <span class="o">=</span> <span class="s">&#39;setup&#39;</span><span class="p">,</span>
+			<span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+			<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Setup cron jobs and run only those that are due&#39;</span>
+		<span class="p">),</span>
+		<span class="n">make_option</span><span class="p">(</span><span class="s">&#39;--force&#39;</span><span class="p">,</span>
+			<span class="n">action</span> <span class="o">=</span> <span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+			<span class="n">dest</span> <span class="o">=</span> <span class="s">&#39;force&#39;</span><span class="p">,</span>
+			<span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+			<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Run all cron jobs, including ones that aren</span><span class="se">\&#39;</span><span class="s">t scheduled yet&#39;</span>
+		<span class="p">),</span>
+		<span class="n">make_option</span><span class="p">(</span><span class="s">&#39;--debug&#39;</span><span class="p">,</span>
+			<span class="n">action</span> <span class="o">=</span> <span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+			<span class="n">dest</span> <span class="o">=</span> <span class="s">&#39;debug&#39;</span><span class="p">,</span>
+			<span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+			<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Raise errors when they occur, rather than log them&#39;</span>
+		<span class="p">)</span>
+	<span class="p">)</span>
+	
+<div class="viewcode-block" id="Command.handle"><a class="viewcode-back" href="../../../../../api/bambu.cron.management.commands.html#bambu.cron.management.commands.cron.Command.handle">[docs]</a>	<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+		<span class="kn">from</span> <span class="nn">bambu</span> <span class="kn">import</span> <span class="n">cron</span>
+		<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove</span>
+		<span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">time</span>
+		
+		<span class="n">flag</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;CRON_FLAG_FILE&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;bambu.cron&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">flag</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">flag</span><span class="p">):</span>
+			<span class="k">return</span>
+		
+		<span class="n">cron</span><span class="o">.</span><span class="n">autodiscover</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;setup&#39;</span><span class="p">]:</span>
+			<span class="n">cron</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+		
+		<span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Setting flag file &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">flag</span><span class="p">)</span>
+			<span class="nb">open</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+			<span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">cron</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s">&#39;force&#39;</span><span class="p">],</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;debug&#39;</span><span class="p">])</span>
+		<span class="k">finally</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">flag</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">flag</span><span class="p">):</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Removing flag file &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">flag</span><span class="p">)</span>
+				<span class="n">remove</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../cron.html" >bambu.cron</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

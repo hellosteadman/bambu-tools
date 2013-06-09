@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.navigation.sites &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.navigation" href="../navigation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../navigation.html" accesskey="U">bambu.navigation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.navigation.sites</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.utils.datastructures</span> <span class="kn">import</span> <span class="n">SortedDict</span>
+<span class="kn">from</span> <span class="nn">bambu.navigation.auth</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">logging</span>
+
+<div class="viewcode-block" id="AlreadyRegistered"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.AlreadyRegistered">[docs]</a><span class="k">class</span> <span class="nc">AlreadyRegistered</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="NotRegistered"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.NotRegistered">[docs]</a><span class="k">class</span> <span class="nc">NotRegistered</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+	</div>
+<div class="viewcode-block" id="DoesNotExist"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.DoesNotExist">[docs]</a><span class="k">class</span> <span class="nc">DoesNotExist</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="NavigationSite"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.NavigationSite">[docs]</a><span class="k">class</span> <span class="nc">NavigationSite</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="n">_registry</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">_instances</span> <span class="o">=</span> <span class="n">SortedDict</span><span class="p">()</span>
+	<span class="n">_partials</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">_discovered</span> <span class="o">=</span> <span class="bp">False</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;bambu.navigation&#39;</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="NavigationSite.register"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.NavigationSite.register">[docs]</a>	<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">builder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">AlreadyRegistered</span><span class="p">(</span><span class="s">&#39;Builder </span><span class="si">%s</span><span class="s"> already registered.&#39;</span> <span class="o">%</span> <span class="n">builder</span><span class="p">)</span>
+		
+		<span class="n">instance</span> <span class="o">=</span> <span class="n">builder</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+		<span class="n">partials</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partials</span><span class="p">])</span>
+		
+		<span class="k">for</span> <span class="n">menu</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">register_partials</span><span class="p">():</span>
+			<span class="n">key</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+			<span class="n">menus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span>
+			<span class="n">menus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_instances</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">menus</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">partials</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_partials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+					<span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">menu</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;(No description)&#39;</span><span class="p">))</span>
+				<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="NavigationSite.build"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.NavigationSite.build">[docs]</a>	<span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">auth</span> <span class="o">=</span> <span class="n">NAVIGATION_SHOW_ALL</span><span class="p">,</span> <span class="n">logged_in</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">partials</span><span class="p">):</span>
+		<span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">plist</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">include</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="k">for</span> <span class="n">partial</span> <span class="ow">in</span> <span class="n">partials</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">partial</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+				<span class="n">exclude</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">partial</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">include</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">partial</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">partial</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
+			<span class="k">if</span> <span class="s">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">partial</span><span class="p">:</span>
+				<span class="n">expr</span> <span class="o">=</span> <span class="s">&#39;^&#39;</span> <span class="o">+</span> <span class="n">partial</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;.*&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;$&#39;</span>
+				<span class="n">ex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+				
+				<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instances</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+					<span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+							<span class="n">plist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+				
+				<span class="k">continue</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">partial</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+				<span class="n">plist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">partial</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">partial</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
+			<span class="n">expr</span> <span class="o">=</span> <span class="s">&#39;^&#39;</span> <span class="o">+</span> <span class="n">partial</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;.*&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;$&#39;</span>
+			<span class="n">ex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instances</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+						<span class="n">plist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">partial</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+			<span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">build_partial</span><span class="p">(</span><span class="n">partial</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">logged_in</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;order&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+	</div>
+<div class="viewcode-block" id="NavigationSite.build_partial"><a class="viewcode-back" href="../../../api/bambu.navigation.html#bambu.navigation.sites.NavigationSite.build_partial">[docs]</a>	<span class="k">def</span> <span class="nf">build_partial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">auth</span> <span class="o">=</span> <span class="n">NAVIGATION_SHOW_ALL</span><span class="p">,</span> <span class="n">logged_in</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">menu_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="k">for</span> <span class="n">builder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[]):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">builder</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+				<span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+		
+		<span class="n">ilist</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">builder</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+			<span class="n">builder</span><span class="o">.</span><span class="n">add_to_menu</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ilist</span><span class="p">,</span> <span class="n">menu_name</span> <span class="o">=</span> <span class="n">menu_name</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ilist</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">auth</span> <span class="o">==</span> <span class="n">NAVIGATION_SHOW_ALL</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;anon&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">logged_in</span><span class="p">:</span>
+						<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">logged_in</span><span class="p">:</span>
+						<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">auth</span> <span class="o">==</span> <span class="n">NAVIGATION_SHOW_ANONYMOUS</span> <span class="ow">and</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;anon&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">):</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+					<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">auth</span> <span class="o">==</span> <span class="n">NAVIGATION_SHOW_ANONYMOUS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">logged_in</span><span class="p">:</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+					<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">auth</span> <span class="o">==</span> <span class="n">NAVIGATION_SHOW_AUTHENTICATED</span> <span class="ow">and</span> <span class="n">logged_in</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+					<span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;order&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../navigation.html" >bambu.navigation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

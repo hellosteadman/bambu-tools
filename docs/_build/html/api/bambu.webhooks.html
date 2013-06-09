@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>webhooks Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="migrations Package" href="bambu.webhooks.migrations.html" />
+    <link rel="prev" title="migrations Package" href="bambu.urlshortener.migrations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.webhooks.migrations.html" title="migrations Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.urlshortener.migrations.html" title="migrations Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="webhooks-package">
+<h1>webhooks Package<a class="headerlink" href="#webhooks-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">webhooks</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.webhooks"></span><dl class="function">
+<dt id="bambu.webhooks.send">
+<tt class="descclassname">bambu.webhooks.</tt><tt class="descname">send</tt><big>(</big><em>hook</em>, <em>user</em>, <em>data={}</em>, <em>hash=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks.html#send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.send" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.cron">
+<span id="cron-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">cron</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.cron" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.webhooks.cron.WebHooksJob">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.cron.</tt><tt class="descname">WebHooksJob</tt><a class="reference internal" href="../_modules/bambu/webhooks/cron.html#WebHooksJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.cron.WebHooksJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bambu.cron.html#bambu.cron.options.CronJob" title="bambu.cron.options.CronJob"><tt class="xref py py-class docutils literal"><span class="pre">bambu.cron.options.CronJob</span></tt></a></p>
+<dl class="attribute">
+<dt id="bambu.webhooks.cron.WebHooksJob.frequency">
+<tt class="descname">frequency</tt><em class="property"> = 1</em><a class="headerlink" href="#bambu.webhooks.cron.WebHooksJob.frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.cron.WebHooksJob.run">
+<tt class="descname">run</tt><big>(</big><em>logger</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/cron.html#WebHooksJob.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.cron.WebHooksJob.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.forms">
+<span id="forms-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">forms</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.forms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.webhooks.forms.ReceiverForm">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.forms.</tt><tt class="descname">ReceiverForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/forms.html#ReceiverForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.forms.ReceiverForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.forms.forms.Form</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.webhooks.forms.ReceiverForm.base_fields">
+<tt class="descname">base_fields</tt><em class="property"> = {}</em><a class="headerlink" href="#bambu.webhooks.forms.ReceiverForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.forms.ReceiverForm.clean_FIELD">
+<tt class="descname">clean_FIELD</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/forms.html#ReceiverForm.clean_FIELD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.forms.ReceiverForm.clean_FIELD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.forms.ReceiverForm.media">
+<tt class="descname">media</tt><a class="headerlink" href="#bambu.webhooks.forms.ReceiverForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.forms.ReceiverForm.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/forms.html#ReceiverForm.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.forms.ReceiverForm.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.helpers">
+<span id="helpers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helpers</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.webhooks.helpers.get_hook_choices">
+<tt class="descclassname">bambu.webhooks.helpers.</tt><tt class="descname">get_hook_choices</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/helpers.html#get_hook_choices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.helpers.get_hook_choices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.menus">
+<span id="menus-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">menus</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.menus" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.webhooks.menus.WebHooksMenuBuilder">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.menus.</tt><tt class="descname">WebHooksMenuBuilder</tt><a class="reference internal" href="../_modules/bambu/webhooks/menus.html#WebHooksMenuBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.menus.WebHooksMenuBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bambu.navigation.html#bambu.navigation.options.MenuBuilder" title="bambu.navigation.options.MenuBuilder"><tt class="xref py py-class docutils literal"><span class="pre">bambu.navigation.options.MenuBuilder</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.webhooks.menus.WebHooksMenuBuilder.add_to_menu">
+<tt class="descname">add_to_menu</tt><big>(</big><em>name</em>, <em>items</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/menus.html#WebHooksMenuBuilder.add_to_menu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.menus.WebHooksMenuBuilder.add_to_menu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.menus.WebHooksMenuBuilder.register_partials">
+<tt class="descname">register_partials</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/menus.html#WebHooksMenuBuilder.register_partials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.menus.WebHooksMenuBuilder.register_partials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.models">
+<span id="models-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.webhooks.models.Action">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.models.</tt><tt class="descname">Action</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/models.html#Action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.models.Action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Action(id, receiver_id, hash, data)</p>
+<dl class="exception">
+<dt id="bambu.webhooks.models.Action.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.webhooks.models.Action.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.webhooks.models.Action.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Action.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.webhooks.models.Action.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.models.Action.objects">
+<tt class="descclassname">Action.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0xd59ba6c&gt;</em><a class="headerlink" href="#bambu.webhooks.models.Action.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.models.Action.receiver">
+<tt class="descclassname">Action.</tt><tt class="descname">receiver</tt><a class="headerlink" href="#bambu.webhooks.models.Action.receiver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.models.Action.send">
+<tt class="descclassname">Action.</tt><tt class="descname">send</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/models.html#Action.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.models.Action.send" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.webhooks.models.Receiver">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.models.</tt><tt class="descname">Receiver</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/models.html#Receiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.models.Receiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Receiver(id, user_id, hook, url, last_called)</p>
+<dl class="exception">
+<dt id="bambu.webhooks.models.Receiver.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.webhooks.models.Receiver.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.webhooks.models.Receiver.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Receiver.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.webhooks.models.Receiver.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.models.Receiver.actions">
+<tt class="descclassname">Receiver.</tt><tt class="descname">actions</tt><a class="headerlink" href="#bambu.webhooks.models.Receiver.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.models.Receiver.cue">
+<tt class="descclassname">Receiver.</tt><tt class="descname">cue</tt><big>(</big><em>data</em>, <em>hash</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/models.html#Receiver.cue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.models.Receiver.cue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.webhooks.models.Receiver.get_hook_display">
+<tt class="descclassname">Receiver.</tt><tt class="descname">get_hook_display</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.webhooks.models.Receiver.get_hook_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.models.Receiver.objects">
+<tt class="descclassname">Receiver.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0xd59b52c&gt;</em><a class="headerlink" href="#bambu.webhooks.models.Receiver.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.webhooks.models.Receiver.user">
+<tt class="descclassname">Receiver.</tt><tt class="descname">user</tt><a class="headerlink" href="#bambu.webhooks.models.Receiver.user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.sites">
+<span id="sites-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">sites</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.sites" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="bambu.webhooks.sites.AlreadyRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.webhooks.sites.</tt><tt class="descname">AlreadyRegistered</tt><a class="reference internal" href="../_modules/bambu/webhooks/sites.html#AlreadyRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.sites.AlreadyRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.webhooks.sites.NotRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.webhooks.sites.</tt><tt class="descname">NotRegistered</tt><a class="reference internal" href="../_modules/bambu/webhooks/sites.html#NotRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.sites.NotRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.webhooks.sites.WebHookSite">
+<em class="property">class </em><tt class="descclassname">bambu.webhooks.sites.</tt><tt class="descname">WebHookSite</tt><a class="reference internal" href="../_modules/bambu/webhooks/sites.html#WebHookSite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.sites.WebHookSite" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="bambu.webhooks.sites.WebHookSite.register">
+<tt class="descname">register</tt><big>(</big><em>name</em>, <em>verbose_name=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/sites.html#WebHookSite.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.sites.WebHookSite.register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.webhooks.urls">
+<span id="urls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">urls</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.urls" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bambu.webhooks.views">
+<span id="views-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">views</span></tt> Module<a class="headerlink" href="#module-bambu.webhooks.views" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.webhooks.views.webhooks">
+<tt class="descclassname">bambu.webhooks.views.</tt><tt class="descname">webhooks</tt><big>(</big><em>request</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/webhooks/views.html#webhooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.webhooks.views.webhooks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bambu.webhooks.migrations.html">migrations Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.webhooks.migrations.html#module-bambu.webhooks.migrations.0001_initial"><tt class="docutils literal"><span class="pre">0001_initial</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.webhooks.migrations.html#module-bambu.webhooks.migrations.0002_auto"><tt class="docutils literal"><span class="pre">0002_auto</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">webhooks Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">webhooks</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.cron"><tt class="docutils literal"><span class="pre">cron</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.forms"><tt class="docutils literal"><span class="pre">forms</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.helpers"><tt class="docutils literal"><span class="pre">helpers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.menus"><tt class="docutils literal"><span class="pre">menus</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.models"><tt class="docutils literal"><span class="pre">models</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.sites"><tt class="docutils literal"><span class="pre">sites</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.urls"><tt class="docutils literal"><span class="pre">urls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.webhooks.views"><tt class="docutils literal"><span class="pre">views</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.urlshortener.migrations.html"
+                        title="previous chapter">migrations Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.webhooks.migrations.html"
+                        title="next chapter">migrations Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.webhooks.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.webhooks.migrations.html" title="migrations Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.urlshortener.migrations.html" title="migrations Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

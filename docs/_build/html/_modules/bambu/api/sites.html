@@ -1,0 +1,651 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.api.sites &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.api" href="../api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.api.sites</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db.models.base</span> <span class="kn">import</span> <span class="n">ModelBase</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ImproperlyConfigured</span>
+<span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.utils.functional</span> <span class="kn">import</span> <span class="n">update_wrapper</span>
+<span class="kn">from</span> <span class="nn">django.utils.importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">AnonymousUser</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.http</span> <span class="kn">import</span> <span class="n">require_POST</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponseRedirect</span><span class="p">,</span> <span class="n">HttpResponseBadRequest</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">get_model</span>
+<span class="kn">from</span> <span class="nn">bambu.api.options</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">bambu.api.response</span> <span class="kn">import</span> <span class="n">APIResponse</span>
+<span class="kn">from</span> <span class="nn">bambu.api</span> <span class="kn">import</span> <span class="n">transformers</span><span class="p">,</span> <span class="n">helpers</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">THROTTLE_REQUESTS</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;API_THROTTLE_REQUESTS&#39;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">THROTTLE_MINUTES</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;API_THROTTLE_MINUTES&#39;</span><span class="p">,</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AlreadyRegistered"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.AlreadyRegistered">[docs]</a><span class="k">class</span> <span class="nc">AlreadyRegistered</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="NotRegistered"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.NotRegistered">[docs]</a><span class="k">class</span> <span class="nc">NotRegistered</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="APISite"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite">[docs]</a><span class="k">class</span> <span class="nc">APISite</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="n">_registry</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">app_name</span> <span class="o">=</span> <span class="s">&#39;api&#39;</span>
+	<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;api&#39;</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;bambu.api&#39;</span><span class="p">)</span>
+		
+		<span class="n">auth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;API_AUTH_BACKEND&#39;</span><span class="p">,</span> <span class="s">&#39;bambu.api.auth.http.HTTPAuthentication&#39;</span><span class="p">)</span>
+		<span class="n">mod</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">klass</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+		<span class="n">mod</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">klass</span><span class="p">)()</span>
+	
+<div class="viewcode-block" id="APISite.register"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.register">[docs]</a>	<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_or_iterable</span><span class="p">,</span> <span class="n">api_class</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_or_iterable</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">):</span>
+			<span class="n">model_or_iterable</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_or_iterable</span><span class="p">]</span>
+		
+		<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">model_or_iterable</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span>
+					<span class="s">&#39;The model </span><span class="si">%s</span><span class="s"> is abstract, so it cannot be registered with the API.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+						<span class="n">model</span><span class="o">.</span><span class="n">__name__</span>
+					<span class="p">)</span>
+				<span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">AlreadyRegistered</span><span class="p">(</span><span class="s">&#39;Model </span><span class="si">%s</span><span class="s"> already registered.&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">api_class</span><span class="p">:</span>
+				<span class="n">api_class</span> <span class="o">=</span> <span class="n">ModelAPI</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="n">model</span><span class="p">]</span> <span class="o">=</span> <span class="n">api_class</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+			<span class="n">transformers</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+				<span class="n">model</span><span class="p">,</span>
+				<span class="n">transformers</span><span class="o">.</span><span class="n">ModelTransformer</span><span class="p">(</span><span class="n">api_class</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">api_class</span><span class="o">.</span><span class="n">exclude</span><span class="p">)</span>
+			<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.unregister"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.unregister">[docs]</a>	<span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">NotRegistered</span><span class="p">(</span><span class="s">&#39;Model </span><span class="si">%s</span><span class="s"> not registered.&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="p">)</span>
+		
+		<span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+	</div>
+<div class="viewcode-block" id="APISite.api_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.api_view">[docs]</a>	<span class="k">def</span> <span class="nf">api_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="s">&#39;_allow_anonymous&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+				<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">challenge</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+			
+			<span class="n">request</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">user</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">AnonymousUser</span><span class="p">()</span>
+		
+		<span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;app&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">log_request</span><span class="p">():</span>
+				<span class="k">return</span> <span class="n">APIResponse</span><span class="p">(</span>
+					<span class="n">format</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span>
+					<span class="ne">Exception</span><span class="p">(</span><span class="s">u&#39;Maximum number of requests received in </span><span class="si">%d</span><span class="s"> minute period&#39;</span> <span class="o">%</span> <span class="n">THROTTLE_MINUTES</span><span class="p">)</span>
+				<span class="p">)</span>
+		
+		<span class="n">detail_level</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;detail_level&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+		<span class="n">processor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;processor&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">APIResponse</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">APIResponse</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
+			<span class="n">detail_level</span> <span class="o">=</span> <span class="n">detail_level</span><span class="p">,</span>
+			<span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.api_page"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.api_page">[docs]</a>	<span class="k">def</span> <span class="nf">api_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="s">&#39;_allow_anonymous&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+				<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">challenge</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+			
+			<span class="n">request</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">user</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">AnonymousUser</span><span class="p">()</span>
+		
+		<span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;app&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">log_request</span><span class="p">():</span>
+				<span class="k">return</span> <span class="n">HttpResponseBadRequest</span><span class="p">(</span>
+					<span class="s">u&#39;Maximum number of requests received in </span><span class="si">%d</span><span class="s"> minute period&#39;</span> <span class="o">%</span> <span class="n">THROTTLE_MINUTES</span>
+				<span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+				<span class="k">raise</span>
+			
+			<span class="k">return</span> <span class="n">HttpResponseBadRequest</span><span class="p">(</span>
+				<span class="nb">unicode</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+			<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.get_urls"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.get_urls">[docs]</a>	<span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">include</span>
+		
+		<span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+			<span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+				<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_view</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+			
+			<span class="k">return</span> <span class="n">update_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span>
+		
+		<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+			<span class="n">url</span><span class="p">(</span>
+				<span class="s">r&#39;^develop/api/$&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs_index_view</span><span class="p">,</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;doc&#39;</span>
+			<span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^develop/apps/$&#39;</span><span class="p">,</span> <span class="n">login_required</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apps_view</span><span class="p">),</span>
+					<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;apps&#39;</span>
+				<span class="p">),</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^develop/apps/add/$&#39;</span><span class="p">,</span> <span class="n">require_POST</span><span class="p">(</span><span class="n">login_required</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_app_view</span><span class="p">)),</span>
+					<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;add_app&#39;</span>
+				<span class="p">),</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^develop/apps/(?P&lt;pk&gt;\d+)/$&#39;</span><span class="p">,</span> <span class="n">login_required</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit_app_view</span><span class="p">),</span>
+					<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;edit_app&#39;</span>
+				<span class="p">),</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^develop/apps/(?P&lt;pk&gt;\d+)/delete/$&#39;</span><span class="p">,</span> <span class="n">login_required</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_app_view</span><span class="p">),</span>
+					<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;delete_app&#39;</span>
+				<span class="p">),</span>
+			<span class="p">)</span>
+		
+		<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+			<span class="n">url</span><span class="p">(</span>
+				<span class="s">r&#39;^develop/api/(?P&lt;app_label&gt;[\w]+)/(?P&lt;model&gt;[\w]+)/$&#39;</span><span class="p">,</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">docs_model_view</span><span class="p">,</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;doc_model&#39;</span>
+			<span class="p">),</span>
+			<span class="n">url</span><span class="p">(</span>
+				<span class="s">r&#39;^develop/api/(?P&lt;app_label&gt;[\w]+)/$&#39;</span><span class="p">,</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">docs_app_view</span><span class="p">,</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;doc_appindex&#39;</span>
+			<span class="p">),</span>
+			<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^api/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()))</span>
+		<span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">model_api</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+			<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^api/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+						<span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">module_name</span>
+					<span class="p">),</span>
+					<span class="n">include</span><span class="p">(</span><span class="n">model_api</span><span class="o">.</span><span class="n">urls</span><span class="p">)</span>
+				<span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">urlpatterns</span>
+	</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="APISite.urls"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.urls">[docs]</a>	<span class="k">def</span> <span class="nf">urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+	</div>
+	<span class="k">def</span> <span class="nf">_docs_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">resdict</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">for</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">api</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="n">reslist</span><span class="p">,</span> <span class="n">app_title</span> <span class="o">=</span> <span class="n">resdict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+				<span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span>
+				<span class="p">([],</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+			<span class="p">)</span>
+			
+			<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="s">&#39;app_label_verbose&#39;</span><span class="p">):</span>
+				<span class="n">app_title</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">app_label_verbose</span>
+			
+			<span class="n">reslist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+				<span class="p">{</span>
+					<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">,</span>
+					<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+						<span class="s">&#39;api:doc_model&#39;</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
+							<span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span>
+							<span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">module_name</span>
+						<span class="p">)</span>
+					<span class="p">)</span>
+				<span class="p">}</span>
+			<span class="p">)</span>
+			
+			<span class="n">resdict</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">reslist</span><span class="p">,</span> <span class="n">app_title</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">app_label</span><span class="p">,</span> <span class="p">(</span><span class="n">reslist</span><span class="p">,</span> <span class="n">app_title</span><span class="p">)</span> <span class="ow">in</span> <span class="n">resdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">yield</span> <span class="p">{</span>
+				<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">app_title</span><span class="p">,</span>
+				<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span><span class="s">&#39;api:doc_appindex&#39;</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">app_label</span><span class="p">]),</span>
+				<span class="s">&#39;children&#39;</span><span class="p">:</span> <span class="n">reslist</span>
+			<span class="p">}</span>
+	
+	<span class="k">def</span> <span class="nf">_format_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+			<span class="s">&#39;12345&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;b&gt;&amp;lt;id&amp;gt;&lt;/b&gt;&#39;</span>
+		<span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+			<span class="s">&#39;67890&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;b&gt;&amp;lt;</span><span class="si">%s</span><span class="s">&amp;gt;&lt;/b&gt;&#39;</span> <span class="o">%</span> <span class="n">parent_id</span>
+		<span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+			<span class="s">&#39;xml&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;b&gt;&amp;lt;format&amp;gt;&lt;/b&gt;&#39;</span>
+		<span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">_docs_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+		<span class="n">opts</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+		
+		<span class="k">if</span> <span class="n">api</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">{</span>
+				<span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">{</span>
+					<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_url</span><span class="p">(</span>
+						<span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_list&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">67890</span><span class="p">,</span> <span class="s">&#39;xml&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="n">api</span><span class="o">.</span><span class="n">rel_field</span><span class="o">.</span><span class="n">name</span>
+					<span class="p">),</span>
+					<span class="s">&#39;allowed_methods&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">list_allowed_methods</span><span class="p">,</span>
+					<span class="s">&#39;example&#39;</span><span class="p">:</span> <span class="p">{</span>
+						<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_list&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;json&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="s">&#39;response&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">example_list_response</span>
+					<span class="p">}</span>
+				<span class="p">},</span>
+				<span class="s">&#39;object&#39;</span><span class="p">:</span> <span class="p">{</span>
+					<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_url</span><span class="p">(</span>
+						<span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_object&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">67890</span><span class="p">,</span> <span class="mi">12345</span><span class="p">,</span> <span class="s">&#39;xml&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="n">api</span><span class="o">.</span><span class="n">rel_field</span><span class="o">.</span><span class="n">name</span>
+					<span class="p">),</span>
+					<span class="s">&#39;allowed_methods&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">object_allowed_methods</span><span class="p">,</span>
+					<span class="s">&#39;example&#39;</span><span class="p">:</span> <span class="p">{</span>
+						<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_object&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;json&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="s">&#39;response&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">example_object_response</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">{</span>
+				<span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">{</span>
+					<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_url</span><span class="p">(</span>
+						<span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_list&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;xml&#39;</span><span class="p">]</span>
+						<span class="p">)</span>
+					<span class="p">),</span>
+					<span class="s">&#39;allowed_methods&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">list_allowed_methods</span><span class="p">,</span>
+					<span class="s">&#39;example&#39;</span><span class="p">:</span> <span class="p">{</span>
+						<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_list&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;json&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="s">&#39;response&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">example_list_response</span>
+					<span class="p">}</span>
+				<span class="p">},</span>
+				<span class="s">&#39;object&#39;</span><span class="p">:</span> <span class="p">{</span>
+					<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_url</span><span class="p">(</span>
+						<span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_object&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12345</span><span class="p">,</span> <span class="s">&#39;xml&#39;</span><span class="p">]</span>
+						<span class="p">)</span>
+					<span class="p">),</span>
+					<span class="s">&#39;allowed_methods&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">object_allowed_methods</span><span class="p">,</span>
+					<span class="s">&#39;example&#39;</span><span class="p">:</span> <span class="p">{</span>
+						<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+							<span class="s">&#39;api:</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_object&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span><span class="p">),</span>
+							<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;json&#39;</span><span class="p">]</span>
+						<span class="p">),</span>
+						<span class="s">&#39;response&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">example_object_response</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+	
+<div class="viewcode-block" id="APISite.docs_index_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.docs_index_view">[docs]</a>	<span class="k">def</span> <span class="nf">docs_index_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="s">&#39;api/doc/index.html&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Developer resources&#39;</span><span class="p">,),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;auth&#39;</span><span class="p">:</span> <span class="p">{</span>
+					<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">verbose_name</span><span class="p">,</span>
+					<span class="s">&#39;doc&#39;</span><span class="p">:</span> <span class="n">helpers</span><span class="o">.</span><span class="n">trim_indent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+				<span class="p">},</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-docs-index&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.apps_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.apps_view">[docs]</a>	<span class="k">def</span> <span class="nf">apps_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		
+		<span class="n">AppForm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_editor_form</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="s">&#39;api/apps/list.html&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Apps&#39;</span><span class="p">,</span> <span class="s">&#39;Developer resources&#39;</span><span class="p">,),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">u&#39;Apps&#39;</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;apps&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">owned_apps</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+				<span class="s">&#39;app_form&#39;</span><span class="p">:</span> <span class="n">AppForm</span><span class="p">(),</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+		</div>
+<div class="viewcode-block" id="APISite.add_app_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.add_app_view">[docs]</a>	<span class="k">def</span> <span class="nf">add_app_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
+		
+		<span class="n">AppForm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_editor_form</span><span class="p">()</span>
+		<span class="n">form</span> <span class="o">=</span> <span class="n">AppForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+			<span class="n">app</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+			<span class="n">app</span><span class="o">.</span><span class="n">admin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+			<span class="n">app</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+			
+			<span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;Your app has been updated successfully.&#39;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span>
+				<span class="n">reverse</span><span class="p">(</span><span class="s">&#39;api:edit_app&#39;</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">app</span><span class="o">.</span><span class="n">pk</span><span class="p">])</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="s">&#39;api/apps/list.html&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Create app&#39;</span><span class="p">,</span> <span class="s">&#39;Apps&#39;</span><span class="p">,</span> <span class="s">&#39;Developer resources&#39;</span><span class="p">,),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="s">u&#39;Apps&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">u&#39;Create app&#39;</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;app_form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps-add&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.edit_app_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.edit_app_view">[docs]</a>	<span class="k">def</span> <span class="nf">edit_app_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+		<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
+		
+		<span class="n">App</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">))</span>
+		<span class="n">AppForm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_editor_form</span><span class="p">()</span>
+		
+		<span class="n">app</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">App</span><span class="p">,</span> <span class="n">admin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">pk</span> <span class="o">=</span> <span class="n">pk</span><span class="p">)</span>
+		<span class="n">form</span> <span class="o">=</span> <span class="n">AppForm</span><span class="p">(</span><span class="n">instance</span> <span class="o">=</span> <span class="n">app</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span> <span class="ow">or</span> <span class="bp">None</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span> <span class="ow">and</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+			<span class="n">app</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+			<span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;Your app has been updated successfully.&#39;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="s">&#39;api/apps/edit.html&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;Apps&#39;</span><span class="p">,</span> <span class="s">&#39;Developer resources&#39;</span><span class="p">,),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="s">u&#39;Apps&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;app&#39;</span><span class="p">:</span> <span class="n">app</span><span class="p">,</span>
+				<span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps-edit&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.delete_app_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.delete_app_view">[docs]</a>	<span class="k">def</span> <span class="nf">delete_app_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+		<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
+		
+		<span class="n">App</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">))</span>
+		<span class="n">app</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">App</span><span class="p">,</span> <span class="n">admin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">pk</span> <span class="o">=</span> <span class="n">pk</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;confirm&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span><span class="p">:</span>
+			<span class="n">app</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+			<span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;Your app has been deleted successfully.&#39;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="s">&#39;api/apps/delete.html&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Delete?&#39;</span><span class="p">,</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;Apps&#39;</span><span class="p">,</span> <span class="s">&#39;Developer resources&#39;</span><span class="p">,),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../../../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">,</span> <span class="s">u&#39;Apps&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Delete?&#39;</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;app&#39;</span><span class="p">:</span> <span class="n">app</span><span class="p">,</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps&#39;</span><span class="p">,</span> <span class="s">&#39;api-apps-delete&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.docs_app_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.docs_app_view">[docs]</a>	<span class="k">def</span> <span class="nf">docs_app_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">app_label</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		
+		<span class="n">apis</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">app_title</span> <span class="o">=</span> <span class="n">app_label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+		
+		<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span> <span class="o">==</span> <span class="n">app_label</span><span class="p">:</span>
+				<span class="n">opts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+				<span class="n">api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+				
+				<span class="n">apis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+					<span class="p">{</span>
+						<span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()),</span>
+						<span class="s">&#39;doc&#39;</span><span class="p">:</span> <span class="n">helpers</span><span class="o">.</span><span class="n">trim_indent</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">__doc__</span><span class="p">),</span>
+						<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="n">opts</span><span class="o">.</span><span class="n">module_name</span>
+					<span class="p">}</span>
+				<span class="p">)</span>
+				
+				<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="s">&#39;app_label_verbose&#39;</span><span class="p">):</span>
+					<span class="n">app_title</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">app_label_verbose</span>
+				
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">apis</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&#39;App not found.&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="p">(</span>
+				<span class="s">&#39;api/doc/</span><span class="si">%s</span><span class="s">/index.html&#39;</span> <span class="o">%</span> <span class="n">app_label</span><span class="p">,</span>
+				<span class="s">&#39;api/doc/app_index.html&#39;</span>
+			<span class="p">),</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="n">app_title</span><span class="p">,</span>
+					<span class="s">&#39;Developer resources&#39;</span>
+				<span class="p">),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">app_title</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">app_title</span><span class="p">,</span>
+				<span class="s">&#39;apis&#39;</span><span class="p">:</span> <span class="n">apis</span><span class="p">,</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-docs-app&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="APISite.docs_model_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.sites.APISite.docs_model_view">[docs]</a>	<span class="k">def</span> <span class="nf">docs_model_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">app_label</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+		<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span>
+		
+		<span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">app_label</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&#39;Model not found.&#39;</span><span class="p">)</span>
+		
+		<span class="n">api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">api</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&#39;API for model not found.&#39;</span><span class="p">)</span>
+		
+		<span class="n">opts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+		<span class="n">api_title</span> <span class="o">=</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+		<span class="n">app_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="s">&#39;app_label_verbose&#39;</span><span class="p">,</span>
+			<span class="n">app_label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+		<span class="p">)</span>
+		
+		<span class="n">inlines</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">inline</span> <span class="ow">in</span> <span class="n">api</span><span class="o">.</span><span class="n">inline_instances</span><span class="p">:</span>
+			<span class="n">inlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+				<span class="p">{</span>
+					<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">inline</span><span class="o">.</span><span class="n">rel_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+					<span class="s">&#39;doc&#39;</span><span class="p">:</span> <span class="n">helpers</span><span class="o">.</span><span class="n">trim_indent</span><span class="p">(</span><span class="n">inline</span><span class="o">.</span><span class="n">__doc__</span><span class="p">),</span>
+					<span class="s">&#39;urls&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_urls</span><span class="p">(</span><span class="n">inline</span><span class="p">),</span>
+					<span class="s">&#39;verbose_name&#39;</span><span class="p">:</span> <span class="n">inline</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name</span><span class="p">,</span>
+					<span class="s">&#39;verbose_name_plural&#39;</span><span class="p">:</span> <span class="n">inline</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">,</span>
+					<span class="s">&#39;formats&#39;</span><span class="p">:</span> <span class="n">inline</span><span class="o">.</span><span class="n">allowed_formats</span>
+				<span class="p">}</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+			<span class="n">request</span><span class="p">,</span>
+			<span class="p">(</span>
+				<span class="s">&#39;api/doc/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">.html&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">app_label</span><span class="p">,</span> <span class="n">model</span><span class="p">),</span>
+				<span class="s">&#39;api/doc/</span><span class="si">%s</span><span class="s">/model.html&#39;</span> <span class="o">%</span> <span class="n">app_label</span><span class="p">,</span>
+				<span class="s">&#39;api/doc/model.html&#39;</span>
+			<span class="p">),</span>
+			<span class="p">{</span>
+				<span class="s">&#39;title_parts&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="n">api_title</span><span class="p">,</span>
+					<span class="n">app_title</span><span class="p">,</span>
+					<span class="s">&#39;Developer resources&#39;</span>
+				<span class="p">),</span>
+				<span class="s">&#39;breadcrumb_trail&#39;</span><span class="p">:</span> <span class="p">(</span>
+					<span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">,</span> <span class="s">u&#39;Developer resources&#39;</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;../&#39;</span><span class="p">,</span> <span class="n">app_title</span><span class="p">),</span>
+					<span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">api_title</span><span class="p">)</span>
+				<span class="p">),</span>
+				<span class="s">&#39;doc&#39;</span><span class="p">:</span> <span class="n">helpers</span><span class="o">.</span><span class="n">trim_indent</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">__doc__</span><span class="p">),</span>
+				<span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">api_title</span><span class="p">,</span>
+				<span class="s">&#39;resources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_list</span><span class="p">(),</span>
+				<span class="s">&#39;inlines&#39;</span><span class="p">:</span> <span class="n">inlines</span><span class="p">,</span>
+				<span class="s">&#39;urls&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_urls</span><span class="p">(</span><span class="n">api</span><span class="p">),</span>
+				<span class="s">&#39;verbose_name&#39;</span><span class="p">:</span> <span class="n">opts</span><span class="o">.</span><span class="n">verbose_name</span><span class="p">,</span>
+				<span class="s">&#39;verbose_name_plural&#39;</span><span class="p">:</span> <span class="n">opts</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">,</span>
+				<span class="s">&#39;formats&#39;</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">allowed_formats</span><span class="p">,</span>
+				<span class="s">&#39;apps_supported&#39;</span><span class="p">:</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">app_model</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
+				<span class="s">&#39;body_classes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="s">&#39;api-docs-model&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" >bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

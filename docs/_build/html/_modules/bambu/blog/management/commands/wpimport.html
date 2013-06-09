@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.blog.management.commands.wpimport &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.blog.management.commands.wpimport</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.core.management.base</span> <span class="kn">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="kn">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">django.contrib.sites.models</span> <span class="kn">import</span> <span class="n">Site</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="kn">import</span> <span class="n">utc</span>
+<span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="kn">import</span> <span class="n">slugify</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">transaction</span>
+<span class="kn">from</span> <span class="nn">django.core.files</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">bambu.blog.models</span> <span class="kn">import</span> <span class="n">Post</span><span class="p">,</span> <span class="n">Category</span>
+<span class="kn">from</span> <span class="nn">bambu.comments.models</span> <span class="kn">import</span> <span class="n">Comment</span>
+<span class="kn">from</span> <span class="nn">bambu.attachments.models</span> <span class="kn">import</span> <span class="n">Attachment</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">make_option</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">sys</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">write</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">remove</span>
+<span class="kn">from</span> <span class="nn">elementtree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">mkstemp</span>
+<span class="kn">from</span> <span class="nn">pyquery</span> <span class="kn">import</span> <span class="n">PyQuery</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">XML_NS</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s">&#39;wp&#39;</span><span class="p">:</span> <span class="s">&#39;http://wordpress.org/export/1.2/&#39;</span><span class="p">,</span>
+	<span class="s">&#39;content&#39;</span><span class="p">:</span> <span class="s">&#39;http://purl.org/rss/1.0/modules/content/&#39;</span><span class="p">,</span>
+	<span class="s">&#39;dc&#39;</span><span class="p">:</span> <span class="s">&#39;http://purl.org/dc/elements/1.1/&#39;</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../api/bambu.blog.management.commands.html#bambu.blog.management.commands.wpimport.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+	<span class="n">help</span> <span class="o">=</span> <span class="s">&#39;Import blog posts from a WordPress XML file&#39;</span>
+	<span class="n">args</span> <span class="o">=</span> <span class="s">&#39;&lt;filename&gt;&#39;</span>
+	
+<div class="viewcode-block" id="Command.handle"><a class="viewcode-back" href="../../../../../api/bambu.blog.management.commands.html#bambu.blog.management.commands.wpimport.Command.handle">[docs]</a>	<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+		<span class="n">xml</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;r&#39;</span><span class="p">))</span>
+		<span class="n">channel</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;channel&#39;</span><span class="p">)</span>
+		
+		<span class="k">def</span> <span class="nf">node_text</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">namespace</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">namespace</span><span class="p">:</span>
+				<span class="n">item</span> <span class="o">=</span> <span class="p">(</span><span class="n">parent</span> <span class="ow">or</span> <span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">item</span> <span class="o">=</span> <span class="p">(</span><span class="n">parent</span> <span class="ow">or</span> <span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">item</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span>
+			
+			<span class="k">return</span> <span class="bp">None</span>
+		
+		<span class="k">def</span> <span class="nf">ns</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+			<span class="k">return</span> <span class="s">&#39;{</span><span class="si">%s</span><span class="s">}</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">XML_NS</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">o</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s">&#39;Cannot find &lt;channel&gt; tag&#39;</span><span class="p">)</span>
+		
+		<span class="n">title</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s">u&#39;Blog title: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">title</span><span class="p">)</span>
+		
+		<span class="n">link</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;link&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">link</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s">u&#39;Blog URL: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">link</span><span class="p">)</span>
+		
+		<span class="n">description</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s">u&#39;Blog description: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">description</span><span class="p">)</span>
+		
+		<span class="n">mappings</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;users&#39;</span><span class="p">:</span> <span class="p">{},</span>
+			<span class="s">&#39;posts&#39;</span><span class="p">:</span> <span class="p">{},</span>
+			<span class="s">&#39;categories&#39;</span><span class="p">:</span> <span class="p">{},</span>
+			<span class="s">&#39;comments&#39;</span><span class="p">:</span> <span class="p">{}</span>
+		<span class="p">}</span>
+		
+		<span class="n">content_type</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Post</span><span class="p">)</span>
+		<span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+		<span class="n">postmeta</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">print</span>
+		<span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">commit_manually</span><span class="p">():</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">author</span> <span class="ow">in</span> <span class="n">channel</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="s">&#39;wp_author&#39;</span><span class="p">)):</span>
+					<span class="n">username</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;author_login&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span>
+					<span class="n">email</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;author_email&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span>
+					<span class="n">display_name</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;author_display_name&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span>
+					<span class="n">user</span> <span class="o">=</span> <span class="bp">None</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">username</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="n">display_name</span><span class="p">:</span>
+						<span class="n">display_name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">display_name</span> <span class="o">=</span> <span class="n">username</span>
+					
+					<span class="k">try</span><span class="p">:</span>
+						<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username__iexact</span> <span class="o">=</span> <span class="n">username</span><span class="p">)</span>
+					<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+						<span class="k">if</span> <span class="n">email</span><span class="p">:</span>
+							<span class="k">try</span><span class="p">:</span>
+								<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span>
+							<span class="k">except</span><span class="p">:</span>
+								<span class="k">pass</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+						<span class="n">new_username</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&#39;Map old user </span><span class="si">%s</span><span class="s"> to a user in your database: &#39;</span> <span class="o">%</span> <span class="n">display_name</span><span class="p">)</span>
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">new_username</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+							<span class="k">try</span><span class="p">:</span>
+								<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username__iexact</span> <span class="o">=</span> <span class="n">new_username</span><span class="p">)</span>
+								<span class="k">break</span>
+							<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+								<span class="n">new_username</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&#39;User not found. Please try again ,or press Enter to ignore: &#39;</span><span class="p">)</span>
+								<span class="k">if</span> <span class="ow">not</span> <span class="n">new_username</span><span class="p">:</span>
+									<span class="k">print</span> <span class="s">&#39;Ignoring user </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">username</span>
+									<span class="k">break</span>
+					
+					<span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+						<span class="n">mappings</span><span class="p">[</span><span class="s">&#39;users&#39;</span><span class="p">][</span><span class="n">username</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span>
+						<span class="k">print</span> <span class="s">&#39;Mapping user </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+							<span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span>
+						<span class="p">)</span>
+				
+				<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">channel</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;item&#39;</span><span class="p">):</span>
+					<span class="nb">id</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_id&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">title</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">url</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;link&#39;</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">kind</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_type&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">parent</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_parent&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">published</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;status&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;publish&#39;</span>
+					<span class="n">author</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;creator&#39;</span><span class="p">,</span> <span class="s">&#39;dc&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">date</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_date_gmt&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+					<span class="n">body</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;encoded&#39;</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">or</span> <span class="s">u&#39;&#39;</span>
+					
+					<span class="k">try</span><span class="p">:</span>
+						<span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+					<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">date</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">try</span><span class="p">:</span>
+						<span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s">&#39;%Y-%m-</span><span class="si">%d</span><span class="s"> %H:%M:%S&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">utc</span><span class="p">)</span>
+					<span class="k">except</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">try</span><span class="p">:</span>
+						<span class="n">parent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+					<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="n">parent</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">author</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;users&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">author</span><span class="p">):</span>
+						<span class="k">continue</span>
+					
+					<span class="n">author</span> <span class="o">=</span> <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;users&#39;</span><span class="p">][</span><span class="n">author</span><span class="p">]</span>
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;post&#39;</span><span class="p">,</span> <span class="s">&#39;page&#39;</span><span class="p">):</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;post&#39;</span><span class="p">:</span>
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">post</span> <span class="o">=</span> <span class="n">Post</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="p">,</span> <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="p">)</span>
+							<span class="k">print</span> <span class="s">&#39;Updating </span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+						<span class="k">except</span> <span class="n">Post</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+							<span class="n">post</span> <span class="o">=</span> <span class="n">Post</span><span class="p">(</span>
+								<span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="p">,</span>
+								<span class="n">slug</span> <span class="o">=</span> <span class="n">title</span> <span class="ow">and</span> <span class="n">slugify</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">None</span><span class="p">,</span>
+								<span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="p">,</span>
+								<span class="n">published</span> <span class="o">=</span> <span class="n">published</span><span class="p">,</span>
+								<span class="n">broadcast</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+								<span class="n">author</span> <span class="o">=</span> <span class="n">author</span>
+							<span class="p">)</span>
+							
+							<span class="k">print</span> <span class="s">&#39;Creating </span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+					<span class="n">post</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+					<span class="n">mappings</span><span class="p">[</span><span class="s">&#39;posts&#39;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">post</span>
+					
+					<span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;category&#39;</span><span class="p">):</span>
+						<span class="n">domain</span> <span class="o">=</span> <span class="n">category</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;domain&#39;</span><span class="p">)</span>
+						<span class="n">slug</span> <span class="o">=</span> <span class="n">category</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;nicename&#39;</span><span class="p">)</span>
+						
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s">&#39;category&#39;</span><span class="p">:</span>
+							<span class="k">if</span> <span class="ow">not</span> <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;categories&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">slug</span><span class="p">):</span>
+								<span class="n">mappings</span><span class="p">[</span><span class="s">&#39;categories&#39;</span><span class="p">][</span><span class="n">slug</span><span class="p">],</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+									<span class="n">name</span> <span class="o">=</span> <span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+									<span class="n">slug</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+								<span class="p">)</span>
+								
+								<span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+									<span class="k">print</span> <span class="s">&#39;- Created category &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">category</span><span class="o">.</span><span class="n">text</span>
+							
+							<span class="n">post</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+								<span class="n">mappings</span><span class="p">[</span><span class="s">&#39;categories&#39;</span><span class="p">][</span><span class="n">slug</span><span class="p">]</span>
+							<span class="p">)</span>
+						<span class="k">elif</span> <span class="n">domain</span> <span class="o">==</span> <span class="s">&#39;post_tag&#39;</span><span class="p">:</span>
+							<span class="k">if</span> <span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+								<span class="n">post</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+							<span class="k">else</span><span class="p">:</span>
+								<span class="n">post</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+					
+					<span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="s">&#39;comment&#39;</span><span class="p">)):</span>
+						<span class="n">comment_id</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_id&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_name</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_author&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_email</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_author_email&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_url</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_author_url&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_date</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_date_gmt&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_type</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_type&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_body</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_content&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_parent</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_parent&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+						<span class="n">comment_approved</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;comment_approved&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span>
+						
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">comment_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">comment_id</span><span class="p">)</span>
+						<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">comment_parent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">comment_parent</span><span class="p">)</span>
+						<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+							<span class="n">comment_parent</span> <span class="o">=</span> <span class="mi">0</span>
+						
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">comment_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+								<span class="n">comment_date</span><span class="p">,</span> <span class="s">&#39;%Y-%m-</span><span class="si">%d</span><span class="s"> %H:%M:%S&#39;</span>
+							<span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+								<span class="n">tzinfo</span> <span class="o">=</span> <span class="n">utc</span>
+							<span class="p">)</span>
+						<span class="k">except</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">comment_name</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">comment_type</span> <span class="ow">or</span> <span class="n">comment_type</span> <span class="o">==</span> <span class="s">&#39;comment&#39;</span><span class="p">:</span>
+							<span class="k">try</span><span class="p">:</span>
+								<span class="n">comment</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+									<span class="n">name</span> <span class="o">=</span> <span class="n">comment_name</span><span class="p">,</span>
+									<span class="n">sent</span> <span class="o">=</span> <span class="n">comment_date</span>
+								<span class="p">)</span>
+							<span class="k">except</span> <span class="n">Comment</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+								<span class="n">comment</span> <span class="o">=</span> <span class="n">Comment</span><span class="p">(</span>
+									<span class="n">name</span> <span class="o">=</span> <span class="n">comment_name</span><span class="p">,</span>
+									<span class="n">website</span> <span class="o">=</span> <span class="n">comment_url</span><span class="p">,</span>
+									<span class="n">email</span> <span class="o">=</span> <span class="n">comment_email</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+									<span class="n">sent</span> <span class="o">=</span> <span class="n">comment_date</span><span class="p">,</span>
+									<span class="n">approved</span> <span class="o">=</span> <span class="n">comment_approved</span><span class="p">,</span>
+									<span class="n">body</span> <span class="o">=</span> <span class="n">comment_body</span><span class="p">,</span>
+									<span class="n">content_type</span> <span class="o">=</span> <span class="n">content_type</span><span class="p">,</span>
+									<span class="n">object_id</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">pk</span>
+								<span class="p">)</span>
+								
+								<span class="k">print</span> <span class="s">&#39;- Comment by </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">comment_name</span>
+							
+							<span class="n">comment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">notify</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+							<span class="n">mappings</span><span class="p">[</span><span class="s">&#39;comments&#39;</span><span class="p">][</span><span class="n">comment_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">comment</span>
+					
+					<span class="n">postmeta</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+					<span class="k">for</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="s">&#39;postmeta&#39;</span><span class="p">)):</span>
+						<span class="n">meta_key</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;meta_key&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
+						<span class="n">meta_value</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;meta_value&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
+						<span class="n">postmeta</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_value</span>
+					
+					<span class="n">ai</span> <span class="o">=</span> <span class="mi">1</span>
+					<span class="k">for</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="n">channel</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;item&#39;</span><span class="p">):</span>
+						<span class="n">subid</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_id&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">subitem</span><span class="p">)</span>
+						<span class="n">subparent_id</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_parent&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">subitem</span><span class="p">)</span>
+						<span class="n">subtitle</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">subitem</span><span class="p">)</span>
+						<span class="n">suburl</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;link&#39;</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">subitem</span><span class="p">)</span>
+						<span class="n">subkind</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;post_type&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">subitem</span><span class="p">)</span>
+						<span class="n">suburl</span> <span class="o">=</span> <span class="n">node_text</span><span class="p">(</span><span class="s">&#39;attachment_url&#39;</span><span class="p">,</span> <span class="s">&#39;wp&#39;</span><span class="p">,</span> <span class="n">subitem</span><span class="p">)</span>
+						
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">subparent_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">subparent_id</span><span class="p">)</span>
+						<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">suburl</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="k">if</span> <span class="n">subkind</span> <span class="o">!=</span> <span class="s">&#39;attachment&#39;</span> <span class="ow">or</span> <span class="n">subparent_id</span> <span class="o">!=</span> <span class="nb">id</span><span class="p">:</span>
+							<span class="k">continue</span>
+						
+						<span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">suburl</span><span class="p">)</span>
+						<span class="n">d</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+						
+						<span class="k">try</span><span class="p">:</span>
+							<span class="n">attachment</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+								<span class="n">title</span> <span class="o">=</span> <span class="n">subtitle</span> <span class="ow">or</span> <span class="n">filename</span>
+							<span class="p">)</span>
+						<span class="k">except</span> <span class="n">Attachment</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+							<span class="k">print</span> <span class="s">&#39;- Downloading </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filename</span>
+
+							<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">suburl</span><span class="p">)</span>
+							<span class="n">handle</span><span class="p">,</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">(</span>
+								<span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+							<span class="p">)</span>
+
+							<span class="n">write</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+							<span class="n">close</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+							
+							<span class="n">attachment</span> <span class="o">=</span> <span class="n">Attachment</span><span class="p">(</span>
+								<span class="n">title</span> <span class="o">=</span> <span class="n">subtitle</span> <span class="ow">or</span> <span class="n">filename</span><span class="p">,</span>
+								<span class="nb">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">),</span> <span class="n">name</span> <span class="o">=</span> <span class="n">filename</span><span class="p">),</span>
+								<span class="n">content_type</span> <span class="o">=</span> <span class="n">content_type</span><span class="p">,</span>
+								<span class="n">object_id</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">pk</span>
+							<span class="p">)</span>
+						
+							<span class="k">if</span> <span class="s">&#39;_thumbnail_id&#39;</span> <span class="ow">in</span> <span class="n">postmeta</span><span class="p">[</span><span class="nb">id</span><span class="p">]:</span>
+								<span class="k">if</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">postmeta</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s">&#39;_thumbnail_id&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">subid</span><span class="p">):</span>
+									<span class="n">attachment</span><span class="o">.</span><span class="n">featured</span> <span class="o">=</span> <span class="bp">True</span>
+						
+							<span class="n">attachment</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+							<span class="n">remove</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+						
+						<span class="k">if</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+							<span class="n">html</span> <span class="o">=</span> <span class="n">PyQuery</span><span class="p">(</span><span class="s">&#39;&lt;body&gt;&#39;</span> <span class="o">+</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">+</span> <span class="s">&#39;&lt;/body&gt;&#39;</span><span class="p">)</span>
+							<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">html</span><span class="p">(</span>
+								<span class="s">&#39;a[href=&quot;</span><span class="si">%(url)s</span><span class="s">&quot;], [src=&quot;</span><span class="si">%(url)s</span><span class="s">&quot;]&#39;</span> <span class="o">%</span> <span class="p">{</span>
+									<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">suburl</span>
+								<span class="p">}</span>
+							<span class="p">):</span>
+								<span class="n">a</span> <span class="o">=</span> <span class="n">PyQuery</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+								<span class="n">a</span><span class="o">.</span><span class="n">replaceWith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">[attachment </span><span class="si">%d</span><span class="s">]</span><span class="se">\n\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ai</span><span class="p">)</span>
+							
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">html</span><span class="p">()</span>
+						
+						<span class="n">ai</span> <span class="o">+=</span> <span class="mi">1</span>
+					
+					<span class="k">if</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+						<span class="n">html</span> <span class="o">=</span> <span class="n">PyQuery</span><span class="p">(</span><span class="s">&#39;&lt;body&gt;&#39;</span> <span class="o">+</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">+</span> <span class="s">&#39;&lt;/body&gt;&#39;</span><span class="p">)</span>
+						<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">html</span><span class="p">(</span><span class="s">&#39;a[href]&#39;</span><span class="p">):</span>
+							<span class="n">href</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span>
+							<span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+								<span class="n">href</span> <span class="o">=</span> <span class="n">href</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s">&#39;http://</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">site</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+							
+							<span class="n">a</span> <span class="o">=</span> <span class="n">PyQuery</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+						
+						<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">html</span><span class="p">(</span><span class="s">&#39;p&#39;</span><span class="p">):</span>
+							<span class="n">p</span> <span class="o">=</span> <span class="n">PyQuery</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+							<span class="n">p</span><span class="o">.</span><span class="n">replaceWith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="o">.</span><span class="n">html</span><span class="p">())</span>
+						
+						<span class="n">html</span><span class="p">(</span><span class="s">&#39;.alignright&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">addClass</span><span class="p">(</span><span class="s">&#39;pull-right&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">removeClass</span><span class="p">(</span><span class="s">&#39;alignright&#39;</span><span class="p">)</span>
+						<span class="n">html</span><span class="p">(</span><span class="s">&#39;.alignleft&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">addClass</span><span class="p">(</span><span class="s">&#39;pull-left&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">removeClass</span><span class="p">(</span><span class="s">&#39;alignleft&#39;</span><span class="p">)</span>
+						
+						<span class="k">while</span> <span class="s">&#39;</span><span class="se">\n\n\n</span><span class="s">&#39;</span> <span class="ow">in</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+						
+						<span class="k">while</span> <span class="s">&#39;</span><span class="se">\r\r\r</span><span class="s">&#39;</span> <span class="ow">in</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r\r\r</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\r\r</span><span class="s">&#39;</span><span class="p">)</span>
+						
+						<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">html</span><span class="p">()</span>
+						<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;br /&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;  </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+						<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;br/&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;  </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+						<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;br&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;  </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+						
+						<span class="k">while</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">):</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+						
+						<span class="k">while</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">):</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+						
+						<span class="k">while</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">):</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+						
+						<span class="k">while</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">):</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+						
+						<span class="k">while</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">):</span>
+							<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+						
+						<span class="n">post</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+					
+					<span class="n">post</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+				
+				<span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="n">transaction</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+				<span class="k">raise</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

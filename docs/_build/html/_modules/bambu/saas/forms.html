@@ -1,0 +1,569 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.saas.forms &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.saas" href="../saas.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../saas.html" accesskey="U">bambu.saas</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.saas.forms</h1><div class="highlight"><pre>
+<span class="c"># encoding: utf-8</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="kn">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="kn">import</span> <span class="n">authenticate</span>
+<span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="kn">import</span> <span class="n">validate_email</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">bambu.payments</span> <span class="kn">import</span> <span class="n">get_gateway_choices</span>
+<span class="kn">from</span> <span class="nn">bambu.payments.models</span> <span class="kn">import</span> <span class="n">Payment</span><span class="p">,</span> <span class="n">TaxRate</span>
+<span class="kn">from</span> <span class="nn">bambu.saas.models</span> <span class="kn">import</span> <span class="n">Plan</span><span class="p">,</span> <span class="n">UserPlan</span><span class="p">,</span> <span class="n">UserPlanChange</span><span class="p">,</span> <span class="n">Discount</span><span class="p">,</span> <span class="n">Invitation</span>
+<span class="kn">from</span> <span class="nn">bambu.saas.helpers</span> <span class="kn">import</span> <span class="n">get_currency_symbol</span><span class="p">,</span> <span class="n">format_price</span>
+<span class="kn">from</span> <span class="nn">bambu.saas.fields</span> <span class="kn">import</span> <span class="n">ImageChoiceField</span>
+<span class="kn">from</span> <span class="nn">bambu.saas.signals</span> <span class="kn">import</span> <span class="n">plan_subuser_added</span>
+<span class="kn">from</span> <span class="nn">bambu.notifications</span> <span class="kn">import</span> <span class="n">notify</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">GATEWAYS</span> <span class="o">=</span> <span class="n">get_gateway_choices</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RegistrationForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.RegistrationForm">[docs]</a><span class="k">class</span> <span class="nc">RegistrationForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">first_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">last_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Email address&#39;</span><span class="p">))</span>
+	
+	<span class="n">username</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">RegexField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Username&#39;</span><span class="p">),</span> <span class="n">max_length</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">regex</span> <span class="o">=</span> <span class="s">r&#39;^[\w.@+-]+$&#39;</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.&#39;</span><span class="p">),</span>
+		<span class="n">error_messages</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;invalid&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;This value may contain only letters, numbers and @/./+/-/_ characters.&#39;</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">)</span>
+	
+	<span class="n">password1</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">)</span>
+	<span class="n">password2</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Confirm password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Enter the same password as above, for verification.&#39;</span><span class="p">)</span>
+	<span class="p">)</span>
+	
+<div class="viewcode-block" id="RegistrationForm.clean_username"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.RegistrationForm.clean_username">[docs]</a>	<span class="k">def</span> <span class="nf">clean_username</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username__iexact</span> <span class="o">=</span> <span class="n">username</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">username</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		
+		<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+			<span class="n">_</span><span class="p">(</span><span class="s">&#39;A user with that username already exists.&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.clean_password2"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.RegistrationForm.clean_password2">[docs]</a>	<span class="k">def</span> <span class="nf">clean_password2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">password1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password1&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+		<span class="n">password2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password2&#39;</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="n">password1</span> <span class="o">!=</span> <span class="n">password2</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+				<span class="n">_</span><span class="p">(</span><span class="s">&#39;The two password fields don</span><span class="se">\&#39;</span><span class="s">t match.&#39;</span><span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">password2</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.clean_email"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.RegistrationForm.clean_email">[docs]</a>	<span class="k">def</span> <span class="nf">clean_email</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">]</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">email</span>
+		
+		<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+			<span class="n">_</span><span class="p">(</span><span class="s">&#39;A user with that email address already exists.&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.RegistrationForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">],</span>
+			<span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">]</span>
+		<span class="p">)</span>
+
+		<span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;first_name&#39;</span><span class="p">]</span>
+		<span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;last_name&#39;</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="n">commit</span><span class="p">:</span>
+			<span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">user</span>
+</div></div>
+<div class="viewcode-block" id="SignupForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.SignupForm">[docs]</a><span class="k">class</span> <span class="nc">SignupForm</span><span class="p">(</span><span class="n">RegistrationForm</span><span class="p">):</span>
+	<span class="n">plan</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">empty_label</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+	<span class="n">period</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">u&#39;Billing frequency&#39;</span><span class="p">),</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+			<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Monthly&#39;</span><span class="p">)),</span>
+			<span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Annually&#39;</span><span class="p">))</span>
+		<span class="p">),</span>
+		<span class="n">initial</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+		<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span>
+	<span class="p">)</span>
+	
+	<span class="n">payment_gateway</span> <span class="o">=</span> <span class="n">ImageChoiceField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Pay via&#39;</span><span class="p">),</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">GATEWAYS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">GATEWAYS</span> <span class="ow">or</span> <span class="p">[],</span>
+		<span class="n">initial</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">GATEWAYS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">GATEWAYS</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="bp">None</span>
+	<span class="p">)</span>
+	
+	<span class="n">discount_code</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+		<span class="n">max_length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">required</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="s">u&#39;If you have a discount code, enter it here.&#39;</span>
+	<span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="n">currency</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;currency&#39;</span><span class="p">,</span>
+			<span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DEFAULT_CURRENCY&#39;</span><span class="p">,</span> <span class="s">&#39;GBP&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">challenge_words</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;challenge_words&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">SignupForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">plan</span> <span class="o">=</span> <span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_DEFAULT_PLAN</span><span class="p">)</span>
+			<span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;plan&#39;</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">plan</span> <span class="o">=</span> <span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+				<span class="n">pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plan&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_DEFAULT_PLAN</span>
+			<span class="p">)</span>
+		
+		<span class="n">tax_rate</span> <span class="o">=</span> <span class="n">TaxRate</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+			<span class="n">chargeable_percent</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">PAYMENTS_DEFAULT_TAXRATE</span>
+		<span class="p">)</span>
+		
+		<span class="n">symbol</span> <span class="o">=</span> <span class="n">get_currency_symbol</span><span class="p">(</span><span class="n">currency</span><span class="p">)</span>
+		<span class="n">price</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">prices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">currency</span> <span class="o">=</span> <span class="n">currency</span><span class="p">)</span>
+		<span class="n">price_monthly</span> <span class="o">=</span> <span class="n">format_price</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">monthly</span><span class="p">)</span>
+		<span class="n">price_yearly</span> <span class="o">=</span> <span class="n">format_price</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">yearly</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;period&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+			<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Monthly (</span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">price_monthly</span><span class="p">,</span> <span class="n">tax_rate</span><span class="o">.</span><span class="n">shorthand</span><span class="p">))),</span>
+			<span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Annually (</span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">price_yearly</span><span class="p">,</span> <span class="n">tax_rate</span><span class="o">.</span><span class="n">shorthand</span><span class="p">)))</span>
+		<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;SAAS_NEWSLETTER_OPTIN&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;newsletter_optin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;SAAS_NEWSLETTER_OPTIN_PROMPT&#39;</span><span class="p">,</span>
+					<span class="s">u&#39;Subscribe to our newsletter&#39;</span>
+				<span class="p">),</span>
+				<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+				<span class="n">initial</span> <span class="o">=</span> <span class="bp">True</span>
+			<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;SAAS_TERMS_URL&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;terms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">mark_safe</span><span class="p">(</span>
+					<span class="s">u&#39;I agree to be bound by the &lt;a href=&quot;</span><span class="si">%s</span><span class="s">&quot;&gt;terms and conditions&lt;/a&gt;&#39;</span> <span class="o">%</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_TERMS_URL</span>
+				<span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;SAAS_SIGNUP_CHALLENGE&#39;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">challenge_words</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">right_words</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_SIGNUP_CHALLENGE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;CORRECT_WORDS&#39;</span><span class="p">,</span> <span class="p">[])</span>
+				<span class="n">wrong_words</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_SIGNUP_CHALLENGE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;INCORRECT_WORDS&#39;</span><span class="p">,</span> <span class="p">[])</span>
+				<span class="n">word_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wrong_words</span><span class="p">))</span>
+				
+				<span class="k">if</span> <span class="n">word_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">challenge_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">right_words</span><span class="p">)]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">wrong_words</span><span class="p">,</span> <span class="n">word_count</span><span class="p">)</span>
+					<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">challenge_words</span><span class="p">)</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;challenge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_SIGNUP_CHALLENGE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;LABEL&#39;</span><span class="p">,</span> <span class="s">u&#39;Pick the correct word&#39;</span><span class="p">),</span>
+				<span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">challenge_words</span><span class="p">],</span>
+			<span class="p">)</span>
+	
+<div class="viewcode-block" id="SignupForm.clean_discount_count"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.SignupForm.clean_discount_count">[docs]</a>	<span class="k">def</span> <span class="nf">clean_discount_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code__iexact</span> <span class="o">=</span> <span class="n">code</span><span class="p">)</span>
+			<span class="k">except</span> <span class="n">Discount</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;No discount found for that code.&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="s">&#39;&#39;</span>
+	</div>
+<div class="viewcode-block" id="SignupForm.clean_challenge"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.SignupForm.clean_challenge">[docs]</a>	<span class="k">def</span> <span class="nf">clean_challenge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">right_words</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_SIGNUP_CHALLENGE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;CORRECT_WORDS&#39;</span><span class="p">,</span> <span class="p">[])</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;challenge&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">right_words</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">u&#39;The correct answer was not given&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;challenge&#39;</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="SignupForm.clean"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.SignupForm.clean">[docs]</a>	<span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;period&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
+		<span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code__iexact</span> <span class="o">=</span> <span class="n">code</span><span class="p">)</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">discount</span><span class="o">.</span><span class="n">valid_yearly</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">period</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+						<span class="s">u&#39;This discount code is not available for annual subscriptions.&#39;</span>
+					<span class="p">)</span>
+			<span class="k">except</span> <span class="n">Discount</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+				<span class="k">pass</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+	</div>
+<div class="viewcode-block" id="SignupForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.SignupForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">user</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SignupForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		
+		<span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plan&#39;</span><span class="p">,</span>
+			<span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SAAS_DEFAULT_PLAN</span><span class="p">),</span>
+		<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">):</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+				<span class="n">code__iexact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;discount_code&#39;</span><span class="p">]</span>
+			<span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="bp">None</span>
+		
+		<span class="n">UserPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">,</span> <span class="n">plan</span> <span class="o">=</span> <span class="n">plan</span><span class="p">,</span>
+			<span class="n">period</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;period&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">),</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="n">discount</span>
+		<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">authenticate</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">]</span>
+		<span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="PlanChangeForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.PlanChangeForm">[docs]</a><span class="k">class</span> <span class="nc">PlanChangeForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">plan</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Plan</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">empty_label</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+	<span class="n">period</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">u&#39;Billing frequency&#39;</span><span class="p">),</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+			<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Monthly&#39;</span><span class="p">)),</span>
+			<span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Annually&#39;</span><span class="p">))</span>
+		<span class="p">),</span>
+		<span class="n">initial</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+		<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span>
+	<span class="p">)</span>
+	
+	<span class="n">payment_gateway</span> <span class="o">=</span> <span class="n">ImageChoiceField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Pay via&#39;</span><span class="p">),</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">GATEWAYS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">GATEWAYS</span> <span class="ow">or</span> <span class="p">(),</span>
+		<span class="n">initial</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">GATEWAYS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">GATEWAYS</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="bp">None</span>
+	<span class="p">)</span>
+
+	<span class="n">discount_code</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+		<span class="n">max_length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">required</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="s">u&#39;If you have a discount code, enter it here.&#39;</span>
+	<span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="n">currency</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;currency&#39;</span><span class="p">,</span>
+			<span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DEFAULT_CURRENCY&#39;</span><span class="p">,</span> <span class="s">&#39;GBP&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;current_plan&#39;</span><span class="p">)</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">PlanChangeForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">payment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">get_payment</span><span class="p">()</span>
+			<span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;payment_gateway&#39;</span><span class="p">]</span>
+			<span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;period&#39;</span><span class="p">]</span>
+		<span class="k">except</span> <span class="n">Payment</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">pass</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;plan&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;plan&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+			<span class="n">pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">pk</span>
+		<span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+			<span class="n">order__gte</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">order</span>
+		<span class="p">)</span>
+		
+		<span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;plan&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">tax_rate</span> <span class="o">=</span> <span class="n">TaxRate</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+			<span class="n">chargeable_percent</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">PAYMENTS_DEFAULT_TAXRATE</span>
+		<span class="p">)</span>
+		
+		<span class="n">symbol</span> <span class="o">=</span> <span class="n">get_currency_symbol</span><span class="p">(</span><span class="n">currency</span><span class="p">)</span>
+		<span class="n">price</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">prices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">currency</span> <span class="o">=</span> <span class="n">currency</span><span class="p">)</span>
+		<span class="n">price_monthly</span> <span class="o">=</span> <span class="n">format_price</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">monthly</span><span class="p">)</span>
+		<span class="n">price_yearly</span> <span class="o">=</span> <span class="n">format_price</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">yearly</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="s">&#39;period&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;period&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+				<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Monthly (</span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">price_monthly</span><span class="p">,</span> <span class="n">tax_rate</span><span class="o">.</span><span class="n">shorthand</span><span class="p">))),</span>
+				<span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Annually (</span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">price_yearly</span><span class="p">,</span> <span class="n">tax_rate</span><span class="o">.</span><span class="n">shorthand</span><span class="p">)))</span>
+			<span class="p">)</span>
+	
+<div class="viewcode-block" id="PlanChangeForm.clean_discount_count"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.PlanChangeForm.clean_discount_count">[docs]</a>	<span class="k">def</span> <span class="nf">clean_discount_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code__iexact</span> <span class="o">=</span> <span class="n">code</span><span class="p">)</span>
+			<span class="k">except</span> <span class="n">Discount</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;No discount found for that code.&#39;</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">discount</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_plan_changes__user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;You</span><span class="se">\&#39;</span><span class="s">ve already used this discount code.&#39;</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">discount</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_plans__user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;You</span><span class="se">\&#39;</span><span class="s">ve already used this discount code.&#39;</span><span class="p">)</span>
+			
+			<span class="k">return</span> <span class="n">discount</span><span class="o">.</span><span class="n">code</span>
+		
+		<span class="k">return</span> <span class="s">&#39;&#39;</span>
+	</div>
+<div class="viewcode-block" id="PlanChangeForm.clean"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.PlanChangeForm.clean">[docs]</a>	<span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;period&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
+		<span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code__iexact</span> <span class="o">=</span> <span class="n">code</span><span class="p">)</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">discount</span><span class="o">.</span><span class="n">valid_yearly</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">period</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+						<span class="s">u&#39;This discount code is not available for annual subscriptions.&#39;</span>
+					<span class="p">)</span>
+			<span class="k">except</span> <span class="n">Discount</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+				<span class="k">pass</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+	</div>
+<div class="viewcode-block" id="PlanChangeForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.PlanChangeForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">new_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plan&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discount_code&#39;</span><span class="p">):</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="n">Discount</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+				<span class="n">code__iexact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;discount_code&#39;</span><span class="p">]</span>
+			<span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="bp">None</span>
+		
+		<span class="n">change</span> <span class="o">=</span> <span class="n">UserPlanChange</span><span class="p">(</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+			<span class="n">old_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">plan</span><span class="p">,</span>
+			<span class="n">new_plan</span> <span class="o">=</span> <span class="n">new_plan</span><span class="p">,</span>
+			<span class="n">discount</span> <span class="o">=</span> <span class="n">discount</span><span class="p">,</span>
+			<span class="n">period</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;period&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_plan</span><span class="o">.</span><span class="n">period</span><span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="n">currency</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DEFAULT_CURRENCY&#39;</span><span class="p">,</span> <span class="s">&#39;GBP&#39;</span><span class="p">)</span>
+		<span class="n">price</span> <span class="o">=</span> <span class="n">new_plan</span><span class="o">.</span><span class="n">prices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">currency</span> <span class="o">=</span> <span class="n">currency</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">price</span><span class="o">.</span><span class="n">monthly</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">change</span><span class="o">.</span><span class="n">paid</span> <span class="o">=</span> <span class="bp">True</span>
+		
+		<span class="n">change</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">change</span>
+</div></div>
+<div class="viewcode-block" id="PasswordResetForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.PasswordResetForm">[docs]</a><span class="k">class</span> <span class="nc">PasswordResetForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Email address&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ProfileForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.ProfileForm">[docs]</a><span class="k">class</span> <span class="nc">ProfileForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+	<span class="n">first_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">last_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Email address&#39;</span><span class="p">))</span>
+	
+	<span class="n">password1</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Change password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">,</span>
+		<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span>
+	<span class="p">)</span>
+	
+	<span class="n">password2</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Confirm password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Enter the same password as above, for verification.&#39;</span><span class="p">),</span>
+		<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span>
+	<span class="p">)</span>
+	
+<div class="viewcode-block" id="ProfileForm.clean_password2"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.ProfileForm.clean_password2">[docs]</a>	<span class="k">def</span> <span class="nf">clean_password2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">password1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password1&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+		<span class="n">password2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password2&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">password1</span> <span class="o">!=</span> <span class="n">password2</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+				<span class="n">_</span><span class="p">(</span><span class="s">&#39;The two password fields don</span><span class="se">\&#39;</span><span class="s">t match.&#39;</span><span class="p">)</span>
+			<span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">password2</span>
+	</div>
+<div class="viewcode-block" id="ProfileForm.clean_email"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.ProfileForm.clean_email">[docs]</a>	<span class="k">def</span> <span class="nf">clean_email</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">]</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">email</span>
+		
+		<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+			<span class="n">_</span><span class="p">(</span><span class="s">&#39;A user with that email address already exists.&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ProfileForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.ProfileForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">user</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ProfileForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password1&#39;</span><span class="p">):</span>
+			<span class="n">user</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">])</span>
+		
+		<span class="k">if</span> <span class="n">commit</span><span class="p">:</span>
+			<span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">user</span>
+		</div>
+<div class="viewcode-block" id="ProfileForm.Meta"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.ProfileForm.Meta">[docs]</a>	<span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+		<span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+		<span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">,</span> <span class="s">&#39;last_name&#39;</span><span class="p">,</span> <span class="s">&#39;email&#39;</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="InvitationsForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.InvitationsForm">[docs]</a><span class="k">class</span> <span class="nc">InvitationsForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">emails</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">Textarea</span><span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">plan</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;plan&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">)</span>
+		
+		<span class="nb">super</span><span class="p">(</span><span class="n">InvitationsForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="InvitationsForm.clean_emails"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.InvitationsForm.clean_emails">[docs]</a>	<span class="k">def</span> <span class="nf">clean_emails</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">emails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;emails&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">email</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">emails</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+			<span class="k">except</span> <span class="n">ValidationError</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;The address on line </span><span class="si">%d</span><span class="s"> is not valid&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+			
+			<span class="k">if</span> <span class="n">Invitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;The address on line </span><span class="si">%d</span><span class="s"> has already been invited&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+			
+			<span class="k">if</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;The address on line </span><span class="si">%d</span><span class="s"> is already registered to a site member&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+		
+		<span class="k">return</span> <span class="n">emails</span>
+	</div>
+<div class="viewcode-block" id="InvitationsForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.InvitationsForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">invitations</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;emails&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+			<span class="n">invitation</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">invitations</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+				<span class="n">email</span> <span class="o">=</span> <span class="n">email</span><span class="p">,</span>
+				<span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+			<span class="p">)</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">created</span><span class="p">:</span>
+				<span class="n">invitation</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+			
+			<span class="n">invitations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">invitation</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">invitations</span>
+</div></div>
+<div class="viewcode-block" id="AcceptInvitationForm"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.AcceptInvitationForm">[docs]</a><span class="k">class</span> <span class="nc">AcceptInvitationForm</span><span class="p">(</span><span class="n">RegistrationForm</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">plan</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;plan&#39;</span><span class="p">)</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">AcceptInvitationForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="AcceptInvitationForm.save"><a class="viewcode-back" href="../../../api/bambu.saas.html#bambu.saas.forms.AcceptInvitationForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">user</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AcceptInvitationForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">subuser_groups</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+			<span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+		
+		<span class="n">plan_subuser_added</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+			<span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">),</span>
+			<span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">,</span> <span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+		<span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">subusers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+		<span class="n">notify</span><span class="p">(</span><span class="s">&#39;bambu.saas.subuser_registered&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+		<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">authenticate</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">]</span>
+		<span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../saas.html" >bambu.saas</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

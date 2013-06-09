@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.preview.admin &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.preview.admin</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.http</span> <span class="kn">import</span> <span class="n">require_POST</span>
+<span class="kn">from</span> <span class="nn">django.forms.formsets</span> <span class="kn">import</span> <span class="n">all_valid</span>
+<span class="kn">from</span> <span class="nn">django.contrib.admin.util</span> <span class="kn">import</span> <span class="n">unquote</span>
+<span class="kn">from</span> <span class="nn">django.template.response</span> <span class="kn">import</span> <span class="n">TemplateResponse</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">bambu.preview.models</span> <span class="kn">import</span> <span class="n">Preview</span>
+
+<div class="viewcode-block" id="PreviewableModelAdmin"><a class="viewcode-back" href="../../../api/bambu.preview.html#bambu.preview.admin.PreviewableModelAdmin">[docs]</a><span class="k">class</span> <span class="nc">PreviewableModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+	<span class="n">add_form_template</span> <span class="o">=</span> <span class="s">&#39;admin/preview/change_form.html&#39;</span>
+	<span class="n">change_form_template</span> <span class="o">=</span> <span class="s">&#39;admin/preview/change_form.html&#39;</span>
+	
+<div class="viewcode-block" id="PreviewableModelAdmin.get_urls"><a class="viewcode-back" href="../../../api/bambu.preview.html#bambu.preview.admin.PreviewableModelAdmin.get_urls">[docs]</a>	<span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">url</span>
+		
+		<span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">module_name</span>
+		<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+			<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^add/preview/$&#39;</span><span class="p">,</span>
+				<span class="n">require_POST</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">admin_site</span><span class="o">.</span><span class="n">admin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preview_view</span><span class="p">)),</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_preview&#39;</span> <span class="o">%</span> <span class="n">info</span>
+			<span class="p">),</span>
+			<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^(.+)/preview/$&#39;</span><span class="p">,</span>
+				<span class="n">require_POST</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">admin_site</span><span class="o">.</span><span class="n">admin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preview_view</span><span class="p">)),</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_preview&#39;</span> <span class="o">%</span> <span class="n">info</span>
+			<span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">urlpatterns</span> <span class="o">+</span> <span class="nb">super</span><span class="p">(</span><span class="n">PreviewableModelAdmin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span>
+	</div>
+<div class="viewcode-block" id="PreviewableModelAdmin.preview_view"><a class="viewcode-back" href="../../../api/bambu.preview.html#bambu.preview.admin.PreviewableModelAdmin.preview_view">[docs]</a>	<span class="k">def</span> <span class="nf">preview_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">object_id</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">extra_context</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span>
+		
+		<span class="k">if</span> <span class="n">object_id</span><span class="p">:</span>
+			<span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">unquote</span><span class="p">(</span><span class="n">object_id</span><span class="p">))</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+		
+		<span class="n">ModelForm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+		<span class="n">form</span> <span class="o">=</span> <span class="n">ModelForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span> <span class="n">obj</span><span class="p">)</span>
+		<span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+		
+		<span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+			<span class="n">obj</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+				<span class="n">request</span><span class="p">,</span>
+				<span class="s">&#39;preview/error.html&#39;</span><span class="p">,</span>
+				<span class="p">{</span>
+					<span class="s">&#39;opts&#39;</span><span class="p">:</span> <span class="n">opts</span><span class="p">,</span>
+					<span class="s">&#39;errors&#39;</span><span class="p">:</span> <span class="n">form</span><span class="o">.</span><span class="n">errors</span>
+				<span class="p">}</span>
+			<span class="p">)</span>
+		
+		<span class="n">prefixes</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">formsets</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;inline_instances&#39;</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">FormSet</span><span class="p">,</span> <span class="n">inline</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_formsets</span><span class="p">(</span><span class="n">request</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">inline_instances</span><span class="p">):</span>
+				<span class="n">prefix</span> <span class="o">=</span> <span class="n">FormSet</span><span class="o">.</span><span class="n">get_default_prefix</span><span class="p">()</span>
+				<span class="n">prefixes</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">=</span> <span class="n">prefixes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+			
+				<span class="k">if</span> <span class="n">prefixes</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+					<span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">prefixes</span><span class="p">[</span><span class="n">prefix</span><span class="p">])</span>
+			
+				<span class="n">formset</span> <span class="o">=</span> <span class="n">FormSet</span><span class="p">(</span>
+					<span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">files</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span>
+					<span class="n">instance</span> <span class="o">=</span> <span class="n">obj</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span><span class="p">,</span>
+					<span class="n">queryset</span> <span class="o">=</span> <span class="n">inline</span><span class="o">.</span><span class="n">queryset</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+				<span class="p">)</span>
+			
+				<span class="n">formsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formset</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">all_valid</span><span class="p">(</span><span class="n">formsets</span><span class="p">)</span> <span class="ow">and</span> <span class="n">form_validated</span><span class="p">:</span>
+				<span class="n">errors</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+				<span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">formset</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">formsets</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">formset</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+						<span class="n">errors</span> <span class="o">+=</span> <span class="s">&#39;&lt;li&gt;Formset </span><span class="si">%d%s</span><span class="s">&lt;/li&gt;&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">formset</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+				
+				<span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span>
+					<span class="n">request</span><span class="p">,</span>
+					<span class="s">&#39;preview/error.html&#39;</span><span class="p">,</span>
+					<span class="p">{</span>
+						<span class="s">&#39;opts&#39;</span><span class="p">:</span> <span class="n">opts</span><span class="p">,</span>
+						<span class="s">&#39;errors&#39;</span><span class="p">:</span> <span class="n">errors</span>
+					<span class="p">}</span>
+				<span class="p">)</span>
+			
+			<span class="n">inline_data</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">formset</span><span class="o">.</span><span class="n">forms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">cleaned_data</span> <span class="o">=</span> <span class="p">[]</span>
+				<span class="k">for</span> <span class="n">subform</span> <span class="ow">in</span> <span class="n">formset</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
+					<span class="n">cleaned_dict</span> <span class="o">=</span> <span class="n">subform</span><span class="o">.</span><span class="n">cleaned_data</span>
+					<span class="n">cleaned_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">subform</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+					<span class="n">cleaned_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cleaned_dict</span><span class="p">)</span>
+			
+				<span class="n">inline_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+					<span class="p">(</span><span class="n">formset</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">cleaned_data</span><span class="p">)</span>
+				<span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">inline_data</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="n">Preview</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">clear_for_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+		<span class="n">preview</span> <span class="o">=</span> <span class="n">Preview</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_preview</span><span class="p">(</span>
+			<span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+			<span class="n">title</span> <span class="o">=</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">),</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+			<span class="n">inline_data</span> <span class="o">=</span> <span class="n">inline_data</span>
+		<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span>
+			<span class="n">preview</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+		<span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

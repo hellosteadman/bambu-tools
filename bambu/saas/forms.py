@@ -100,7 +100,9 @@ class SignupForm(RegistrationForm):
 	)
 	
 	payment_gateway = ImageChoiceField(
-		label = _('Pay via'), choices = GATEWAYS, initial = GATEWAYS[0][0]
+		label = _('Pay via'),
+		choices = any(GATEWAYS) and GATEWAYS or [],
+		initial = any(GATEWAYS) and GATEWAYS[0][0] or None
 	)
 	
 	discount_code = forms.CharField(
@@ -241,7 +243,9 @@ class PlanChangeForm(forms.Form):
 	)
 	
 	payment_gateway = ImageChoiceField(
-		label = _('Pay via'), choices = GATEWAYS, initial = GATEWAYS[0][0]
+		label = _('Pay via'),
+		choices = any(GATEWAYS) and GATEWAYS or (),
+		initial = any(GATEWAYS) and GATEWAYS[0][0] or None
 	)
 
 	discount_code = forms.CharField(

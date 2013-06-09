@@ -1,6 +1,7 @@
 """
-Provides an interface for building APIs which can be serialised via JSON or XML (and other
-third-party serialisers).
+Quickly expose your models to a JSON or XML API, authenticated via HTTP or
+OAuth.
+
 """
 
 from bambu.api.options import *

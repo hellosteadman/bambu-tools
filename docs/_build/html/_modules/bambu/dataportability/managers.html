@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.dataportability.managers &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.dataportability" href="../dataportability.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../dataportability.html" accesskey="U">bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.dataportability.managers</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Manager</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="kn">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">bambu.dataportability</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">from</span> <span class="nn">mimetypes</span> <span class="kn">import</span> <span class="n">guess_type</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<div class="viewcode-block" id="ImportJobManager"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.ImportJobManager">[docs]</a><span class="k">class</span> <span class="nc">ImportJobManager</span><span class="p">(</span><span class="n">Manager</span><span class="p">):</span>
+<div class="viewcode-block" id="ImportJobManager.import_file"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.ImportJobManager.import_file">[docs]</a>	<span class="k">def</span> <span class="nf">import_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">content_object</span><span class="p">):</span>
+		<span class="n">mimetype</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="n">guess_type</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		<span class="n">handlers</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DATAPORTABILITY_HANDLERS&#39;</span><span class="p">,</span> <span class="p">[])</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+			<span class="n">name</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="nb">file</span><span class="p">,</span>
+			<span class="n">handler</span> <span class="o">=</span> <span class="n">handlers</span><span class="p">[</span><span class="n">handler</span><span class="p">],</span>
+			<span class="n">parser</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_parser_for_file</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">,</span>
+			<span class="n">content_type</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">content_object</span><span class="p">),</span>
+			<span class="n">object_id</span> <span class="o">=</span> <span class="n">content_object</span><span class="o">.</span><span class="n">pk</span>
+		<span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="ExportJobManager"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.ExportJobManager">[docs]</a><span class="k">class</span> <span class="nc">ExportJobManager</span><span class="p">(</span><span class="n">Manager</span><span class="p">):</span>
+<div class="viewcode-block" id="ExportJobManager.export_file"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.ExportJobManager.export_file">[docs]</a>	<span class="k">def</span> <span class="nf">export_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">content_object</span><span class="p">):</span>
+		<span class="n">handlers</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;DATAPORTABILITY_HANDLERS&#39;</span><span class="p">,</span> <span class="p">[])</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+			<span class="n">handler</span> <span class="o">=</span> <span class="n">handlers</span><span class="p">[</span><span class="n">handler</span><span class="p">],</span>
+			<span class="n">writer</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_writer_for_extension</span><span class="p">(</span><span class="n">extension</span><span class="p">),</span>
+			<span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">,</span>
+			<span class="n">content_type</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">content_object</span><span class="p">),</span>
+			<span class="n">object_id</span> <span class="o">=</span> <span class="n">content_object</span><span class="o">.</span><span class="n">pk</span>
+		<span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="StatusManager"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager">[docs]</a><span class="k">class</span> <span class="nc">StatusManager</span><span class="p">(</span><span class="n">Manager</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+			<span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span><span class="p">,</span>
+			<span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">,</span>
+			<span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+		<span class="p">)</span>
+	
+<div class="viewcode-block" id="StatusManager.info"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager.info">[docs]</a>	<span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="s">&#39;info&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="StatusManager.debug"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager.debug">[docs]</a>	<span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="StatusManager.warning"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager.warning">[docs]</a>	<span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="s">&#39;warning&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="StatusManager.error"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager.error">[docs]</a>	<span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="s">&#39;error&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="StatusManager.success"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.managers.StatusManager.success">[docs]</a>	<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../dataportability.html" >bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

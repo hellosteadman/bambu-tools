@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>preview Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="migrations Package" href="bambu.preview.migrations.html" />
+    <link rel="prev" title="migrations Package" href="bambu.payments.migrations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.preview.migrations.html" title="migrations Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.payments.migrations.html" title="migrations Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="preview-package">
+<h1>preview Package<a class="headerlink" href="#preview-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-bambu.preview.admin">
+<span id="admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">admin</span></tt> Module<a class="headerlink" href="#module-bambu.preview.admin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.preview.admin.PreviewableModelAdmin">
+<em class="property">class </em><tt class="descclassname">bambu.preview.admin.</tt><tt class="descname">PreviewableModelAdmin</tt><big>(</big><em>model</em>, <em>admin_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/admin.html#PreviewableModelAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.options.ModelAdmin</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.preview.admin.PreviewableModelAdmin.add_form_template">
+<tt class="descname">add_form_template</tt><em class="property"> = 'admin/preview/change_form.html'</em><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin.add_form_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.admin.PreviewableModelAdmin.change_form_template">
+<tt class="descname">change_form_template</tt><em class="property"> = 'admin/preview/change_form.html'</em><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin.change_form_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.admin.PreviewableModelAdmin.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/preview/admin.html#PreviewableModelAdmin.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.admin.PreviewableModelAdmin.media">
+<tt class="descname">media</tt><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.admin.PreviewableModelAdmin.preview_view">
+<tt class="descname">preview_view</tt><big>(</big><em>request</em>, <em>object_id=None</em>, <em>extra_context=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/admin.html#PreviewableModelAdmin.preview_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.admin.PreviewableModelAdmin.preview_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.preview.helpers">
+<span id="helpers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helpers</span></tt> Module<a class="headerlink" href="#module-bambu.preview.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.preview.helpers.get_serialisable_fields">
+<tt class="descclassname">bambu.preview.helpers.</tt><tt class="descname">get_serialisable_fields</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/helpers.html#get_serialisable_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.helpers.get_serialisable_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bambu.preview.helpers.serialise">
+<tt class="descclassname">bambu.preview.helpers.</tt><tt class="descname">serialise</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/helpers.html#serialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.helpers.serialise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bambu.preview.helpers.unserialise">
+<tt class="descclassname">bambu.preview.helpers.</tt><tt class="descname">unserialise</tt><big>(</big><em>field</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/helpers.html#unserialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.helpers.unserialise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bambu.preview.helpers.upload_attachment_file">
+<tt class="descclassname">bambu.preview.helpers.</tt><tt class="descname">upload_attachment_file</tt><big>(</big><em>instance</em>, <em>filename</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/helpers.html#upload_attachment_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.helpers.upload_attachment_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.preview.managers">
+<span id="managers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">managers</span></tt> Module<a class="headerlink" href="#module-bambu.preview.managers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.preview.managers.PreviewManager">
+<em class="property">class </em><tt class="descclassname">bambu.preview.managers.</tt><tt class="descname">PreviewManager</tt><a class="reference internal" href="../_modules/bambu/preview/managers.html#PreviewManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.managers.PreviewManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.manager.Manager</span></tt></p>
+<dl class="method">
+<dt id="bambu.preview.managers.PreviewManager.clear_for_model">
+<tt class="descname">clear_for_model</tt><big>(</big><em>obj</em>, <em>user</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/managers.html#PreviewManager.clear_for_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.managers.PreviewManager.clear_for_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.managers.PreviewManager.create_preview">
+<tt class="descname">create_preview</tt><big>(</big><em>model</em>, <em>title</em>, <em>data</em>, <em>user</em>, <em>inline_data=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="../_modules/bambu/preview/managers.html#PreviewManager.create_preview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.managers.PreviewManager.create_preview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="models-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Module<a class="headerlink" href="#models-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.preview.models"></span><dl class="class">
+<dt id="bambu.preview.models.Attachment">
+<em class="property">class </em><tt class="descclassname">bambu.preview.models.</tt><tt class="descname">Attachment</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/models.html#Attachment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.models.Attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Attachment(id, preview_id, file)</p>
+<dl class="exception">
+<dt id="bambu.preview.models.Attachment.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.preview.models.Attachment.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.preview.models.Attachment.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Attachment.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.preview.models.Attachment.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Attachment.objects">
+<tt class="descclassname">Attachment.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0xabbf26c&gt;</em><a class="headerlink" href="#bambu.preview.models.Attachment.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Attachment.preview">
+<tt class="descclassname">Attachment.</tt><tt class="descname">preview</tt><a class="headerlink" href="#bambu.preview.models.Attachment.preview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.preview.models.Preview">
+<em class="property">class </em><tt class="descclassname">bambu.preview.models.</tt><tt class="descname">Preview</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/models.html#Preview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.models.Preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Preview(id, content_type_id, title, data, creator_id, created)</p>
+<dl class="exception">
+<dt id="bambu.preview.models.Preview.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.preview.models.Preview.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.preview.models.Preview.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Preview.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.preview.models.Preview.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Preview.attachments">
+<tt class="descclassname">Preview.</tt><tt class="descname">attachments</tt><a class="headerlink" href="#bambu.preview.models.Preview.attachments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Preview.content_type">
+<tt class="descclassname">Preview.</tt><tt class="descname">content_type</tt><a class="headerlink" href="#bambu.preview.models.Preview.content_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Preview.creator">
+<tt class="descclassname">Preview.</tt><tt class="descname">creator</tt><a class="headerlink" href="#bambu.preview.models.Preview.creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.models.Preview.get_absolute_url">
+<tt class="descclassname">Preview.</tt><tt class="descname">get_absolute_url</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/models.html#Preview.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.models.Preview.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.models.Preview.get_next_by_created">
+<tt class="descclassname">Preview.</tt><tt class="descname">get_next_by_created</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.preview.models.Preview.get_next_by_created" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.models.Preview.get_previous_by_created">
+<tt class="descclassname">Preview.</tt><tt class="descname">get_previous_by_created</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.preview.models.Preview.get_previous_by_created" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.preview.models.Preview.make_object">
+<tt class="descclassname">Preview.</tt><tt class="descname">make_object</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/preview/models.html#Preview.make_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.models.Preview.make_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.preview.models.Preview.objects">
+<tt class="descclassname">Preview.</tt><tt class="descname">objects</tt><em class="property"> = &lt;bambu.preview.managers.PreviewManager object at 0xabb99cc&gt;</em><a class="headerlink" href="#bambu.preview.models.Preview.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.preview.models.attachment_delete">
+<tt class="descclassname">bambu.preview.models.</tt><tt class="descname">attachment_delete</tt><big>(</big><em>sender</em>, <em>instance</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/models.html#attachment_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.models.attachment_delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.preview.urls">
+<span id="urls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">urls</span></tt> Module<a class="headerlink" href="#module-bambu.preview.urls" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bambu.preview.views">
+<span id="views-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">views</span></tt> Module<a class="headerlink" href="#module-bambu.preview.views" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.preview.views.preview">
+<tt class="descclassname">bambu.preview.views.</tt><tt class="descname">preview</tt><big>(</big><em>request</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/preview/views.html#preview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.preview.views.preview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bambu.preview.migrations.html">migrations Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.preview.migrations.html#module-bambu.preview.migrations.0001_initial"><tt class="docutils literal"><span class="pre">0001_initial</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">preview Package</a><ul>
+<li><a class="reference internal" href="#module-bambu.preview.admin"><tt class="docutils literal"><span class="pre">admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.preview.helpers"><tt class="docutils literal"><span class="pre">helpers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.preview.managers"><tt class="docutils literal"><span class="pre">managers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#models-module"><tt class="docutils literal"><span class="pre">models</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.preview.urls"><tt class="docutils literal"><span class="pre">urls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.preview.views"><tt class="docutils literal"><span class="pre">views</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.payments.migrations.html"
+                        title="previous chapter">migrations Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.preview.migrations.html"
+                        title="next chapter">migrations Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.preview.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.preview.migrations.html" title="migrations Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.payments.migrations.html" title="migrations Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -1,12 +1,12 @@
 Bambu is a set of tools for building websites and apps in Django.
 
-## Activity stream
+## Analytics
 
-When you create a model in Django, you can register it with ``bambu.activity`` to create a stream that updates whenever the model's objects are created, updated or deleted. Create multiple streams for different sections of a site, and display them with a simple template tag.
+Provides a simple, pluggable system for analytics.
 
 ## API
 
-Quickly expose your models to a JSON or XML API, authenticated via HTTP or OAuth. Create API classes like you do with ``django.contrib.admin`` and add documentation that ``bambu.api`` automatically displays to developers.
+Quickly expose your models to a JSON or XML API, authenticated via HTTP or OAuth.
 
 ## Bootstrap
 

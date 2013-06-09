@@ -1,0 +1,1068 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="auth Package" href="bambu.api.auth.html" />
+    <link rel="prev" title="templatetags Package" href="bambu.analytics.templatetags.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.auth.html" title="auth Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.analytics.templatetags.html" title="templatetags Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">api</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.api"></span><p>Quickly expose your models to a JSON or XML API, authenticated via HTTP or
+OAuth.</p>
+<dl class="function">
+<dt id="bambu.api.autodiscover">
+<tt class="descclassname">bambu.api.</tt><tt class="descname">autodiscover</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api.html#autodiscover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.autodiscover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works like <tt class="docutils literal"><span class="pre">django.contrib.admin.autodiscover</span></tt>, running thorugh each of the packages within a
+project&#8217;s <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt> setting, to find instances of an <tt class="docutils literal"><span class="pre">api</span></tt> module which might contain
+calls to <tt class="docutils literal"><span class="pre">bambu.api.site.register</span></tt>.</p>
+<p>Unlike <tt class="docutils literal"><span class="pre">django.contrib.admin.autodiscover</span></tt>, you do not need to call this function manually.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.admin">
+<span id="admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">admin</span></tt> Module<a class="headerlink" href="#module-bambu.api.admin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.admin.AppAdmin">
+<em class="property">class </em><tt class="descclassname">bambu.api.admin.</tt><tt class="descname">AppAdmin</tt><big>(</big><em>model</em>, <em>admin_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/admin.html#AppAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.admin.AppAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.options.ModelAdmin</span></tt></p>
+<p>Provides a model admin for the <tt class="docutils literal"><span class="pre">App</span></tt> model.</p>
+<dl class="attribute">
+<dt id="bambu.api.admin.AppAdmin.list_display">
+<tt class="descname">list_display</tt><em class="property"> = ('name', 'admin', 'deployment')</em><a class="headerlink" href="#bambu.api.admin.AppAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.admin.AppAdmin.media">
+<tt class="descname">media</tt><a class="headerlink" href="#bambu.api.admin.AppAdmin.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.endpoints">
+<span id="endpoints-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">endpoints</span></tt> Module<a class="headerlink" href="#module-bambu.api.endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Exposes API endpoints for the <tt class="xref py py-class docutils literal"><span class="pre">django.contrib.auth.models.User</span></tt> and
+<tt class="xref py py-class docutils literal"><span class="pre">django.contrib.auth.models.Group</span></tt> models.</p>
+<dl class="class">
+<dt id="bambu.api.endpoints.GroupAPI">
+<em class="property">class </em><tt class="descclassname">bambu.api.endpoints.</tt><tt class="descname">GroupAPI</tt><big>(</big><em>model</em>, <em>api_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#GroupAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.GroupAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.options.ModelAPI" title="bambu.api.options.ModelAPI"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.options.ModelAPI</span></tt></a></p>
+<p>Create, read, update and delete user groups.</p>
+<dl class="attribute">
+<dt id="bambu.api.endpoints.GroupAPI.allowed_methods">
+<tt class="descname">allowed_methods</tt><em class="property"> = ('GET',)</em><a class="headerlink" href="#bambu.api.endpoints.GroupAPI.allowed_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.endpoints.GroupAPI.fields">
+<tt class="descname">fields</tt><em class="property"> = ('id', 'name')</em><a class="headerlink" href="#bambu.api.endpoints.GroupAPI.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.endpoints.UserAPI">
+<em class="property">class </em><tt class="descclassname">bambu.api.endpoints.</tt><tt class="descname">UserAPI</tt><big>(</big><em>model</em>, <em>api_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.options.ModelAPI" title="bambu.api.options.ModelAPI"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.options.ModelAPI</span></tt></a></p>
+<p>Create, read, update and delete user accounts.</p>
+<dl class="attribute">
+<dt id="bambu.api.endpoints.UserAPI.app_label_verbose">
+<tt class="descname">app_label_verbose</tt><em class="property"> = 'Users and groups'</em><a class="headerlink" href="#bambu.api.endpoints.UserAPI.app_label_verbose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.endpoints.UserAPI.fields">
+<tt class="descname">fields</tt><em class="property"> = ('id', 'username', 'first_name', 'last_name')</em><a class="headerlink" href="#bambu.api.endpoints.UserAPI.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.login_view">
+<tt class="descname">login_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.login_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.login_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.make_random_first_name">
+<tt class="descname">make_random_first_name</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.make_random_first_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.make_random_first_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.make_random_last_name">
+<tt class="descname">make_random_last_name</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.make_random_last_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.make_random_last_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.make_random_username">
+<tt class="descname">make_random_username</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.make_random_username"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.make_random_username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.register_view">
+<tt class="descname">register_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.register_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.register_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.endpoints.UserAPI.unregister_view">
+<tt class="descname">unregister_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/endpoints.html#UserAPI.unregister_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.endpoints.UserAPI.unregister_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.forms">
+<span id="forms-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">forms</span></tt> Module<a class="headerlink" href="#module-bambu.api.forms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.forms.UserRegistrationForm">
+<em class="property">class </em><tt class="descclassname">bambu.api.forms.</tt><tt class="descname">UserRegistrationForm</tt><big>(</big><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.util.ErrorList'&gt;</em>, <em>label_suffix=':'</em>, <em>empty_permitted=False</em>, <em>instance=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/forms.html#UserRegistrationForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.forms.models.ModelForm</span></tt></p>
+<dl class="class">
+<dt id="bambu.api.forms.UserRegistrationForm.Meta">
+<em class="property">class </em><tt class="descname">Meta</tt><a class="reference internal" href="../_modules/bambu/api/forms.html#UserRegistrationForm.Meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="bambu.api.forms.UserRegistrationForm.Meta.fields">
+<tt class="descname">fields</tt><em class="property"> = ('username', 'password', 'first_name', 'last_name', 'email')</em><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.Meta.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.forms.UserRegistrationForm.Meta.model">
+<tt class="descname">model</tt><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.Meta.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">User</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.forms.UserRegistrationForm.base_fields">
+<tt class="descclassname">UserRegistrationForm.</tt><tt class="descname">base_fields</tt><em class="property"> = {'username': &lt;django.forms.fields.CharField object at 0x9f9af6c&gt;, 'password': &lt;django.forms.fields.CharField object at 0x9fa676c&gt;, 'first_name': &lt;django.forms.fields.CharField object at 0x9fa414c&gt;, 'last_name': &lt;django.forms.fields.CharField object at 0x9fa492c&gt;, 'email': &lt;django.forms.fields.EmailField object at 0x9f94cec&gt;}</em><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.forms.UserRegistrationForm.declared_fields">
+<tt class="descclassname">UserRegistrationForm.</tt><tt class="descname">declared_fields</tt><em class="property"> = {}</em><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.forms.UserRegistrationForm.media">
+<tt class="descclassname">UserRegistrationForm.</tt><tt class="descname">media</tt><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.forms.UserRegistrationForm.save">
+<tt class="descclassname">UserRegistrationForm.</tt><tt class="descname">save</tt><big>(</big><em>commit=True</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/forms.html#UserRegistrationForm.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.forms.UserRegistrationForm.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.helpers">
+<span id="helpers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helpers</span></tt> Module<a class="headerlink" href="#module-bambu.api.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.api.helpers.form_initial_data">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">form_initial_data</tt><big>(</big><em>form_class</em>, <em>obj=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#form_initial_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.form_initial_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a dictionary of data to be passed as &#8216;initial data&#8217; to a form.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.generate_random_key">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">generate_random_key</tt><big>(</big><em>length=32</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#generate_random_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.generate_random_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a random password for a user. This is purely for display purposes, from within the project&#8217;s
+developers&#8217; section.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.get_request_logger">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">get_request_logger</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#get_request_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.get_request_logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.send_oauth_error">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">send_oauth_error</tt><big>(</big><em>err</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#send_oauth_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.send_oauth_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an OAuth error to the HTTP client.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.trim_indent">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">trim_indent</tt><big>(</big><em>docstring</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#trim_indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.trim_indent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helps in formatting document strings for display within the project&#8217;s developers&#8217; section.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.wrap_api_function">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">wrap_api_function</tt><big>(</big><em>site</em>, <em>view</em>, <em>detail_level</em>, <em>allowed_methods</em>, <em>processor</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#wrap_api_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.wrap_api_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator which wraps certain functions, so that a number of checks can be run before the function
+is called (ie: checking that the HTTP method is allowed).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.helpers.wrap_api_page">
+<tt class="descclassname">bambu.api.helpers.</tt><tt class="descname">wrap_api_page</tt><big>(</big><em>site</em>, <em>view</em>, <em>allowed_methods</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/helpers.html#wrap_api_page"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.helpers.wrap_api_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator which wraps certain functions, so that a number of checks can be run before the function
+is called (ie: checking that the HTTP method is allowed).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.managers">
+<span id="managers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">managers</span></tt> Module<a class="headerlink" href="#module-bambu.api.managers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.managers.TokenManager">
+<em class="property">class </em><tt class="descclassname">bambu.api.managers.</tt><tt class="descname">TokenManager</tt><a class="reference internal" href="../_modules/bambu/api/managers.html#TokenManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.managers.TokenManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.manager.Manager</span></tt></p>
+<p>Manager for the <tt class="docutils literal"><span class="pre">bambu.api.models.Task</span></tt> model.</p>
+<dl class="method">
+<dt id="bambu.api.managers.TokenManager.create_token">
+<tt class="descname">create_token</tt><big>(</big><em>app</em>, <em>token_type</em>, <em>timestamp</em>, <em>user=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/managers.html#TokenManager.create_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.managers.TokenManager.create_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an OAuth token of a given time.</p>
+<p>::param app: The app to bind the token to
+::type app: <tt class="docutils literal"><span class="pre">bambu.api.models.App</span></tt></p>
+<p>::param token_type: The type of token to create, either 1 for a request token or 2 for an access token
+::type token_type: integer</p>
+<p>::param timestamp: The UNIX timestamp for the token
+::type timestamp: integer</p>
+<p>::param user: The user to attach the token to
+::type user: <tt class="docutils literal"><span class="pre">django.contrib.auth.models.User</span></tt></p>
+<p>::default user: None</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.menus">
+<span id="menus-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">menus</span></tt> Module<a class="headerlink" href="#module-bambu.api.menus" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.menus.APIMenuBuilder">
+<em class="property">class </em><tt class="descclassname">bambu.api.menus.</tt><tt class="descname">APIMenuBuilder</tt><a class="reference internal" href="../_modules/bambu/api/menus.html#APIMenuBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.menus.APIMenuBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bambu.navigation.html#bambu.navigation.options.MenuBuilder" title="bambu.navigation.options.MenuBuilder"><tt class="xref py py-class docutils literal"><span class="pre">bambu.navigation.options.MenuBuilder</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.menus.APIMenuBuilder.add_to_menu">
+<tt class="descname">add_to_menu</tt><big>(</big><em>name</em>, <em>items</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/menus.html#APIMenuBuilder.add_to_menu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.menus.APIMenuBuilder.add_to_menu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.menus.APIMenuBuilder.register_partials">
+<tt class="descname">register_partials</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/menus.html#APIMenuBuilder.register_partials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.menus.APIMenuBuilder.register_partials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.models">
+<span id="models-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Module<a class="headerlink" href="#module-bambu.api.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.models.App">
+<em class="property">class </em><tt class="descclassname">bambu.api.models.</tt><tt class="descname">App</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#App"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.App" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>App(id, admin_id, name, description, key, secret, status, callback_url, deployment, http_login, http_signup)</p>
+<dl class="exception">
+<dt id="bambu.api.models.App.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.api.models.App.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.models.App.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">App.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.api.models.App.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.App.admin">
+<tt class="descclassname">App.</tt><tt class="descname">admin</tt><a class="headerlink" href="#bambu.api.models.App.admin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.App.clean">
+<tt class="descclassname">App.</tt><tt class="descname">clean</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#App.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.App.clean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.App.get_deployment_display">
+<tt class="descclassname">App.</tt><tt class="descname">get_deployment_display</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.api.models.App.get_deployment_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.App.get_status_display">
+<tt class="descclassname">App.</tt><tt class="descname">get_status_display</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.api.models.App.get_status_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.App.log_request">
+<tt class="descclassname">App.</tt><tt class="descname">log_request</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#App.log_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.App.log_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.App.objects">
+<tt class="descclassname">App.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0x9f4e56c&gt;</em><a class="headerlink" href="#bambu.api.models.App.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.App.requests">
+<tt class="descclassname">App.</tt><tt class="descname">requests</tt><a class="headerlink" href="#bambu.api.models.App.requests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.App.save">
+<tt class="descclassname">App.</tt><tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#App.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.App.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.App.tokens">
+<tt class="descclassname">App.</tt><tt class="descname">tokens</tt><a class="headerlink" href="#bambu.api.models.App.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.App.users">
+<tt class="descclassname">App.</tt><tt class="descname">users</tt><a class="reference internal" href="../_modules/bambu/api/models.html#App.users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.App.users" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.models.Nonce">
+<em class="property">class </em><tt class="descclassname">bambu.api.models.</tt><tt class="descname">Nonce</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Nonce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Nonce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Nonce(id, token_key, consumer_key, key)</p>
+<dl class="exception">
+<dt id="bambu.api.models.Nonce.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.api.models.Nonce.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.models.Nonce.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Nonce.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.api.models.Nonce.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.Nonce.objects">
+<tt class="descclassname">Nonce.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0x9f4ea4c&gt;</em><a class="headerlink" href="#bambu.api.models.Nonce.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.models.RequestBatch">
+<em class="property">class </em><tt class="descclassname">bambu.api.models.</tt><tt class="descname">RequestBatch</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#RequestBatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.RequestBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>RequestBatch(id, app_id, timestamp, count)</p>
+<dl class="exception">
+<dt id="bambu.api.models.RequestBatch.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.api.models.RequestBatch.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.models.RequestBatch.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">RequestBatch.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.api.models.RequestBatch.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.RequestBatch.app">
+<tt class="descclassname">RequestBatch.</tt><tt class="descname">app</tt><a class="headerlink" href="#bambu.api.models.RequestBatch.app" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.RequestBatch.objects">
+<tt class="descclassname">RequestBatch.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0x9f51b2c&gt;</em><a class="headerlink" href="#bambu.api.models.RequestBatch.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.models.Token">
+<em class="property">class </em><tt class="descclassname">bambu.api.models.</tt><tt class="descname">Token</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>Token(id, key, secret, verifier, token_type, timestamp, approved, user_id, app_id, callback, callback_confirmed)</p>
+<dl class="exception">
+<dt id="bambu.api.models.Token.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.api.models.Token.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.models.Token.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">Token.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.api.models.Token.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.Token.app">
+<tt class="descclassname">Token.</tt><tt class="descname">app</tt><a class="headerlink" href="#bambu.api.models.Token.app" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.Token.get_callback_url">
+<tt class="descclassname">Token.</tt><tt class="descname">get_callback_url</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Token.get_callback_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Token.get_callback_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.Token.get_token_type_display">
+<tt class="descclassname">Token.</tt><tt class="descname">get_token_type_display</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#bambu.api.models.Token.get_token_type_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.Token.objects">
+<tt class="descclassname">Token.</tt><tt class="descname">objects</tt><em class="property"> = &lt;bambu.api.managers.TokenManager object at 0x9f4ee8c&gt;</em><a class="headerlink" href="#bambu.api.models.Token.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.Token.save">
+<tt class="descclassname">Token.</tt><tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Token.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Token.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.Token.set_callback">
+<tt class="descclassname">Token.</tt><tt class="descname">set_callback</tt><big>(</big><em>callback</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Token.set_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Token.set_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.models.Token.to_string">
+<tt class="descclassname">Token.</tt><tt class="descname">to_string</tt><big>(</big><em>only_key=False</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/models.html#Token.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.models.Token.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.models.Token.user">
+<tt class="descclassname">Token.</tt><tt class="descname">user</tt><a class="headerlink" href="#bambu.api.models.Token.user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.options">
+<span id="options-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">options</span></tt> Module<a class="headerlink" href="#module-bambu.api.options" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.options.API">
+<em class="property">class </em><tt class="descclassname">bambu.api.options.</tt><tt class="descname">API</tt><big>(</big><em>api_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#API"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.API" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.api.options.API.form">
+<tt class="descname">form</tt><a class="headerlink" href="#bambu.api.options.API.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.API.get_form">
+<tt class="descname">get_form</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#API.get_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.API.get_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.API.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#API.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.API.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.API.parent">
+<tt class="descname">parent</tt><em class="property"> = None</em><a class="headerlink" href="#bambu.api.options.API.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.API.urls">
+<tt class="descname">urls</tt><a class="reference internal" href="../_modules/bambu/api/options.html#API.urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.API.urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.options.ModelAPI">
+<em class="property">class </em><tt class="descclassname">bambu.api.options.</tt><tt class="descname">ModelAPI</tt><big>(</big><em>model</em>, <em>api_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.options.API" title="bambu.api.options.API"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.options.API</span></tt></a></p>
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.allowed_formats">
+<tt class="descname">allowed_formats</tt><em class="property"> = ('xml', 'json')</em><a class="headerlink" href="#bambu.api.options.ModelAPI.allowed_formats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.allowed_methods">
+<tt class="descname">allowed_methods</tt><em class="property"> = ('GET', 'POST', 'PUT', 'DELETE')</em><a class="headerlink" href="#bambu.api.options.ModelAPI.allowed_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.example_list_response">
+<tt class="descname">example_list_response</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.example_list_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.example_list_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.example_object_response">
+<tt class="descname">example_object_response</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.example_object_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.example_object_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.exclude">
+<tt class="descname">exclude</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.api.options.ModelAPI.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.fields">
+<tt class="descname">fields</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.api.options.ModelAPI.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.form">
+<tt class="descname">form</tt><a class="headerlink" href="#bambu.api.options.ModelAPI.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ModelForm</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.formfield_for_choice_field">
+<tt class="descname">formfield_for_choice_field</tt><big>(</big><em>db_field</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.formfield_for_choice_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.formfield_for_choice_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.formfield_for_dbfield">
+<tt class="descname">formfield_for_dbfield</tt><big>(</big><em>db_field</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.formfield_for_dbfield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.formfield_for_dbfield" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.formfield_for_foreignkey">
+<tt class="descname">formfield_for_foreignkey</tt><big>(</big><em>db_field</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.formfield_for_foreignkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.formfield_for_foreignkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.formfield_for_manytomany">
+<tt class="descname">formfield_for_manytomany</tt><big>(</big><em>db_field</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.formfield_for_manytomany"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.formfield_for_manytomany" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.get_form">
+<tt class="descname">get_form</tt><big>(</big><em>request</em>, <em>obj=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.get_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.get_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.get_object">
+<tt class="descname">get_object</tt><big>(</big><em>request</em>, <em>object_id</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.get_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.get_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.get_query_set">
+<tt class="descname">get_query_set</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.get_query_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.get_query_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.inlines">
+<tt class="descname">inlines</tt><em class="property"> = []</em><a class="headerlink" href="#bambu.api.options.ModelAPI.inlines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.list_allowed_methods">
+<tt class="descname">list_allowed_methods</tt><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.list_allowed_methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.list_allowed_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.list_view">
+<tt class="descname">list_view</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.list_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.list_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.make_example_object">
+<tt class="descname">make_example_object</tt><big>(</big><em>model=None</em>, <em>pk=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.make_example_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.make_example_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.object_allowed_methods">
+<tt class="descname">object_allowed_methods</tt><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.object_allowed_methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.object_allowed_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.object_view">
+<tt class="descname">object_view</tt><big>(</big><em>request</em>, <em>object_id</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.object_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.object_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.prepare_initial_data">
+<tt class="descname">prepare_initial_data</tt><big>(</big><em>form_class</em>, <em>obj=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.prepare_initial_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.prepare_initial_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.prepare_output_data">
+<tt class="descname">prepare_output_data</tt><big>(</big><em>request</em>, <em>obj</em>, <em>max_detail_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.prepare_output_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.prepare_output_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.raw_id_fields">
+<tt class="descname">raw_id_fields</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.api.options.ModelAPI.raw_id_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.options.ModelAPI.readonly_fields">
+<tt class="descname">readonly_fields</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.api.options.ModelAPI.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.save_form">
+<tt class="descname">save_form</tt><big>(</big><em>request</em>, <em>form</em>, <em>obj=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.save_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.save_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.options.ModelAPI.save_object">
+<tt class="descname">save_object</tt><big>(</big><em>request</em>, <em>obj</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelAPI.save_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelAPI.save_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.options.ModelInline">
+<em class="property">class </em><tt class="descclassname">bambu.api.options.</tt><tt class="descname">ModelInline</tt><big>(</big><em>model</em>, <em>parent</em>, <em>rel_field</em>, <em>rel_name</em>, <em>api_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelInline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.options.ModelAPI" title="bambu.api.options.ModelAPI"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.options.ModelAPI</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.options.ModelInline.prepare_initial_data">
+<tt class="descname">prepare_initial_data</tt><big>(</big><em>form_class</em>, <em>obj=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/options.html#ModelInline.prepare_initial_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.options.ModelInline.prepare_initial_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.requestlogging">
+<span id="requestlogging-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">requestlogging</span></tt> Module<a class="headerlink" href="#module-bambu.api.requestlogging" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.requestlogging.DatabaseRequestLogger">
+<em class="property">class </em><tt class="descclassname">bambu.api.requestlogging.</tt><tt class="descname">DatabaseRequestLogger</tt><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#DatabaseRequestLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.DatabaseRequestLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.requestlogging.RequestLoggerBase" title="bambu.api.requestlogging.RequestLoggerBase"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.requestlogging.RequestLoggerBase</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.requestlogging.DatabaseRequestLogger.get_request_count">
+<tt class="descname">get_request_count</tt><big>(</big><em>app</em>, <em>timestamp</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#DatabaseRequestLogger.get_request_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.DatabaseRequestLogger.get_request_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.DatabaseRequestLogger.log_request">
+<tt class="descname">log_request</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#DatabaseRequestLogger.log_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.DatabaseRequestLogger.log_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.requestlogging.RedisRequestLogger">
+<em class="property">class </em><tt class="descclassname">bambu.api.requestlogging.</tt><tt class="descname">RedisRequestLogger</tt><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RedisRequestLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RedisRequestLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.requestlogging.RequestLoggerBase" title="bambu.api.requestlogging.RequestLoggerBase"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.requestlogging.RequestLoggerBase</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.requestlogging.RedisRequestLogger.get_key">
+<tt class="descname">get_key</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RedisRequestLogger.get_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RedisRequestLogger.get_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.RedisRequestLogger.get_request_count">
+<tt class="descname">get_request_count</tt><big>(</big><em>app</em>, <em>timestamp</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RedisRequestLogger.get_request_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RedisRequestLogger.get_request_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.RedisRequestLogger.log_request">
+<tt class="descname">log_request</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RedisRequestLogger.log_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RedisRequestLogger.log_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.requestlogging.RequestLoggerBase">
+<em class="property">class </em><tt class="descclassname">bambu.api.requestlogging.</tt><tt class="descname">RequestLoggerBase</tt><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RequestLoggerBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RequestLoggerBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.requestlogging.RequestLoggerBase.get_request_count">
+<tt class="descname">get_request_count</tt><big>(</big><em>app</em>, <em>timestamp</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RequestLoggerBase.get_request_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RequestLoggerBase.get_request_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.RequestLoggerBase.get_timestamp">
+<tt class="descname">get_timestamp</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RequestLoggerBase.get_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RequestLoggerBase.get_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.RequestLoggerBase.log_request">
+<tt class="descname">log_request</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RequestLoggerBase.log_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RequestLoggerBase.log_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.requestlogging.RequestLoggerBase.validate_request">
+<tt class="descname">validate_request</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/requestlogging.html#RequestLoggerBase.validate_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.requestlogging.RequestLoggerBase.validate_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.response">
+<span id="response-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">response</span></tt> Module<a class="headerlink" href="#module-bambu.api.response" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.response.APIResponse">
+<em class="property">class </em><tt class="descclassname">bambu.api.response.</tt><tt class="descname">APIResponse</tt><big>(</big><em>format</em>, <em>request</em>, <em>data</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/response.html#APIResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.response.APIResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.http.HttpResponse</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.api.response.APIResponse.detail_level">
+<tt class="descname">detail_level</tt><em class="property"> = 2</em><a class="headerlink" href="#bambu.api.response.APIResponse.detail_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.api.response.get_serialiser">
+<tt class="descclassname">bambu.api.response.</tt><tt class="descname">get_serialiser</tt><big>(</big><em>format</em>, <em>request</em>, <em>processor</em>, <em>max_detail_level</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/response.html#get_serialiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.response.get_serialiser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.serialisers">
+<span id="serialisers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">serialisers</span></tt> Module<a class="headerlink" href="#module-bambu.api.serialisers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.serialisers.JSONSerialiser">
+<em class="property">class </em><tt class="descclassname">bambu.api.serialisers.</tt><tt class="descname">JSONSerialiser</tt><big>(</big><em>request=None</em>, <em>processor=None</em>, <em>max_detail_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#JSONSerialiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.JSONSerialiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.serialisers.Serialiser" title="bambu.api.serialisers.Serialiser"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.serialisers.Serialiser</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.serialisers.JSONSerialiser.serialise">
+<tt class="descname">serialise</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#JSONSerialiser.serialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.JSONSerialiser.serialise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.serialisers.Serialiser">
+<em class="property">class </em><tt class="descclassname">bambu.api.serialisers.</tt><tt class="descname">Serialiser</tt><big>(</big><em>request=None</em>, <em>processor=None</em>, <em>max_detail_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#Serialiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.Serialiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.serialisers.Serialiser.serialise">
+<tt class="descname">serialise</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#Serialiser.serialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.Serialiser.serialise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.serialisers.XMLSerialiser">
+<em class="property">class </em><tt class="descclassname">bambu.api.serialisers.</tt><tt class="descname">XMLSerialiser</tt><big>(</big><em>request=None</em>, <em>processor=None</em>, <em>max_detail_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#XMLSerialiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.XMLSerialiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.serialisers.Serialiser" title="bambu.api.serialisers.Serialiser"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.serialisers.Serialiser</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.serialisers.XMLSerialiser.serialise">
+<tt class="descname">serialise</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/serialisers.html#XMLSerialiser.serialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.serialisers.XMLSerialiser.serialise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.sites">
+<span id="sites-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">sites</span></tt> Module<a class="headerlink" href="#module-bambu.api.sites" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.sites.APISite">
+<em class="property">class </em><tt class="descclassname">bambu.api.sites.</tt><tt class="descname">APISite</tt><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.sites.APISite.add_app_view">
+<tt class="descname">add_app_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.add_app_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.add_app_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.api_page">
+<tt class="descname">api_page</tt><big>(</big><em>view</em>, <em>request</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.api_page"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.api_page" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.api_view">
+<tt class="descname">api_view</tt><big>(</big><em>view</em>, <em>request</em>, <em>format</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.api_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.api_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.sites.APISite.app_name">
+<tt class="descname">app_name</tt><em class="property"> = 'api'</em><a class="headerlink" href="#bambu.api.sites.APISite.app_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.apps_view">
+<tt class="descname">apps_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.apps_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.apps_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.delete_app_view">
+<tt class="descname">delete_app_view</tt><big>(</big><em>request</em>, <em>pk</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.delete_app_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.delete_app_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.docs_app_view">
+<tt class="descname">docs_app_view</tt><big>(</big><em>request</em>, <em>app_label</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.docs_app_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.docs_app_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.docs_index_view">
+<tt class="descname">docs_index_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.docs_index_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.docs_index_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.docs_model_view">
+<tt class="descname">docs_model_view</tt><big>(</big><em>request</em>, <em>app_label</em>, <em>model</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.docs_model_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.docs_model_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.edit_app_view">
+<tt class="descname">edit_app_view</tt><big>(</big><em>request</em>, <em>pk</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.edit_app_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.edit_app_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.sites.APISite.name">
+<tt class="descname">name</tt><em class="property"> = 'api'</em><a class="headerlink" href="#bambu.api.sites.APISite.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.register">
+<tt class="descname">register</tt><big>(</big><em>model_or_iterable</em>, <em>api_class=None</em>, <em>**options</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.sites.APISite.unregister">
+<tt class="descname">unregister</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.unregister"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.unregister" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.sites.APISite.urls">
+<tt class="descname">urls</tt><a class="reference internal" href="../_modules/bambu/api/sites.html#APISite.urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.APISite.urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.sites.AlreadyRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.api.sites.</tt><tt class="descname">AlreadyRegistered</tt><a class="reference internal" href="../_modules/bambu/api/sites.html#AlreadyRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.AlreadyRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.sites.NotRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.api.sites.</tt><tt class="descname">NotRegistered</tt><a class="reference internal" href="../_modules/bambu/api/sites.html#NotRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.sites.NotRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.transformers">
+<span id="transformers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">transformers</span></tt> Module<a class="headerlink" href="#module-bambu.api.transformers" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="bambu.api.transformers.AlreadyRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.api.transformers.</tt><tt class="descname">AlreadyRegistered</tt><a class="reference internal" href="../_modules/bambu/api/transformers.html#AlreadyRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.AlreadyRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.transformers.ModelTransformer">
+<em class="property">class </em><tt class="descclassname">bambu.api.transformers.</tt><tt class="descname">ModelTransformer</tt><big>(</big><em>fields=()</em>, <em>exclude=()</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#ModelTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.ModelTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.api.transformers.Transformer" title="bambu.api.transformers.Transformer"><tt class="xref py py-class docutils literal"><span class="pre">bambu.api.transformers.Transformer</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.api.transformers.ModelTransformer.transform">
+<tt class="descname">transform</tt><big>(</big><em>obj</em>, <em>level=1</em>, <em>max_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#ModelTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.ModelTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.api.transformers.NotRegistered">
+<em class="property">exception </em><tt class="descclassname">bambu.api.transformers.</tt><tt class="descname">NotRegistered</tt><a class="reference internal" href="../_modules/bambu/api/transformers.html#NotRegistered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.NotRegistered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.transformers.Transformer">
+<em class="property">class </em><tt class="descclassname">bambu.api.transformers.</tt><tt class="descname">Transformer</tt><big>(</big><em>fields=()</em>, <em>exclude=()</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.Transformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.transformers.Transformer.transform">
+<tt class="descname">transform</tt><big>(</big><em>obj</em>, <em>level=1</em>, <em>max_level=1</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#Transformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.Transformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.api.transformers.TransformerLibrary">
+<em class="property">class </em><tt class="descclassname">bambu.api.transformers.</tt><tt class="descname">TransformerLibrary</tt><a class="reference internal" href="../_modules/bambu/api/transformers.html#TransformerLibrary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.TransformerLibrary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.transformers.TransformerLibrary.register">
+<tt class="descname">register</tt><big>(</big><em>model</em>, <em>transformer=None</em>, <em>fields=()</em>, <em>exclude=()</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#TransformerLibrary.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.TransformerLibrary.register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.transformers.TransformerLibrary.transform">
+<tt class="descname">transform</tt><big>(</big><em>obj</em>, <em>max_level</em>, <em>level=1</em>, <em>fields=()</em>, <em>exclude=()</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#TransformerLibrary.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.TransformerLibrary.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.transformers.TransformerLibrary.unregister">
+<tt class="descname">unregister</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/transformers.html#TransformerLibrary.unregister"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.transformers.TransformerLibrary.unregister" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.urls">
+<span id="urls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">urls</span></tt> Module<a class="headerlink" href="#module-bambu.api.urls" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bambu.api.auth.html">auth Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.auth.html#id1"><tt class="docutils literal"><span class="pre">auth</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.auth.html#module-bambu.api.auth.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.auth.html#module-bambu.api.auth.http"><tt class="docutils literal"><span class="pre">http</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.auth.html#module-bambu.api.auth.oauth2"><tt class="docutils literal"><span class="pre">oauth2</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bambu.api.migrations.html">migrations Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.migrations.html#module-bambu.api.migrations.0001_initial"><tt class="docutils literal"><span class="pre">0001_initial</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.migrations.html#module-bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a"><tt class="docutils literal"><span class="pre">0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.migrations.html#module-bambu.api.migrations.0003_auto__add_requestbatch"><tt class="docutils literal"><span class="pre">0003_auto__add_requestbatch</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.migrations.html#module-bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp"><tt class="docutils literal"><span class="pre">0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.migrations.html#module-bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app"><tt class="docutils literal"><span class="pre">0005_auto__add_unique_requestbatch_timestamp_app</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bambu.api.templatetags.html">templatetags Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.templatetags.html#module-bambu.api.templatetags.prettycode"><tt class="docutils literal"><span class="pre">prettycode</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bambu.api.xml.html">xml Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.api.xml.html#id1"><tt class="docutils literal"><span class="pre">xml</span></tt> Package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-bambu.api.admin"><tt class="docutils literal"><span class="pre">admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.endpoints"><tt class="docutils literal"><span class="pre">endpoints</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.forms"><tt class="docutils literal"><span class="pre">forms</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.helpers"><tt class="docutils literal"><span class="pre">helpers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.managers"><tt class="docutils literal"><span class="pre">managers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.menus"><tt class="docutils literal"><span class="pre">menus</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.models"><tt class="docutils literal"><span class="pre">models</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.options"><tt class="docutils literal"><span class="pre">options</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.requestlogging"><tt class="docutils literal"><span class="pre">requestlogging</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.response"><tt class="docutils literal"><span class="pre">response</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.serialisers"><tt class="docutils literal"><span class="pre">serialisers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.sites"><tt class="docutils literal"><span class="pre">sites</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.transformers"><tt class="docutils literal"><span class="pre">transformers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.urls"><tt class="docutils literal"><span class="pre">urls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.analytics.templatetags.html"
+                        title="previous chapter">templatetags Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.api.auth.html"
+                        title="next chapter">auth Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.auth.html" title="auth Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.analytics.templatetags.html" title="templatetags Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

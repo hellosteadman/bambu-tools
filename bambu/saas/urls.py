@@ -45,7 +45,7 @@ urlpatterns = patterns('',
 	url(r'^login/$', body_classes(login, 'login'),
 		{
 			'extra_context': {
-				'matrix': Plan.objects.matrix()
+				'matrix': Plan.objects.matrix
 			}
 		}, name = 'login'
 	),

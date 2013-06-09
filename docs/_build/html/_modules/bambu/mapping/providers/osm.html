@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.mapping.providers.osm &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.mapping.providers.osm</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">bambu.mapping.providers.base</span> <span class="kn">import</span> <span class="n">ProviderBase</span>
+<span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+
+<div class="viewcode-block" id="OpenStreetMapProvider"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider">[docs]</a><span class="k">class</span> <span class="nc">OpenStreetMapProvider</span><span class="p">(</span><span class="n">ProviderBase</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenStreetMapProvider.init_map"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.init_map">[docs]</a>	<span class="k">def</span> <span class="nf">init_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">controls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;controls&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;ZOOM&#39;</span><span class="p">,</span> <span class="s">&#39;ATTRIBUTION&#39;</span><span class="p">))</span>
+		
+		<span class="k">return</span> <span class="s">&quot;&quot;&quot;</span><span class="si">%(varname)s</span><span class="s"> = new L.Map(&#39;</span><span class="si">%(id)s</span><span class="s">&#39;,</span>
+<span class="s">			{</span>
+<span class="s">				zoomControl: </span><span class="si">%(zoomControl)s</span><span class="s">,</span>
+<span class="s">				attributionControl: </span><span class="si">%(attributionControl)s</span><span class="s"></span>
+<span class="s">			}</span>
+<span class="s">		);</span>
+<span class="s">		</span>
+<span class="s">		</span><span class="si">%(varname)s</span><span class="s">.setView(</span>
+<span class="s">			new L.LatLng(</span><span class="si">%(lat)s</span><span class="s">, </span><span class="si">%(lon)s</span><span class="s">), </span><span class="si">%(zoom)d</span><span class="s"></span>
+<span class="s">		).addLayer(</span>
+<span class="s">			new L.TileLayer(&#39;http://{s}.tile.cloudmade.com/</span><span class="si">%(api_key)s</span><span class="s">/997/256/{z}/{x}/{y}.png&#39;,</span>
+<span class="s">				{</span>
+<span class="s">					attribution: &#39;Map data &amp;copy; &lt;a href=&quot;http://openstreetmap.org&quot;&gt;OpenStreetMap&lt;/a&gt; contributors, &lt;a href=&quot;http://creativecommons.org/licenses/by-sa/2.0/&quot;&gt;CC-BY-SA&lt;/a&gt;, Imagery &amp;copy; &lt;a href=&quot;http://cloudmade.com&quot;&gt;CloudMade&lt;/a&gt;&#39;,</span>
+<span class="s">					maxZoom: 30</span>
+<span class="s">				}</span>
+<span class="s">			)</span>
+<span class="s">		);</span>
+<span class="s">		&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">{</span>
+			<span class="s">&#39;varname&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_map_varname</span><span class="p">(),</span>
+			<span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_id</span><span class="p">,</span>
+			<span class="s">&#39;api_key&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;api_key&#39;</span><span class="p">),</span>
+			<span class="s">&#39;lat&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;lat&#39;</span><span class="p">,</span> <span class="s">&#39;null&#39;</span><span class="p">),</span>
+			<span class="s">&#39;lon&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;lon&#39;</span><span class="p">,</span> <span class="s">&#39;null&#39;</span><span class="p">),</span>
+			<span class="s">&#39;zoom&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;zoom&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+			<span class="s">&#39;zoomControl&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;ZOOM&#39;</span> <span class="ow">in</span> <span class="n">controls</span><span class="p">)</span> <span class="ow">and</span> <span class="s">&#39;true&#39;</span> <span class="ow">or</span> <span class="s">&#39;false&#39;</span><span class="p">,</span>
+			<span class="s">&#39;attributionControl&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;ATTRIBUTION&#39;</span> <span class="ow">in</span> <span class="n">controls</span><span class="p">)</span> <span class="ow">and</span> <span class="s">&#39;true&#39;</span> <span class="ow">or</span> <span class="s">&#39;false&#39;</span>
+		<span class="p">}</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.add_marker"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.add_marker">[docs]</a>	<span class="k">def</span> <span class="nf">add_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&quot;&quot;&quot;function(options) {</span>
+<span class="s">			var pos = new L.LatLng(options.lat, options.lon);</span>
+<span class="s">			var marker = new L.Marker(pos,</span>
+<span class="s">				{</span>
+<span class="s">					draggable: options.draggable</span>
+<span class="s">				}</span>
+<span class="s">			);</span>
+<span class="s">			</span>
+<span class="s">			</span><span class="si">%(map_varname)s</span><span class="s">.addLayer(marker);</span>
+<span class="s">			</span>
+<span class="s">			if(options.content) {</span>
+<span class="s">				var infowindow = new L.Popup(</span>
+<span class="s">					{</span>
+<span class="s">						autoPan: true,</span>
+<span class="s">						offset: new L.Point(0, -16)</span>
+<span class="s">					}</span>
+<span class="s">				);</span>
+<span class="s">				</span>
+<span class="s">				infowindow.setContent(options.content);</span>
+<span class="s">				infowindow.setLatLng(pos);</span>
+<span class="s">				</span>
+<span class="s">				marker.on(&#39;click&#39;,</span>
+<span class="s">					function() {</span>
+<span class="s">						</span><span class="si">%(map_varname)s</span><span class="s">.openPopup(infowindow);</span>
+<span class="s">					}</span>
+<span class="s">				);</span>
+<span class="s">			}</span>
+<span class="s">			</span>
+<span class="s">			if(options.draggable) {</span>
+<span class="s">				marker.on(&#39;dragend&#39;,</span>
+<span class="s">					function() {</span>
+<span class="s">						if(typeof bambu !== &#39;undefined&#39;) {</span>
+<span class="s">							if(&#39;mapping&#39; in bambu) {</span>
+<span class="s">								var pos = marker.getLatLng();</span>
+<span class="s">								bambu.mapping.fire(&#39;markerDragged&#39;,</span>
+<span class="s">									{</span>
+<span class="s">										marker: marker,</span>
+<span class="s">										latitude: pos.lat,</span>
+<span class="s">										longitude: pos.lng</span>
+<span class="s">									}</span>
+<span class="s">								);</span>
+<span class="s">							}</span>
+<span class="s">						}</span>
+<span class="s">					}</span>
+<span class="s">				);</span>
+<span class="s">			}</span>
+<span class="s">			</span>
+<span class="s">			return marker;</span>
+<span class="s">		}&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">{</span>
+			<span class="s">&#39;map_varname&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_map_varname</span><span class="p">()</span>
+		<span class="p">}</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.remove_marker"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.remove_marker">[docs]</a>	<span class="k">def</span> <span class="nf">remove_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&#39;function(marker) { </span><span class="si">%s</span><span class="s">.removeLayer(marker); }&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_map_varname</span><span class="p">()</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.find_address"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.find_address">[docs]</a>	<span class="k">def</span> <span class="nf">find_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&quot;&quot;&quot;function(latitude, longitude, callback) {</span>
+<span class="s">			$.getJSON(</span>
+<span class="s">				&#39;http://nominatim.openstreetmap.org/reverse?lat=&#39; + latitude +</span>
+<span class="s">				&#39;&amp;lon=&#39; + longitude + &#39;&amp;format=json&amp;json_callback=?&#39;,</span>
+<span class="s">				function(data) {</span>
+<span class="s">					if(data.lat &amp;&amp; data.lon) {</span>
+<span class="s">						if(typeof callback !== &#39;undefined&#39;) {</span>
+<span class="s">							callback(</span>
+<span class="s">								{</span>
+<span class="s">									latitude: parseFloat(data.lat),</span>
+<span class="s">									longitude: parseFloat(data.lon),</span>
+<span class="s">									address: data.display_name</span>
+<span class="s">								}</span>
+<span class="s">							);</span>
+<span class="s">						}</span>
+<span class="s">					} else {</span>
+<span class="s">						alert(&quot;Sorry, it&#39;s not possible to find an address for this location.&quot;);</span>
+<span class="s">					}</span>
+<span class="s">				}</span>
+<span class="s">			)</span>
+<span class="s">		}&quot;&quot;&quot;</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.find_coords"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.find_coords">[docs]</a>	<span class="k">def</span> <span class="nf">find_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&quot;&quot;&quot;function(address, callback) {</span>
+<span class="s">			$.getJSON(</span>
+<span class="s">				&#39;http://nominatim.openstreetmap.org/search?q=&#39; + address +</span>
+<span class="s">				&#39;&amp;format=json&amp;json_callback=?&#39;,</span>
+<span class="s">				function(data) {</span>
+<span class="s">					if(data.length &gt; 0) {</span>
+<span class="s">						if(typeof callback !== &#39;undefined&#39;) {</span>
+<span class="s">							callback(</span>
+<span class="s">								{</span>
+<span class="s">									latitude: parseFloat(data[0].lat),</span>
+<span class="s">									longitude: parseFloat(data[0].lon),</span>
+<span class="s">									address: data[0].display_name</span>
+<span class="s">								}</span>
+<span class="s">							);</span>
+<span class="s">						}</span>
+<span class="s">					} else {</span>
+<span class="s">						alert(&quot;Sorry, it&#39;s not possible to find this address.&quot;);</span>
+<span class="s">					}</span>
+<span class="s">				}</span>
+<span class="s">			)</span>
+<span class="s">		}&quot;&quot;&quot;</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.set_centre"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.set_centre">[docs]</a>	<span class="k">def</span> <span class="nf">set_centre</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&quot;&quot;&quot;function(latitude, longitude) {</span>
+<span class="s">			</span><span class="si">%s</span><span class="s">.panTo(new L.LatLng(latitude, longitude));</span>
+<span class="s">		}&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">get_map_varname</span><span class="p">(),</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.get_image_url"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.get_image_url">[docs]</a>	<span class="k">def</span> <span class="nf">get_image_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">if</span> <span class="s">&#39;zoom&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+			<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;zoom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;zoom&#39;</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="s">&#39;lat&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="ow">and</span> <span class="s">&#39;lon&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+			<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;center&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+				<span class="p">(</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;lat&#39;</span><span class="p">],</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;lon&#39;</span><span class="p">]</span>
+				<span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="s">&#39;width&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="ow">and</span> <span class="s">&#39;height&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>
+			<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%d</span><span class="s">x</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;width&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;height&#39;</span><span class="p">]</span>
+			<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;marker&#39;</span><span class="p">):</span>
+			<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;marker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;lat&#39;</span><span class="p">],</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;lon&#39;</span><span class="p">]</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="s">&#39;http://staticmaps.cloudmade.com/</span><span class="si">%s</span><span class="s">/staticmap?</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;api_key&#39;</span><span class="p">],</span>
+			<span class="n">urlencode</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="OpenStreetMapProvider.Media"><a class="viewcode-back" href="../../../../api/bambu.mapping.providers.html#bambu.mapping.providers.osm.OpenStreetMapProvider.Media">[docs]</a>	<span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+		<span class="n">js</span> <span class="o">=</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">STATIC_URL</span> <span class="o">+</span> <span class="s">&#39;mapping/leaflet/leaflet.js&#39;</span><span class="p">),</span>
+		<span class="n">css</span> <span class="o">=</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">STATIC_URL</span> <span class="o">+</span> <span class="s">&#39;mapping/leaflet/leaflet.css&#39;</span><span class="p">,)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

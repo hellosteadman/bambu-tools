@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>migrations Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="templatetags Package" href="bambu.api.templatetags.html" />
+    <link rel="prev" title="auth Package" href="bambu.api.auth.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.templatetags.html" title="templatetags Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.auth.html" title="auth Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="migrations-package">
+<h1>migrations Package<a class="headerlink" href="#migrations-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-bambu.api.migrations.0001_initial">
+<span id="initial-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">0001_initial</span></tt> Module<a class="headerlink" href="#module-bambu.api.migrations.0001_initial" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.migrations.0001_initial.Migration">
+<em class="property">class </em><tt class="descclassname">bambu.api.migrations.0001_initial.</tt><tt class="descname">Migration</tt><a class="reference internal" href="../_modules/bambu/api/migrations/0001_initial.html#Migration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0001_initial.Migration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">south.v2.SchemaMigration</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.migrations.0001_initial.Migration.backwards">
+<tt class="descname">backwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0001_initial.html#Migration.backwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0001_initial.Migration.backwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0001_initial.Migration.complete_apps">
+<tt class="descname">complete_apps</tt><em class="property"> = ['api']</em><a class="headerlink" href="#bambu.api.migrations.0001_initial.Migration.complete_apps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.migrations.0001_initial.Migration.forwards">
+<tt class="descname">forwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0001_initial.html#Migration.forwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0001_initial.Migration.forwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0001_initial.Migration.models">
+<tt class="descname">models</tt><em class="property"> = {'auth.user': {'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'}), 'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}), 'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Group']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'Meta': {'object_name': 'User'}, 'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'})}, 'auth.permission': {'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('content_type__app_label', 'content_type__model', 'codename')&quot;, 'unique_together': &quot;(('content_type', 'codename'),)&quot;, 'object_name': 'Permission'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': &quot;orm['contenttypes.ContentType']&quot;}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'contenttypes.contenttype': {'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'unique_together': &quot;(('app_label', 'model'),)&quot;, 'object_name': 'ContentType', 'db_table': &quot;'django_content_type'&quot;}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'})}, 'api.app': {'status': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'object_name': 'App'}, 'description': ('django.db.models.fields.TextField', [], {}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'admin': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'owned_apps'&quot;, 'to': &quot;orm['auth.User']&quot;}), 'callback_url': ('django.db.models.fields.URLField', [], {'max_length': '255'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'auth.group': {'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'Meta': {'object_name': 'Group'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'})}, 'api.token': {'callback_confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1334599899L'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'to': &quot;orm['api.App']&quot;}), 'token_type': ('django.db.models.fields.PositiveIntegerField', [], {}), 'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'null': 'True', 'to': &quot;orm['auth.User']&quot;, 'blank': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'verifier': ('django.db.models.fields.CharField', [], {'max_length': '10'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'callback': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'object_name': 'Token'}}, 'api.nonce': {'token_key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'Meta': {'object_name': 'Nonce'}, 'consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '255'})}}</em><a class="headerlink" href="#bambu.api.migrations.0001_initial.Migration.models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a">
+<span id="auto-add-field-app-deploymanet-add-field-app-http-login-add-field-a-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a</span></tt> Module<a class="headerlink" href="#module-bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration">
+<em class="property">class </em><tt class="descclassname">bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.</tt><tt class="descname">Migration</tt><a class="reference internal" href="../_modules/bambu/api/migrations/0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.html#Migration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">south.v2.SchemaMigration</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.backwards">
+<tt class="descname">backwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.html#Migration.backwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.backwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.complete_apps">
+<tt class="descname">complete_apps</tt><em class="property"> = ['api']</em><a class="headerlink" href="#bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.complete_apps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.forwards">
+<tt class="descname">forwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.html#Migration.forwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.forwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.models">
+<tt class="descname">models</tt><em class="property"> = {'auth.user': {'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'}), 'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}), 'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Group']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'Meta': {'object_name': 'User'}, 'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'})}, 'auth.permission': {'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('content_type__app_label', 'content_type__model', 'codename')&quot;, 'unique_together': &quot;(('content_type', 'codename'),)&quot;, 'object_name': 'Permission'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': &quot;orm['contenttypes.ContentType']&quot;}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'contenttypes.contenttype': {'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'unique_together': &quot;(('app_label', 'model'),)&quot;, 'object_name': 'ContentType', 'db_table': &quot;'django_content_type'&quot;}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'})}, 'api.app': {'status': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'description': ('django.db.models.fields.TextField', [], {}), 'http_signup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'http_login': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'deployment': ('django.db.models.fields.CharField', [], {'default': &quot;''&quot;, 'max_length': '1'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}), 'admin': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'owned_apps'&quot;, 'to': &quot;orm['auth.User']&quot;}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'object_name': 'App'}, 'callback_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})}, 'auth.group': {'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'Meta': {'object_name': 'Group'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'})}, 'api.token': {'callback_confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1334756096L'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'to': &quot;orm['api.App']&quot;}), 'token_type': ('django.db.models.fields.PositiveIntegerField', [], {}), 'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'null': 'True', 'to': &quot;orm['auth.User']&quot;, 'blank': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'verifier': ('django.db.models.fields.CharField', [], {'max_length': '10'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'callback': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'object_name': 'Token'}}, 'api.nonce': {'token_key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'Meta': {'object_name': 'Nonce'}, 'consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '255'})}}</em><a class="headerlink" href="#bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a.Migration.models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.migrations.0003_auto__add_requestbatch">
+<span id="auto-add-requestbatch-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">0003_auto__add_requestbatch</span></tt> Module<a class="headerlink" href="#module-bambu.api.migrations.0003_auto__add_requestbatch" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.migrations.0003_auto__add_requestbatch.Migration">
+<em class="property">class </em><tt class="descclassname">bambu.api.migrations.0003_auto__add_requestbatch.</tt><tt class="descname">Migration</tt><a class="reference internal" href="../_modules/bambu/api/migrations/0003_auto__add_requestbatch.html#Migration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0003_auto__add_requestbatch.Migration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">south.v2.SchemaMigration</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.migrations.0003_auto__add_requestbatch.Migration.backwards">
+<tt class="descname">backwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0003_auto__add_requestbatch.html#Migration.backwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0003_auto__add_requestbatch.Migration.backwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0003_auto__add_requestbatch.Migration.complete_apps">
+<tt class="descname">complete_apps</tt><em class="property"> = ['api']</em><a class="headerlink" href="#bambu.api.migrations.0003_auto__add_requestbatch.Migration.complete_apps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.migrations.0003_auto__add_requestbatch.Migration.forwards">
+<tt class="descname">forwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0003_auto__add_requestbatch.html#Migration.forwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0003_auto__add_requestbatch.Migration.forwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0003_auto__add_requestbatch.Migration.models">
+<tt class="descname">models</tt><em class="property"> = {'contenttypes.contenttype': {'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'unique_together': &quot;(('app_label', 'model'),)&quot;, 'object_name': 'ContentType', 'db_table': &quot;'django_content_type'&quot;}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'})}, 'auth.permission': {'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('content_type__app_label', 'content_type__model', 'codename')&quot;, 'unique_together': &quot;(('content_type', 'codename'),)&quot;, 'object_name': 'Permission'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': &quot;orm['contenttypes.ContentType']&quot;}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'api.requestbatch': {'count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'requests'&quot;, 'to': &quot;orm['api.App']&quot;}), 'Meta': {'object_name': 'RequestBatch'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'time': ('django.db.models.fields.DateTimeField', [], {})}, 'api.app': {'status': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'description': ('django.db.models.fields.TextField', [], {}), 'http_signup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'http_login': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'deployment': ('django.db.models.fields.CharField', [], {'default': &quot;''&quot;, 'max_length': '1'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}), 'admin': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'owned_apps'&quot;, 'to': &quot;orm['auth.User']&quot;}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'object_name': 'App'}, 'callback_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})}, 'auth.user': {'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'}), 'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}), 'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Group']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'Meta': {'object_name': 'User'}, 'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'})}, 'auth.group': {'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'Meta': {'object_name': 'Group'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'})}, 'api.token': {'callback_confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1361199100L'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'to': &quot;orm['api.App']&quot;}), 'token_type': ('django.db.models.fields.PositiveIntegerField', [], {}), 'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'null': 'True', 'to': &quot;orm['auth.User']&quot;, 'blank': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'verifier': ('django.db.models.fields.CharField', [], {'max_length': '10'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'callback': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'object_name': 'Token'}}, 'api.nonce': {'token_key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'Meta': {'object_name': 'Nonce'}, 'consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '255'})}}</em><a class="headerlink" href="#bambu.api.migrations.0003_auto__add_requestbatch.Migration.models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp">
+<span id="auto-del-field-requestbatch-time-add-field-requestbatch-timestamp-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp</span></tt> Module<a class="headerlink" href="#module-bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration">
+<em class="property">class </em><tt class="descclassname">bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.</tt><tt class="descname">Migration</tt><a class="reference internal" href="../_modules/bambu/api/migrations/0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.html#Migration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">south.v2.SchemaMigration</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.backwards">
+<tt class="descname">backwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.html#Migration.backwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.backwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.complete_apps">
+<tt class="descname">complete_apps</tt><em class="property"> = ['api']</em><a class="headerlink" href="#bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.complete_apps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.forwards">
+<tt class="descname">forwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.html#Migration.forwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.forwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.models">
+<tt class="descname">models</tt><em class="property"> = {'contenttypes.contenttype': {'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'unique_together': &quot;(('app_label', 'model'),)&quot;, 'object_name': 'ContentType', 'db_table': &quot;'django_content_type'&quot;}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'})}, 'auth.permission': {'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('content_type__app_label', 'content_type__model', 'codename')&quot;, 'unique_together': &quot;(('content_type', 'codename'),)&quot;, 'object_name': 'Permission'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': &quot;orm['contenttypes.ContentType']&quot;}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'api.requestbatch': {'count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'requests'&quot;, 'to': &quot;orm['api.App']&quot;}), 'Meta': {'object_name': 'RequestBatch'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})}, 'api.app': {'status': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'description': ('django.db.models.fields.TextField', [], {}), 'http_signup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'http_login': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'deployment': ('django.db.models.fields.CharField', [], {'default': &quot;''&quot;, 'max_length': '1'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}), 'admin': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'owned_apps'&quot;, 'to': &quot;orm['auth.User']&quot;}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'object_name': 'App'}, 'callback_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})}, 'auth.user': {'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'}), 'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}), 'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Group']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'Meta': {'object_name': 'User'}, 'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'})}, 'auth.group': {'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'Meta': {'object_name': 'Group'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'})}, 'api.token': {'callback_confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1364057303L'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'to': &quot;orm['api.App']&quot;}), 'token_type': ('django.db.models.fields.PositiveIntegerField', [], {}), 'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'null': 'True', 'to': &quot;orm['auth.User']&quot;, 'blank': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'verifier': ('django.db.models.fields.CharField', [], {'max_length': '10'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'callback': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'object_name': 'Token'}}, 'api.nonce': {'token_key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'Meta': {'object_name': 'Nonce'}, 'consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '255'})}}</em><a class="headerlink" href="#bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp.Migration.models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app">
+<span id="auto-add-unique-requestbatch-timestamp-app-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">0005_auto__add_unique_requestbatch_timestamp_app</span></tt> Module<a class="headerlink" href="#module-bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration">
+<em class="property">class </em><tt class="descclassname">bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.</tt><tt class="descname">Migration</tt><a class="reference internal" href="../_modules/bambu/api/migrations/0005_auto__add_unique_requestbatch_timestamp_app.html#Migration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">south.v2.SchemaMigration</span></tt></p>
+<dl class="method">
+<dt id="bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.backwards">
+<tt class="descname">backwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0005_auto__add_unique_requestbatch_timestamp_app.html#Migration.backwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.backwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.complete_apps">
+<tt class="descname">complete_apps</tt><em class="property"> = ['api']</em><a class="headerlink" href="#bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.complete_apps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.forwards">
+<tt class="descname">forwards</tt><big>(</big><em>orm</em><big>)</big><a class="reference internal" href="../_modules/bambu/api/migrations/0005_auto__add_unique_requestbatch_timestamp_app.html#Migration.forwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.forwards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.models">
+<tt class="descname">models</tt><em class="property"> = {'contenttypes.contenttype': {'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'unique_together': &quot;(('app_label', 'model'),)&quot;, 'object_name': 'ContentType', 'db_table': &quot;'django_content_type'&quot;}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'})}, 'auth.permission': {'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}), 'Meta': {'ordering': &quot;('content_type__app_label', 'content_type__model', 'codename')&quot;, 'unique_together': &quot;(('content_type', 'codename'),)&quot;, 'object_name': 'Permission'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': &quot;orm['contenttypes.ContentType']&quot;}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})}, 'api.requestbatch': {'count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'requests'&quot;, 'to': &quot;orm['api.App']&quot;}), 'Meta': {'unique_together': &quot;(('app', 'timestamp'),)&quot;, 'object_name': 'RequestBatch'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})}, 'api.app': {'status': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}), 'description': ('django.db.models.fields.TextField', [], {}), 'http_signup': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'http_login': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'deployment': ('django.db.models.fields.CharField', [], {'default': &quot;''&quot;, 'max_length': '1'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}), 'admin': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'owned_apps'&quot;, 'to': &quot;orm['auth.User']&quot;}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'ordering': &quot;('name',)&quot;, 'object_name': 'App'}, 'callback_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})}, 'auth.user': {'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'}), 'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}), 'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Group']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}), 'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'Meta': {'object_name': 'User'}, 'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}), 'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'})}, 'auth.group': {'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': &quot;orm['auth.Permission']&quot;, 'blank': 'True', 'symmetrical': 'False'}), 'Meta': {'object_name': 'Group'}, 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'})}, 'api.token': {'callback_confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'timestamp': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1364057384L'}), 'app': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'to': &quot;orm['api.App']&quot;}), 'token_type': ('django.db.models.fields.PositiveIntegerField', [], {}), 'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': &quot;'tokens'&quot;, 'null': 'True', 'to': &quot;orm['auth.User']&quot;, 'blank': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}), 'verifier': ('django.db.models.fields.CharField', [], {'max_length': '10'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'callback': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}), 'secret': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'Meta': {'object_name': 'Token'}}, 'api.nonce': {'token_key': ('django.db.models.fields.CharField', [], {'max_length': '18'}), 'Meta': {'object_name': 'Nonce'}, 'consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '32'}), 'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}), 'key': ('django.db.models.fields.CharField', [], {'max_length': '255'})}}</em><a class="headerlink" href="#bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app.Migration.models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">migrations Package</a><ul>
+<li><a class="reference internal" href="#module-bambu.api.migrations.0001_initial"><tt class="docutils literal"><span class="pre">0001_initial</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.migrations.0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a"><tt class="docutils literal"><span class="pre">0002_auto__add_field_app_deploymanet__add_field_app_http_login__add_field_a</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.migrations.0003_auto__add_requestbatch"><tt class="docutils literal"><span class="pre">0003_auto__add_requestbatch</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.migrations.0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp"><tt class="docutils literal"><span class="pre">0004_auto__del_field_requestbatch_time__add_field_requestbatch_timestamp</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.api.migrations.0005_auto__add_unique_requestbatch_timestamp_app"><tt class="docutils literal"><span class="pre">0005_auto__add_unique_requestbatch_timestamp_app</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.api.auth.html"
+                        title="previous chapter">auth Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.api.templatetags.html"
+                        title="next chapter">templatetags Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.api.migrations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.templatetags.html" title="templatetags Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.api.auth.html" title="auth Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

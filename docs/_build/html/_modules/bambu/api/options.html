@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.api.options &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.api" href="../api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.api.options</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">include</span>
+<span class="kn">from</span> <span class="nn">django.utils.functional</span> <span class="kn">import</span> <span class="n">curry</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="kn">import</span> <span class="n">utc</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.forms</span> <span class="kn">import</span> <span class="n">Form</span><span class="p">,</span> <span class="n">ModelForm</span>
+<span class="kn">from</span> <span class="nn">django.forms.models</span> <span class="kn">import</span> <span class="n">modelform_factory</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span>
+<span class="kn">from</span> <span class="nn">bambu.api</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">from</span> <span class="nn">bambu.api.transformers</span> <span class="kn">import</span> <span class="n">library</span>
+
+<div class="viewcode-block" id="API"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.API">[docs]</a><span class="k">class</span> <span class="nc">API</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="n">form</span> <span class="o">=</span> <span class="n">Form</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_site</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">api_site</span> <span class="o">=</span> <span class="n">api_site</span>
+	
+<div class="viewcode-block" id="API.get_urls"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.API.get_urls">[docs]</a>	<span class="k">def</span> <span class="nf">get_urls</span><span class="p">():</span>
+		<span class="k">return</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+	</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="API.urls"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.API.urls">[docs]</a>	<span class="k">def</span> <span class="nf">urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span>
+	</div>
+<div class="viewcode-block" id="API.get_form"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.API.get_form">[docs]</a>	<span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="ModelAPI"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI">[docs]</a><span class="k">class</span> <span class="nc">ModelAPI</span><span class="p">(</span><span class="n">API</span><span class="p">):</span>
+	<span class="n">form</span> <span class="o">=</span> <span class="n">ModelForm</span>
+	<span class="n">exclude</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">fields</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">inlines</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">allowed_methods</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">)</span>
+	<span class="n">allowed_formats</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;xml&#39;</span><span class="p">,</span> <span class="s">&#39;json&#39;</span><span class="p">)</span>
+	<span class="n">raw_id_fields</span> <span class="o">=</span> <span class="p">()</span>
+	<span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">()</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">api_site</span><span class="p">):</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">ModelAPI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">api_site</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">inline_instances</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">inline_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inlines</span><span class="p">:</span>
+			<span class="n">fks_to_parent</span> <span class="o">=</span> <span class="p">[</span>
+				<span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">inline_class</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+					<span class="n">f</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+					<span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">to</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_parent_list</span><span class="p">()</span>
+				<span class="p">)</span>
+			<span class="p">]</span>
+			
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fks_to_parent</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+				<span class="n">fk</span> <span class="o">=</span> <span class="n">fks_to_parent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+				<span class="n">rel_name</span> <span class="o">=</span> <span class="n">fk</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">related_name</span> <span class="ow">or</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_set&#39;</span> <span class="o">%</span> <span class="p">(</span>
+					<span class="n">inline_class</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">module_name</span>
+				<span class="p">)</span>
+				
+				<span class="bp">self</span><span class="o">.</span><span class="n">inline_instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+					<span class="n">inline_class</span><span class="p">(</span>
+						<span class="n">inline_class</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fk</span><span class="p">,</span>
+						<span class="n">rel_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_site</span>
+					<span class="p">)</span>
+				<span class="p">)</span>
+			<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">fks_to_parent</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+					<span class="s">&#39;</span><span class="si">%s</span><span class="s"> has no ForeignKey to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+						<span class="n">inline_class</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+					<span class="p">)</span>
+				<span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+					<span class="s">&#39;</span><span class="si">%s</span><span class="s"> has more than 1 ForeignKey to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+						<span class="n">inline_class</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+					<span class="p">)</span>
+				<span class="p">)</span>
+	
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="ModelAPI.list_allowed_methods"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.list_allowed_methods">[docs]</a>	<span class="k">def</span> <span class="nf">list_allowed_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_methods</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">)]</span>
+	</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="ModelAPI.object_allowed_methods"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.object_allowed_methods">[docs]</a>	<span class="k">def</span> <span class="nf">object_allowed_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_methods</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">)]</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.make_example_object"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.make_example_object">[docs]</a>	<span class="k">def</span> <span class="nf">make_example_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">pk</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">django.contrib.webdesign</span> <span class="kn">import</span> <span class="n">lorem_ipsum</span>
+		<span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="kn">import</span> <span class="n">slugify</span>
+		<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+		<span class="kn">import</span> <span class="nn">random</span>
+		
+		<span class="n">model</span> <span class="o">=</span> <span class="n">model</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+		<span class="n">opts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span>
+		<span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">local_fields</span> <span class="o">+</span> <span class="n">opts</span><span class="o">.</span><span class="n">local_many_to_many</span><span class="p">)</span>
+		<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="n">pk</span>
+		<span class="p">}</span>
+		
+		<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">models</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">NOT_PROVIDED</span><span class="p">:</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span>
+			<span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;make_random_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+				<span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;make_random_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)()</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">SlugField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">lorem_ipsum</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">lorem_ipsum</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">lorem_ipsum</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">):</span>
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">field</span><span class="o">.</span><span class="n">null</span><span class="p">:</span>
+						<span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_example_object</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="k">continue</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">utc</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">utc</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">FileField</span><span class="p">):</span>
+					<span class="n">value</span> <span class="o">=</span> <span class="s">&#39;filename.dat&#39;</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">AutoField</span><span class="p">):</span>
+					<span class="k">continue</span>
+				<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">related</span><span class="o">.</span><span class="n">RelatedField</span><span class="p">)):</span>
+					<span class="k">continue</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+						<span class="s">&#39;Don</span><span class="se">\&#39;</span><span class="s">t know how to generate a default value for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">field</span>
+					<span class="p">)</span>
+			
+			<span class="n">kwargs</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+		
+		<span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.example_list_response"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.example_list_response">[docs]</a>	<span class="k">def</span> <span class="nf">example_list_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">bambu.api.serialisers</span> <span class="kn">import</span> <span class="n">JSONSerialiser</span>
+		
+		<span class="k">return</span> <span class="n">JSONSerialiser</span><span class="p">()</span><span class="o">.</span><span class="n">serialise</span><span class="p">(</span>
+			<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">make_example_object</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.example_object_response"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.example_object_response">[docs]</a>	<span class="k">def</span> <span class="nf">example_object_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="kn">from</span> <span class="nn">bambu.api.serialisers</span> <span class="kn">import</span> <span class="n">JSONSerialiser</span>
+		
+		<span class="k">return</span> <span class="n">JSONSerialiser</span><span class="p">(</span><span class="n">max_detail_level</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">serialise</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">make_example_object</span><span class="p">()</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.get_urls"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.get_urls">[docs]</a>	<span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">app_label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">module_name</span>
+		
+		<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+			<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^\.(?P&lt;format&gt;&#39;</span> <span class="o">+</span> <span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_formats</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;)$&#39;</span><span class="p">,</span>
+				<span class="n">helpers</span><span class="o">.</span><span class="n">wrap_api_function</span><span class="p">(</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">api_site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_view</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">list_allowed_methods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_output_data</span>
+				<span class="p">),</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_list&#39;</span> <span class="o">%</span> <span class="n">info</span>
+			<span class="p">),</span>
+			<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^/(?P&lt;object_id&gt;\d+)\.(?P&lt;format&gt;&#39;</span> <span class="o">+</span> <span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_formats</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;)$&#39;</span><span class="p">,</span>
+				<span class="n">helpers</span><span class="o">.</span><span class="n">wrap_api_function</span><span class="p">(</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">api_site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_view</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">object_allowed_methods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_output_data</span>
+				<span class="p">),</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_object&#39;</span> <span class="o">%</span> <span class="n">info</span>
+			<span class="p">)</span>
+		<span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">inline</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inline_instances</span><span class="p">:</span>
+			<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+				<span class="n">url</span><span class="p">(</span>
+					<span class="s">r&#39;^/(?P&lt;&#39;</span> <span class="o">+</span> <span class="n">inline</span><span class="o">.</span><span class="n">rel_field</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;&gt;\d+)/&#39;</span> <span class="o">+</span> <span class="n">inline</span><span class="o">.</span><span class="n">rel_name</span><span class="p">,</span>
+					<span class="n">include</span><span class="p">(</span><span class="n">inline</span><span class="o">.</span><span class="n">get_urls</span><span class="p">())</span>
+				<span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">urlpatterns</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.get_form"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.get_form">[docs]</a>	<span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">):</span>
+			<span class="n">fields</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">exclude</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">)</span>
+		
+		<span class="n">exclude</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;exclude&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+		<span class="n">exclude</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readonly_fields</span><span class="p">)</span>
+		<span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span> <span class="ow">or</span> <span class="bp">None</span>
+		
+		<span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">,</span>
+			<span class="s">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span>
+			<span class="s">&#39;exclude&#39;</span><span class="p">:</span> <span class="n">exclude</span><span class="p">,</span>
+			<span class="s">&#39;formfield_callback&#39;</span><span class="p">:</span> <span class="n">curry</span><span class="p">(</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">formfield_for_dbfield</span><span class="p">,</span>
+				<span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+			<span class="p">)</span>
+		<span class="p">}</span>
+		
+		<span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">modelform_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">defaults</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.formfield_for_dbfield"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.formfield_for_dbfield">[docs]</a>	<span class="k">def</span> <span class="nf">formfield_for_dbfield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">db_field</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formfield_for_choice_field</span><span class="p">(</span><span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">db_field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">):</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formfield_for_foreignkey</span><span class="p">(</span><span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">db_field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">):</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formfield_for_manytomany</span><span class="p">(</span><span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">db_field</span><span class="o">.</span><span class="n">formfield</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.formfield_for_choice_field"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.formfield_for_choice_field">[docs]</a>	<span class="k">def</span> <span class="nf">formfield_for_choice_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">db_field</span><span class="o">.</span><span class="n">formfield</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.formfield_for_foreignkey"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.formfield_for_foreignkey">[docs]</a>	<span class="k">def</span> <span class="nf">formfield_for_foreignkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">db_field</span><span class="o">.</span><span class="n">formfield</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.formfield_for_manytomany"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.formfield_for_manytomany">[docs]</a>	<span class="k">def</span> <span class="nf">formfield_for_manytomany</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_field</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">db_field</span><span class="o">.</span><span class="n">rel</span><span class="o">.</span><span class="n">through</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">auto_created</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">None</span>
+		
+		<span class="k">return</span> <span class="n">db_field</span><span class="o">.</span><span class="n">formfield</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.save_form"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.save_form">[docs]</a>	<span class="k">def</span> <span class="nf">save_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.save_object"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.save_object">[docs]</a>	<span class="k">def</span> <span class="nf">save_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.prepare_initial_data"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.prepare_initial_data">[docs]</a>	<span class="k">def</span> <span class="nf">prepare_initial_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form_class</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">helpers</span><span class="o">.</span><span class="n">form_initial_data</span><span class="p">(</span><span class="n">form_class</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.get_query_set"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.get_query_set">[docs]</a>	<span class="k">def</span> <span class="nf">get_query_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.prepare_output_data"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.prepare_output_data">[docs]</a>	<span class="k">def</span> <span class="nf">prepare_output_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">max_detail_level</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">library</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+			<span class="n">obj</span><span class="p">,</span> <span class="n">max_detail_level</span><span class="p">,</span>
+			<span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+			<span class="n">exclude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.list_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.list_view">[docs]</a>	<span class="k">def</span> <span class="nf">list_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;GET&#39;</span><span class="p">:</span>
+			<span class="n">include</span> <span class="o">=</span> <span class="p">{}</span>
+			<span class="n">exclude</span> <span class="o">=</span> <span class="p">{}</span>
+			<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">]</span>
+			<span class="n">order_by</span> <span class="o">=</span> <span class="p">[]</span>
+			
+			<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="n">values</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+				
+				<span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;order&#39;</span><span class="p">:</span>
+					<span class="n">order_by</span> <span class="o">=</span> <span class="n">values</span>
+				<span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+						<span class="n">exclude</span><span class="p">[</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">__in&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">values</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">exclude</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">):</span>
+						<span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+					
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+						<span class="k">continue</span>
+					
+					<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+						<span class="n">include</span><span class="p">[</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">__in&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">include</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+			
+			<span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_query_set</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+			<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">qs</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">select_fields</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">qs</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">aggregate_select</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+			
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+				<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">local_fields</span><span class="p">]</span>
+			
+			<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">include</span><span class="p">):</span>
+				<span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">include</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">exclude</span><span class="p">):</span>
+				<span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="o">**</span><span class="n">exclude</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">order_by</span><span class="p">):</span>
+				<span class="n">orders</span> <span class="o">=</span> <span class="p">[]</span>
+				
+				<span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">order_by</span><span class="p">:</span>
+					<span class="n">direction</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+					
+					<span class="k">while</span> <span class="n">order</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+						<span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+							<span class="n">direction</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">direction</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+						
+						<span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+					
+					<span class="k">if</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">fields</span> <span class="ow">or</span> <span class="n">order</span> <span class="o">==</span> <span class="s">&#39;?&#39;</span><span class="p">:</span>
+						<span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s">&#39;?&#39;</span> <span class="ow">and</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+							<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">u&#39;Cannot order negatively by random&#39;</span><span class="p">)</span>
+						<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">orders</span><span class="p">):</span>
+							<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">u&#39;Cannot order by random when already ordering by other fields&#39;</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">u&#39;Cannot order by </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">order</span><span class="p">)</span>
+					
+					<span class="k">if</span> <span class="s">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">:</span>
+						<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">u&#39;Cannot order by random when already ordering by other fields&#39;</span><span class="p">)</span>
+					
+					<span class="n">orders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">direction</span> <span class="o">+</span> <span class="n">order</span><span class="p">)</span>
+				
+				<span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="o">*</span><span class="n">orders</span><span class="p">)</span>
+			
+			<span class="k">return</span> <span class="n">qs</span>
+		<span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+			<span class="n">form_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_initial_data</span><span class="p">(</span><span class="n">form_class</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+			
+			<span class="n">form</span> <span class="o">=</span> <span class="n">form_class</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+				<span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">save_object</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+				<span class="k">return</span> <span class="n">obj</span>
+			
+			<span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">form</span><span class="o">.</span><span class="n">non_field_errors</span><span class="p">():</span>
+				<span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">form</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">errors</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">errors</span><span class="p">):</span>
+					<span class="n">inline_errors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">errors</span><span class="p">])</span>
+					
+					<span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+						<span class="p">{</span>
+							<span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">inline_errors</span>
+						<span class="p">}</span>
+					<span class="p">)</span>
+			
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.get_object"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.get_object">[docs]</a>	<span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">object_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_query_set</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">object_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&#39;Object not found.&#39;</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="ModelAPI.object_view"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelAPI.object_view">[docs]</a>	<span class="k">def</span> <span class="nf">object_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">object_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">object_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;DELETE&#39;</span><span class="p">:</span>
+			<span class="n">obj</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+			<span class="k">return</span> <span class="p">[</span><span class="s">&#39;OK&#39;</span><span class="p">]</span>
+		<span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;PUT&#39;</span><span class="p">:</span>
+			<span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">&quot;POST&quot;</span>
+			<span class="n">request</span><span class="o">.</span><span class="n">_load_post_and_files</span><span class="p">()</span>
+			<span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">&quot;PUT&quot;</span>
+			
+			<span class="n">form_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_initial_data</span><span class="p">(</span><span class="n">form_class</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+			
+			<span class="n">form</span> <span class="o">=</span> <span class="n">form_class</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span> <span class="n">obj</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+				<span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">save_object</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+				<span class="k">return</span> <span class="n">obj</span>
+			
+			<span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">form</span><span class="o">.</span><span class="n">non_field_errors</span><span class="p">():</span>
+				<span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">form</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">errors</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">errors</span><span class="p">):</span>
+					<span class="n">inline_errors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">errors</span><span class="p">])</span>
+					
+					<span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+						<span class="p">{</span>
+							<span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">inline_errors</span>
+						<span class="p">}</span>
+					<span class="p">)</span>
+			
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">obj</span>
+</div></div>
+<div class="viewcode-block" id="ModelInline"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelInline">[docs]</a><span class="k">class</span> <span class="nc">ModelInline</span><span class="p">(</span><span class="n">ModelAPI</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">rel_field</span><span class="p">,</span> <span class="n">rel_name</span><span class="p">,</span> <span class="n">api_site</span><span class="p">):</span>
+		<span class="nb">super</span><span class="p">(</span><span class="n">ModelInline</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">api_site</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rel_field</span> <span class="o">=</span> <span class="n">rel_field</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rel_name</span> <span class="o">=</span> <span class="n">rel_name</span>
+	
+<div class="viewcode-block" id="ModelInline.prepare_initial_data"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.options.ModelInline.prepare_initial_data">[docs]</a>	<span class="k">def</span> <span class="nf">prepare_initial_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form_class</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">form_initial_data</span><span class="p">(</span><span class="n">form_class</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>
+			<span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">data</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" >bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

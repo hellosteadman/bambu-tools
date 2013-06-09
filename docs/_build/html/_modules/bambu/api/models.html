@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.api.models &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.api" href="../api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.api.models</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="kn">import</span> <span class="n">utc</span>
+<span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">bambu.api.managers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">bambu.api</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="n">REQUEST_LOGGER</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_request_logger</span><span class="p">()</span>
+
+<div class="viewcode-block" id="App"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.App">[docs]</a><span class="k">class</span> <span class="nc">App</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+	<span class="n">admin</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">related_name</span> <span class="o">=</span> <span class="s">&#39;owned_apps&#39;</span><span class="p">)</span>
+	<span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+	<span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+	<span class="n">key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span> <span class="n">editable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+	<span class="n">secret</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">editable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+	<span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">editable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+			<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">u&#39;accepted&#39;</span><span class="p">),</span>
+		<span class="p">)</span>
+	<span class="p">)</span>
+	
+	<span class="n">callback_url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="s">u&#39;callback URL&#39;</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="n">null</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">blank</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+	<span class="n">deployment</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+		<span class="n">max_length</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="p">(</span>
+			<span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="s">u&#39;Web&#39;</span><span class="p">),</span>
+			<span class="p">(</span><span class="s">&#39;m&#39;</span><span class="p">,</span> <span class="s">u&#39;Mobile&#39;</span><span class="p">),</span>
+			<span class="p">(</span><span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="s">u&#39;Desktop&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	<span class="p">)</span>
+	
+	<span class="n">http_login</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s">u&#39;allow login via HTTP&#39;</span><span class="p">)</span>
+	<span class="n">http_signup</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s">u&#39;allow signup via HTTP&#39;</span><span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+		
+<div class="viewcode-block" id="App.clean"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.App.clean">[docs]</a>	<span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment</span> <span class="o">==</span> <span class="s">&#39;w&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_url</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;A callback URL is required for web applications.&#39;</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="App.save"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.App.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">secret</span><span class="p">:</span>
+			<span class="n">key</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+			<span class="n">secret</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+			
+			<span class="k">while</span> <span class="n">App</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">key__exact</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> <span class="n">secret__exact</span> <span class="o">=</span> <span class="n">secret</span><span class="p">)</span><span class="o">.</span><span class="n">select_for_update</span><span class="p">(</span><span class="n">nowait</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="n">secret</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">secret</span> <span class="o">=</span> <span class="n">secret</span>
+		
+		<span class="nb">super</span><span class="p">(</span><span class="n">App</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="App.log_request"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.App.log_request">[docs]</a>	<span class="k">def</span> <span class="nf">log_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">REQUEST_LOGGER</span><span class="o">.</span><span class="n">validate_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+			<span class="n">REQUEST_LOGGER</span><span class="o">.</span><span class="n">log_request</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">False</span>
+	</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="App.users"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.App.users">[docs]</a>	<span class="k">def</span> <span class="nf">users</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+			<span class="n">pk__in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user__isnull</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">token_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">,</span>
+				<span class="n">flat</span> <span class="o">=</span> <span class="bp">True</span>
+			<span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+	<span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+		<span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,)</span>
+</div>
+<div class="viewcode-block" id="Nonce"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Nonce">[docs]</a><span class="k">class</span> <span class="nc">Nonce</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+	<span class="n">token_key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">18</span><span class="p">)</span>
+	<span class="n">consumer_key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">32</span><span class="p">)</span>
+	<span class="n">key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">255</span><span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">u&#39;Nonce </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumer_key</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Token"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Token">[docs]</a><span class="k">class</span> <span class="nc">Token</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+	<span class="n">key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">18</span><span class="p">)</span>
+	<span class="n">secret</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+	<span class="n">verifier</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+	<span class="n">token_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">choices</span> <span class="o">=</span> 
+		<span class="p">(</span>
+			<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">u&#39;Request&#39;</span><span class="p">),</span>
+			<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">u&#39;Access&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	<span class="p">)</span>
+	
+	<span class="n">timestamp</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">time</span><span class="p">()))</span>
+	<span class="n">approved</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+	
+	<span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">null</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">blank</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">related_name</span> <span class="o">=</span> <span class="s">&#39;tokens&#39;</span><span class="p">)</span>
+	<span class="n">app</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">App</span><span class="p">,</span> <span class="n">related_name</span> <span class="o">=</span> <span class="s">&#39;tokens&#39;</span><span class="p">)</span>
+	<span class="n">callback</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">blank</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+	<span class="n">callback_confirmed</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+	
+	<span class="n">objects</span> <span class="o">=</span> <span class="n">TokenManager</span><span class="p">()</span>
+	
+	<span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">u&#39;</span><span class="si">%s</span><span class="s"> Token </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">get_token_type_display</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span>
+		<span class="p">)</span>
+	
+<div class="viewcode-block" id="Token.to_string"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Token.to_string">[docs]</a>	<span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_key</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+		<span class="n">token_dict</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;oauth_token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> 
+			<span class="s">&#39;oauth_token_secret&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">secret</span><span class="p">,</span>
+			<span class="s">&#39;oauth_callback_confirmed&#39;</span><span class="p">:</span> <span class="s">&#39;true&#39;</span><span class="p">,</span>
+		<span class="p">}</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifier</span><span class="p">:</span>
+			<span class="n">token_dict</span><span class="p">[</span><span class="s">&#39;oauth_verifier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifier</span>
+		
+		<span class="k">if</span> <span class="n">only_key</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">token_dict</span><span class="p">[</span><span class="s">&#39;oauth_token_secret&#39;</span><span class="p">]</span>
+		
+		<span class="k">return</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">token_dict</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="Token.save"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Token.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">secret</span><span class="p">:</span>
+			<span class="n">key</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+			<span class="n">secret</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+			
+			<span class="k">while</span> <span class="n">Token</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+				<span class="n">key__exact</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> <span class="n">secret__exact</span> <span class="o">=</span> <span class="n">secret</span>
+			<span class="p">)</span><span class="o">.</span><span class="n">select_for_update</span><span class="p">(</span><span class="n">nowait</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+				<span class="n">secret</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">generate_random_key</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">secret</span> <span class="o">=</span> <span class="n">secret</span>
+		
+		<span class="nb">super</span><span class="p">(</span><span class="n">Token</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="Token.get_callback_url"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Token.get_callback_url">[docs]</a>	<span class="k">def</span> <span class="nf">get_callback_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifier</span><span class="p">:</span>
+			<span class="n">parts</span> <span class="o">=</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+			<span class="n">scheme</span><span class="p">,</span> <span class="n">netloc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
+			
+			<span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+				<span class="n">query</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&amp;oauth_verifier=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifier</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">query</span> <span class="o">=</span> <span class="s">&#39;oauth_verifier=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifier</span>
+			
+			<span class="k">return</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urlunparse</span><span class="p">((</span><span class="n">scheme</span><span class="p">,</span> <span class="n">netloc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span>
+				<span class="n">query</span><span class="p">,</span> <span class="n">fragment</span><span class="p">))</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span>
+	</div>
+<div class="viewcode-block" id="Token.set_callback"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.Token.set_callback">[docs]</a>	<span class="k">def</span> <span class="nf">set_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">callback</span> <span class="o">!=</span> <span class="s">&#39;oob&#39;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">callback_confirmed</span> <span class="o">=</span> <span class="bp">True</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="RequestBatch"><a class="viewcode-back" href="../../../api/bambu.api.html#bambu.api.models.RequestBatch">[docs]</a><span class="k">class</span> <span class="nc">RequestBatch</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+	<span class="n">app</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">App</span><span class="p">,</span> <span class="n">related_name</span> <span class="o">=</span> <span class="s">&#39;requests&#39;</span><span class="p">)</span>
+	<span class="n">timestamp</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+	<span class="n">count</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+	
+	<span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+		<span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;app&#39;</span><span class="p">,</span> <span class="s">&#39;timestamp&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../api.html" >bambu.api</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

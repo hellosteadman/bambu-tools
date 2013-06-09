@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>urlshortener Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="migrations Package" href="bambu.urlshortener.migrations.html" />
+    <link rel="prev" title="sites Package" href="bambu.sites.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.urlshortener.migrations.html" title="migrations Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.sites.html" title="sites Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="urlshortener-package">
+<h1>urlshortener Package<a class="headerlink" href="#urlshortener-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">urlshortener</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.urlshortener"></span><dl class="function">
+<dt id="bambu.urlshortener.shorten">
+<tt class="descclassname">bambu.urlshortener.</tt><tt class="descname">shorten</tt><big>(</big><em>url</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener.html#shorten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.shorten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bambu.urlshortener.admin">
+<span id="admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">admin</span></tt> Module<a class="headerlink" href="#module-bambu.urlshortener.admin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.urlshortener.admin.ShortURLAdmin">
+<em class="property">class </em><tt class="descclassname">bambu.urlshortener.admin.</tt><tt class="descname">ShortURLAdmin</tt><big>(</big><em>model</em>, <em>admin_site</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener/admin.html#ShortURLAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.admin.ShortURLAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.options.ModelAdmin</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.urlshortener.admin.ShortURLAdmin.list_display">
+<tt class="descname">list_display</tt><em class="property"> = ('url', 'slug', 'visits', 'last_visited')</em><a class="headerlink" href="#bambu.urlshortener.admin.ShortURLAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.urlshortener.admin.ShortURLAdmin.media">
+<tt class="descname">media</tt><a class="headerlink" href="#bambu.urlshortener.admin.ShortURLAdmin.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.urlshortener.admin.ShortURLAdmin.readonly_fields">
+<tt class="descname">readonly_fields</tt><em class="property"> = ('slug', 'visits', 'last_visited')</em><a class="headerlink" href="#bambu.urlshortener.admin.ShortURLAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.urlshortener.models">
+<span id="models-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Module<a class="headerlink" href="#module-bambu.urlshortener.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.urlshortener.models.ShortURL">
+<em class="property">class </em><tt class="descclassname">bambu.urlshortener.models.</tt><tt class="descname">ShortURL</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener/models.html#ShortURL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.models.ShortURL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></tt></p>
+<p>ShortURL(id, url, slug, visits, last_visited)</p>
+<dl class="exception">
+<dt id="bambu.urlshortener.models.ShortURL.DoesNotExist">
+<em class="property">exception </em><tt class="descname">DoesNotExist</tt><a class="headerlink" href="#bambu.urlshortener.models.ShortURL.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bambu.urlshortener.models.ShortURL.MultipleObjectsReturned">
+<em class="property">exception </em><tt class="descclassname">ShortURL.</tt><tt class="descname">MultipleObjectsReturned</tt><a class="headerlink" href="#bambu.urlshortener.models.ShortURL.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.urlshortener.models.ShortURL.get_absolute_url">
+<tt class="descclassname">ShortURL.</tt><tt class="descname">get_absolute_url</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener/models.html#ShortURL.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.models.ShortURL.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.urlshortener.models.ShortURL.objects">
+<tt class="descclassname">ShortURL.</tt><tt class="descname">objects</tt><em class="property"> = &lt;django.db.models.manager.Manager object at 0xd187fac&gt;</em><a class="headerlink" href="#bambu.urlshortener.models.ShortURL.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.urlshortener.models.ShortURL.save">
+<tt class="descclassname">ShortURL.</tt><tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener/models.html#ShortURL.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.models.ShortURL.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.urlshortener.urls">
+<span id="urls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">urls</span></tt> Module<a class="headerlink" href="#module-bambu.urlshortener.urls" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bambu.urlshortener.views">
+<span id="views-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">views</span></tt> Module<a class="headerlink" href="#module-bambu.urlshortener.views" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bambu.urlshortener.views.url">
+<tt class="descclassname">bambu.urlshortener.views.</tt><tt class="descname">url</tt><big>(</big><em>request</em>, <em>slug</em><big>)</big><a class="reference internal" href="../_modules/bambu/urlshortener/views.html#url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.urlshortener.views.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bambu.urlshortener.migrations.html">migrations Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bambu.urlshortener.migrations.html#module-bambu.urlshortener.migrations.0001_initial"><tt class="docutils literal"><span class="pre">0001_initial</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">urlshortener Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">urlshortener</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-bambu.urlshortener.admin"><tt class="docutils literal"><span class="pre">admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.urlshortener.models"><tt class="docutils literal"><span class="pre">models</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.urlshortener.urls"><tt class="docutils literal"><span class="pre">urls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.urlshortener.views"><tt class="docutils literal"><span class="pre">views</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.sites.html"
+                        title="previous chapter">sites Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.urlshortener.migrations.html"
+                        title="next chapter">migrations Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.urlshortener.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.urlshortener.migrations.html" title="migrations Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.sites.html" title="sites Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

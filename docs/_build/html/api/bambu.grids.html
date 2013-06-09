@@ -1,0 +1,509 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>grids Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="international Package" href="bambu.international.html" />
+    <link rel="prev" title="templatetags Package" href="bambu.formatrules.templatetags.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.international.html" title="international Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bambu.formatrules.templatetags.html" title="templatetags Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="grids-package">
+<h1>grids Package<a class="headerlink" href="#grids-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">grids</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.grids"></span></div>
+<div class="section" id="module-bambu.grids.grids">
+<span id="grids-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">grids</span></tt> Module<a class="headerlink" href="#module-bambu.grids.grids" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.grids.grids.Grid">
+<em class="property">class </em><tt class="descclassname">bambu.grids.grids.</tt><tt class="descname">Grid</tt><big>(</big><em>request</em>, <em>data</em>, <em>attrs=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.actions">
+<tt class="descname">actions</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.attrs">
+<tt class="descname">attrs</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.attrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.classes">
+<tt class="descname">classes</tt><em class="property"> = ('table', 'table-striped', 'table-bordered')</em><a class="headerlink" href="#bambu.grids.grids.Grid.classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.column_attrs">
+<tt class="descname">column_attrs</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.column_attrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.columns">
+<tt class="descname">columns</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.empty_label">
+<tt class="descname">empty_label</tt><em class="property"> = u'There are no items in this view.'</em><a class="headerlink" href="#bambu.grids.grids.Grid.empty_label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.exclude">
+<tt class="descname">exclude</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.field_is_sortable">
+<tt class="descname">field_is_sortable</tt><big>(</big><em>field</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.field_is_sortable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.field_is_sortable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.filter">
+<tt class="descname">filter</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.grids.Grid.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.filter_renderer">
+<tt class="descname">filter_renderer</tt><a class="headerlink" href="#bambu.grids.grids.Grid.filter_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">FilterRenderer</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.filtering">
+<tt class="descname">filtering</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.filtering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.filtering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.get_columns">
+<tt class="descname">get_columns</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.get_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.get_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.get_friendly_name">
+<tt class="descname">get_friendly_name</tt><big>(</big><em>column</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.get_friendly_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.get_friendly_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.get_paginator">
+<tt class="descname">get_paginator</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.get_paginator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.get_paginator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.grid_renderer">
+<tt class="descname">grid_renderer</tt><a class="headerlink" href="#bambu.grids.grids.Grid.grid_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">TableRenderer</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.order">
+<tt class="descname">order</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.ordering">
+<tt class="descname">ordering</tt><em class="property"> = None</em><a class="headerlink" href="#bambu.grids.grids.Grid.ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.pagination">
+<tt class="descname">pagination</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.pagination"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.pagination" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.pagination_renderer">
+<tt class="descname">pagination_renderer</tt><a class="headerlink" href="#bambu.grids.grids.Grid.pagination_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">PaginationRenderer</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.paginator">
+<tt class="descname">paginator</tt><a class="headerlink" href="#bambu.grids.grids.Grid.paginator" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Paginator</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.per_page">
+<tt class="descname">per_page</tt><em class="property"> = 10</em><a class="headerlink" href="#bambu.grids.grids.Grid.per_page" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.perform_filter">
+<tt class="descname">perform_filter</tt><big>(</big><em>data</em>, <em>**options</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.perform_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.perform_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.prepare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.grids.Grid.render">
+<tt class="descname">render</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.grids.Grid.renderable_data">
+<tt class="descname">renderable_data</tt><a class="reference internal" href="../_modules/bambu/grids/grids.html#Grid.renderable_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.grids.Grid.renderable_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.grids.models">
+<span id="models-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Module<a class="headerlink" href="#module-bambu.grids.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.grids.models.ModelGrid">
+<em class="property">class </em><tt class="descclassname">bambu.grids.models.</tt><tt class="descname">ModelGrid</tt><big>(</big><em>request</em>, <em>data</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.grids.grids.Grid" title="bambu.grids.grids.Grid"><tt class="xref py py-class docutils literal"><span class="pre">bambu.grids.grids.Grid</span></tt></a></p>
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.column_verbose_names">
+<tt class="descname">column_verbose_names</tt><em class="property"> = {}</em><a class="headerlink" href="#bambu.grids.models.ModelGrid.column_verbose_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.columns">
+<tt class="descname">columns</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.models.ModelGrid.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.exclude">
+<tt class="descname">exclude</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.models.ModelGrid.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.field_is_sortable">
+<tt class="descname">field_is_sortable</tt><big>(</big><em>field</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.field_is_sortable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.field_is_sortable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.filter_renderer">
+<tt class="descname">filter_renderer</tt><a class="headerlink" href="#bambu.grids.models.ModelGrid.filter_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ModelFilterRenderer</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.get_columns">
+<tt class="descname">get_columns</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.get_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.get_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.get_friendly_name">
+<tt class="descname">get_friendly_name</tt><big>(</big><em>column</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.get_friendly_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.get_friendly_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.model">
+<tt class="descname">model</tt><em class="property"> = None</em><a class="headerlink" href="#bambu.grids.models.ModelGrid.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.order">
+<tt class="descname">order</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.perform_filter">
+<tt class="descname">perform_filter</tt><big>(</big><em>data</em>, <em>**options</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.perform_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.perform_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.models.ModelGrid.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/models.html#ModelGrid.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.models.ModelGrid.prepare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.models.ModelGrid.search">
+<tt class="descname">search</tt><em class="property"> = ()</em><a class="headerlink" href="#bambu.grids.models.ModelGrid.search" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.grids.renderers">
+<span id="renderers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">renderers</span></tt> Module<a class="headerlink" href="#module-bambu.grids.renderers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.grids.renderers.FilterRenderer">
+<em class="property">class </em><tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">FilterRenderer</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#FilterRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.FilterRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.grids.renderers.FilterRenderer.render">
+<tt class="descname">render</tt><big>(</big><em>data</em>, <em>attrs=None</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#FilterRenderer.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.FilterRenderer.render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.grids.renderers.ModelFilterRenderer">
+<em class="property">class </em><tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">ModelFilterRenderer</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#ModelFilterRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.ModelFilterRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.grids.renderers.FilterRenderer" title="bambu.grids.renderers.FilterRenderer"><tt class="xref py py-class docutils literal"><span class="pre">bambu.grids.renderers.FilterRenderer</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.grids.renderers.PaginationRenderer">
+<em class="property">class </em><tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">PaginationRenderer</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#PaginationRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.PaginationRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.grids.renderers.PaginationRenderer.max_pagelinks">
+<tt class="descname">max_pagelinks</tt><em class="property"> = 5</em><a class="headerlink" href="#bambu.grids.renderers.PaginationRenderer.max_pagelinks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.PaginationRenderer.render">
+<tt class="descname">render</tt><big>(</big><em>page</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#PaginationRenderer.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.PaginationRenderer.render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.grids.renderers.Renderer">
+<em class="property">class </em><tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">Renderer</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="bambu.grids.renderers.Renderer.container_tag">
+<tt class="descname">container_tag</tt><em class="property"> = 'div'</em><a class="headerlink" href="#bambu.grids.renderers.Renderer.container_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.is_link_column">
+<tt class="descname">is_link_column</tt><big>(</big><em>index</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.is_link_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.is_link_column" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.Renderer.item_column_tag">
+<tt class="descname">item_column_tag</tt><em class="property"> = 'dt'</em><a class="headerlink" href="#bambu.grids.renderers.Renderer.item_column_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.Renderer.item_container_tag">
+<tt class="descname">item_container_tag</tt><em class="property"> = 'dl'</em><a class="headerlink" href="#bambu.grids.renderers.Renderer.item_container_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.Renderer.item_value_tag">
+<tt class="descname">item_value_tag</tt><em class="property"> = 'dd'</em><a class="headerlink" href="#bambu.grids.renderers.Renderer.item_value_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render">
+<tt class="descname">render</tt><big>(</big><em>attrs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_action">
+<tt class="descname">render_action</tt><big>(</big><em>action</em>, <em>obj</em>, <em>index=0</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_action" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_actions">
+<tt class="descname">render_actions</tt><big>(</big><em>raw_data</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_empty">
+<tt class="descname">render_empty</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_empty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_footer">
+<tt class="descname">render_footer</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_footer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_footer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_header">
+<tt class="descname">render_header</tt><big>(</big><em>attrs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_item">
+<tt class="descname">render_item</tt><big>(</big><em>raw_data</em>, <em>prepared_data</em>, <em>attrs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.Renderer.render_value">
+<tt class="descname">render_value</tt><big>(</big><em>index</em>, <em>value</em>, <em>raw_data</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#Renderer.render_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.Renderer.render_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bambu.grids.renderers.TableRenderer">
+<em class="property">class </em><tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">TableRenderer</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.grids.renderers.Renderer" title="bambu.grids.renderers.Renderer"><tt class="xref py py-class docutils literal"><span class="pre">bambu.grids.renderers.Renderer</span></tt></a></p>
+<dl class="attribute">
+<dt id="bambu.grids.renderers.TableRenderer.container_tag">
+<tt class="descname">container_tag</tt><em class="property"> = 'table'</em><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.container_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.TableRenderer.item_column_tag">
+<tt class="descname">item_column_tag</tt><em class="property"> = 'th'</em><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.item_column_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.TableRenderer.item_container_tag">
+<tt class="descname">item_container_tag</tt><em class="property"> = 'tr'</em><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.item_container_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bambu.grids.renderers.TableRenderer.item_value_tag">
+<tt class="descname">item_value_tag</tt><em class="property"> = 'td'</em><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.item_value_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.TableRenderer.render_empty">
+<tt class="descname">render_empty</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer.render_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.render_empty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.TableRenderer.render_footer">
+<tt class="descname">render_footer</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer.render_footer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.render_footer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.TableRenderer.render_header">
+<tt class="descname">render_header</tt><big>(</big><em>attrs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer.render_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.render_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.TableRenderer.render_item">
+<tt class="descname">render_item</tt><big>(</big><em>raw_data</em>, <em>prepared_data</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer.render_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.render_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.grids.renderers.TableRenderer.render_sort_field">
+<tt class="descname">render_sort_field</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#TableRenderer.render_sort_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.TableRenderer.render_sort_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bambu.grids.renderers.flatten_attrs">
+<tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">flatten_attrs</tt><big>(</big><em>attrs</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#flatten_attrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.flatten_attrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bambu.grids.renderers.render_link">
+<tt class="descclassname">bambu.grids.renderers.</tt><tt class="descname">render_link</tt><big>(</big><em>value</em>, <em>url</em>, <em>attrs={}</em>, <em>safe=False</em><big>)</big><a class="reference internal" href="../_modules/bambu/grids/renderers.html#render_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.grids.renderers.render_link" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">grids Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">grids</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-bambu.grids.grids"><tt class="docutils literal"><span class="pre">grids</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.grids.models"><tt class="docutils literal"><span class="pre">models</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-bambu.grids.renderers"><tt class="docutils literal"><span class="pre">renderers</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bambu.formatrules.templatetags.html"
+                        title="previous chapter">templatetags Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.international.html"
+                        title="next chapter">international Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.grids.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.international.html" title="international Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bambu.formatrules.templatetags.html" title="templatetags Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

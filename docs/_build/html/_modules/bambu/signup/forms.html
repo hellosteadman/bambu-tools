@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.signup.forms &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.signup.forms</h1><div class="highlight"><pre>
+<span class="c"># encoding: utf-8</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="kn">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="kn">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">bambu.signup.models</span> <span class="kn">import</span> <span class="n">EmailValidation</span>
+
+<div class="viewcode-block" id="RegistrationForm"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.RegistrationForm">[docs]</a><span class="k">class</span> <span class="nc">RegistrationForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">first_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">last_name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+	<span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Email address&#39;</span><span class="p">))</span>
+	
+	<span class="n">username</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">RegexField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Username&#39;</span><span class="p">),</span> <span class="n">max_length</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">regex</span> <span class="o">=</span> <span class="s">r&#39;^[\w.@+-]+$&#39;</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.&#39;</span><span class="p">),</span>
+		<span class="n">error_messages</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;invalid&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;This value may contain only letters, numbers and @/./+/-/_ characters.&#39;</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">)</span>
+	
+	<span class="n">password1</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">)</span>
+	<span class="n">password2</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Confirm password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">,</span>
+		<span class="n">help_text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Enter the same password as above, for verification.&#39;</span><span class="p">)</span>
+	<span class="p">)</span>
+	
+<div class="viewcode-block" id="RegistrationForm.clean_username"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.RegistrationForm.clean_username">[docs]</a>	<span class="k">def</span> <span class="nf">clean_username</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username__iexact</span> <span class="o">=</span> <span class="n">username</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">username</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		
+		<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+			<span class="n">_</span><span class="p">(</span><span class="s">&#39;A user with that username already exists.&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.clean_password2"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.RegistrationForm.clean_password2">[docs]</a>	<span class="k">def</span> <span class="nf">clean_password2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">password1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;password1&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+		<span class="n">password2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password2&#39;</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="n">password1</span> <span class="o">!=</span> <span class="n">password2</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+				<span class="n">_</span><span class="p">(</span><span class="s">&#39;The two password fields don</span><span class="se">\&#39;</span><span class="s">t match.&#39;</span><span class="p">)</span>
+			<span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">password2</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.clean_email"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.RegistrationForm.clean_email">[docs]</a>	<span class="k">def</span> <span class="nf">clean_email</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">]</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email__iexact</span> <span class="o">=</span> <span class="n">email</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">email</span>
+		
+		<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+			<span class="n">_</span><span class="p">(</span><span class="s">&#39;A user with that email address already exists.&#39;</span><span class="p">)</span>
+		<span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="RegistrationForm.save"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.RegistrationForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="nb">next</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">],</span>
+			<span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">]</span>
+		<span class="p">)</span>
+		
+		<span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;first_name&#39;</span><span class="p">]</span>
+		<span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;last_name&#39;</span><span class="p">]</span>
+		<span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		<span class="n">user</span><span class="o">.</span><span class="n">email_validations</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">next_url</span> <span class="o">=</span> <span class="nb">next</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">authenticate</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password1&#39;</span><span class="p">]</span>
+		<span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="AuthenticationForm"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.AuthenticationForm">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">username</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">RegexField</span><span class="p">(</span>
+		<span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Username&#39;</span><span class="p">),</span> <span class="n">max_length</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">regex</span> <span class="o">=</span> <span class="s">r&#39;^[\w.@+-]+$&#39;</span>
+	<span class="p">)</span>
+	
+	<span class="n">password</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Password&#39;</span><span class="p">),</span> <span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">PasswordInput</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="AuthenticationForm.clean"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.AuthenticationForm.clean">[docs]</a>	<span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_user_cache</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span>
+			<span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+			<span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
+		<span class="p">)</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_cache</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;Please enter the correct username and password.&#39;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+	</div>
+<div class="viewcode-block" id="AuthenticationForm.login"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.AuthenticationForm.login">[docs]</a>	<span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+		<span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_cache</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_cache</span>
+</div></div>
+<div class="viewcode-block" id="PasswordResetForm"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.PasswordResetForm">[docs]</a><span class="k">class</span> <span class="nc">PasswordResetForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Email address&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="EmailValidationForm"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.EmailValidationForm">[docs]</a><span class="k">class</span> <span class="nc">EmailValidationForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+<div class="viewcode-block" id="EmailValidationForm.clean_code"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.EmailValidationForm.clean_code">[docs]</a>	<span class="k">def</span> <span class="nf">clean_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;code&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">code</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;That code is not correct.&#39;</span><span class="p">)</span>
+	</div>
+<div class="viewcode-block" id="EmailValidationForm.Meta"><a class="viewcode-back" href="../../../api/bambu.signup.html#bambu.signup.forms.EmailValidationForm.Meta">[docs]</a>	<span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+		<span class="n">model</span> <span class="o">=</span> <span class="n">EmailValidation</span>
+		<span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;code&#39;</span><span class="p">,)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

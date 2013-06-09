@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.webhooks.forms &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.webhooks" href="../webhooks.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../webhooks.html" accesskey="U">bambu.webhooks</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.webhooks.forms</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="kn">import</span> <span class="n">URLValidator</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">bambu.webhooks.models</span> <span class="kn">import</span> <span class="n">Receiver</span>
+<span class="kn">from</span> <span class="nn">bambu.webhooks</span> <span class="kn">import</span> <span class="n">site</span>
+
+<div class="viewcode-block" id="ReceiverForm"><a class="viewcode-back" href="../../../api/bambu.webhooks.html#bambu.webhooks.forms.ReceiverForm">[docs]</a><span class="k">class</span> <span class="nc">ReceiverForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">)</span>
+		<span class="n">hooks</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">for</span> <span class="p">(</span><span class="n">hook</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s">&#39;hook&#39;</span><span class="p">,</span> <span class="s">&#39;url&#39;</span><span class="p">):</span>
+			<span class="n">hooks</span><span class="p">[</span><span class="n">hook</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hook</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">[</span><span class="n">url</span><span class="p">]</span>
+		
+		<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;initial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+			<span class="p">[</span>
+				<span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">u</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="n">hooks</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+			<span class="p">]</span>
+		<span class="p">)</span>
+		
+		<span class="nb">super</span><span class="p">(</span><span class="n">ReceiverForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;staff_only&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+				<span class="k">continue</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+				<span class="n">widget</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">Textarea</span><span class="p">(</span>
+					<span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+						<span class="s">&#39;rows&#39;</span><span class="p">:</span> <span class="mi">3</span>
+					<span class="p">}</span>
+				<span class="p">),</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;verbose_name&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+				<span class="n">help_text</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">),</span>
+				<span class="n">required</span> <span class="o">=</span> <span class="bp">False</span>
+			<span class="p">)</span>
+			
+			<span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;clean_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_FIELD</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+	
+<div class="viewcode-block" id="ReceiverForm.clean_FIELD"><a class="viewcode-back" href="../../../api/bambu.webhooks.html#bambu.webhooks.forms.ReceiverForm.clean_FIELD">[docs]</a>	<span class="k">def</span> <span class="nf">clean_FIELD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">inner</span><span class="p">():</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+			<span class="n">validate</span> <span class="o">=</span> <span class="n">URLValidator</span><span class="p">()</span>
+			
+			<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">u</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]):</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">validate</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+				<span class="k">except</span> <span class="n">ValidationError</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+						<span class="s">u&#39;Line </span><span class="si">%d</span><span class="s"> contains an invalid URL&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+					<span class="p">)</span>
+			
+			<span class="k">return</span> <span class="n">data</span>
+		
+		<span class="k">return</span> <span class="n">inner</span>
+	</div>
+<div class="viewcode-block" id="ReceiverForm.save"><a class="viewcode-back" href="../../../api/bambu.webhooks.html#bambu.webhooks.forms.ReceiverForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">hooks</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hooks</span><span class="p">:</span>
+			<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
+			
+			<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+					<span class="n">hook</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span>
+					<span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+				<span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+						<span class="n">hook</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span>
+						<span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+					<span class="p">)</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+				<span class="n">hook</span> <span class="o">=</span> <span class="n">name</span>
+			<span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+				<span class="n">url__in</span> <span class="o">=</span> <span class="n">urls</span>
+			<span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">hook__in</span> <span class="o">=</span> <span class="n">hooks</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../webhooks.html" >bambu.webhooks</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

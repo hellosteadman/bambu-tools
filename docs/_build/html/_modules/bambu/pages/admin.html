@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.pages.admin &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.pages.admin</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">bambu.pages.models</span> <span class="kn">import</span> <span class="n">Page</span>
+<span class="kn">from</span> <span class="nn">bambu.attachments.admin</span> <span class="kn">import</span> <span class="n">AttachmentInline</span>
+<span class="kn">from</span> <span class="nn">bambu.preview.admin</span> <span class="kn">import</span> <span class="n">PreviewableModelAdmin</span>
+<span class="kn">from</span> <span class="nn">markitup.widgets</span> <span class="kn">import</span> <span class="n">MarkItUpWidget</span>
+
+<div class="viewcode-block" id="PageAdminForm"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdminForm">[docs]</a><span class="k">class</span> <span class="nc">PageAdminForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">add_choices</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">:</span>
+				<span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+			
+			<span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">:</span>
+				<span class="n">choices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;-- &#39;</span> <span class="o">*</span> <span class="n">indent</span><span class="p">)</span> <span class="o">+</span> <span class="n">page</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+				<span class="n">add_choices</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+		
+		<span class="nb">super</span><span class="p">(</span><span class="n">PageAdminForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;---------&#39;</span><span class="p">)]</span>
+		<span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;parent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span>
+		<span class="n">add_choices</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">root</span><span class="p">())</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;parent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="n">MarkItUpWidget</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;css&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">u&#39;Custom CSS&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&#39;menu_groups&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">help_text</span> <span class="o">=</span> <span class="s">u&#39;A comma-separated name of menu groups&#39;</span>
+	
+<div class="viewcode-block" id="PageAdminForm.save"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdminForm.save">[docs]</a>	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PageAdminForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">menu_groups</span><span class="p">:</span>
+			<span class="n">menus</span> <span class="o">=</span> <span class="p">[]</span>
+			
+			<span class="k">for</span> <span class="n">menu</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">menu_groups</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">):</span>
+				<span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+				
+				<span class="k">while</span> <span class="n">menu</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+					<span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+				
+				<span class="k">while</span> <span class="n">menu</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">):</span>
+					<span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+				
+				<span class="k">while</span> <span class="n">menu</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+					<span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+				
+				<span class="k">while</span> <span class="n">menu</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">):</span>
+					<span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+				
+				<span class="n">menus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">menu</span><span class="p">)</span>
+			
+			<span class="n">obj</span><span class="o">.</span><span class="n">menu_groups</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">menus</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">obj</span><span class="o">.</span><span class="n">menu_groups</span> <span class="o">=</span> <span class="bp">None</span>
+		
+		<span class="k">if</span> <span class="n">commit</span><span class="p">:</span>
+			<span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">obj</span>
+	</div>
+<div class="viewcode-block" id="PageAdminForm.Meta"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdminForm.Meta">[docs]</a>	<span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+		<span class="n">model</span> <span class="o">=</span> <span class="n">Page</span>
+	</div>
+<div class="viewcode-block" id="PageAdminForm.Media"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdminForm.Media">[docs]</a>	<span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+		<span class="n">css</span> <span class="o">=</span> <span class="s">&#39;bambu.codemirror&#39;</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">INSTALLED_APPS</span> <span class="ow">and</span> <span class="p">{</span>
+			<span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;codemirror/lib/codemirror.css&#39;</span><span class="p">,)</span>
+		<span class="p">}</span> <span class="ow">or</span> <span class="p">{}</span>
+		
+		<span class="n">js</span> <span class="o">=</span> <span class="s">&#39;bambu.codemirror&#39;</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">INSTALLED_APPS</span> <span class="ow">and</span> <span class="p">(</span>
+			<span class="s">&#39;codemirror/lib/codemirror.js&#39;</span><span class="p">,</span>
+			<span class="s">&#39;codemirror/mode/css/css.js&#39;</span><span class="p">,</span>
+			<span class="s">&#39;blog/admin.js&#39;</span>
+		<span class="p">)</span> <span class="ow">or</span> <span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="PageAdmin"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdmin">[docs]</a><span class="k">class</span> <span class="nc">PageAdmin</span><span class="p">(</span><span class="n">PreviewableModelAdmin</span><span class="p">):</span>
+	<span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;link_hierarchical&#39;</span><span class="p">,</span> <span class="s">&#39;parent&#39;</span><span class="p">,</span> <span class="s">&#39;order_field&#39;</span><span class="p">)</span>
+	<span class="n">prepopulated_fields</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="s">&#39;slug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,)</span>
+	<span class="p">}</span>
+	
+	<span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">AttachmentInline</span><span class="p">]</span>
+	<span class="n">form</span> <span class="o">=</span> <span class="n">PageAdminForm</span>
+	
+	<span class="n">fieldsets</span> <span class="o">=</span> <span class="p">(</span>
+		<span class="p">(</span>
+			<span class="bp">None</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;slug&#39;</span><span class="p">,</span> <span class="s">&#39;parent&#39;</span><span class="p">)</span>
+			<span class="p">},</span>
+		<span class="p">),</span>
+		<span class="p">(</span>
+			<span class="s">u&#39;Page content&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;subtitle&#39;</span><span class="p">,</span> <span class="s">&#39;body&#39;</span><span class="p">,</span> <span class="s">&#39;css&#39;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">),</span>
+		<span class="p">(</span>
+			<span class="s">u&#39;Navigation&#39;</span><span class="p">,</span>
+			<span class="p">{</span>
+				<span class="s">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;menu_groups&#39;</span><span class="p">,</span> <span class="s">&#39;order&#39;</span><span class="p">,)</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	<span class="p">)</span>
+	
+<div class="viewcode-block" id="PageAdmin.link_hierarchical"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdmin.link_hierarchical">[docs]</a>	<span class="k">def</span> <span class="nf">link_hierarchical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="n">spaces</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="n">parent</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parent</span>
+		<span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
+			<span class="n">spaces</span> <span class="o">+=</span> <span class="mi">4</span>
+			<span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+		
+		<span class="k">return</span> <span class="p">(</span><span class="s">&#39;&amp;nbsp;&#39;</span> <span class="o">*</span> <span class="n">spaces</span><span class="p">)</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span></div>
+	<span class="n">link_hierarchical</span><span class="o">.</span><span class="n">allow_tags</span> <span class="o">=</span> <span class="bp">True</span>
+	<span class="n">link_hierarchical</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s">&#39;Name&#39;</span>
+	<span class="n">link_hierarchical</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s">&#39;slug_hierarchical&#39;</span>
+	
+<div class="viewcode-block" id="PageAdmin.order_field"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdmin.order_field">[docs]</a>	<span class="k">def</span> <span class="nf">order_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">order</span></div>
+	<span class="n">order_field</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s">&#39;Order&#39;</span>
+	<span class="n">order_field</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s">&#39;order_hierarchical&#39;</span>
+	
+<div class="viewcode-block" id="PageAdmin.save_model"><a class="viewcode-back" href="../../../api/bambu.pages.html#bambu.pages.admin.PageAdmin.save_model">[docs]</a>	<span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="n">obj</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+		<span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</div></div>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Page</span><span class="p">,</span> <span class="n">PageAdmin</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.jwplayer.helpers &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.jwplayer.helpers</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="kn">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">django.contrib.sites.models</span> <span class="kn">import</span> <span class="n">Site</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<div class="viewcode-block" id="get_plugins"><a class="viewcode-back" href="../../../api/bambu.jwplayer.html#bambu.jwplayer.helpers.get_plugins">[docs]</a><span class="k">def</span> <span class="nf">get_plugins</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+	<span class="n">plugins</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;JWPLAYER_PLUGINS&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+		<span class="n">plugin</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">for</span> <span class="n">subkey</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="n">plugin</span><span class="p">[</span><span class="n">subkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span> <span class="o">%</span> <span class="p">{</span>
+				<span class="s">&#39;link&#39;</span><span class="p">:</span> <span class="s">&#39;http://</span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+				<span class="s">&#39;embed&#39;</span><span class="p">:</span> <span class="n">jwplayer_code</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+			<span class="p">}</span>
+			
+		<span class="n">plugins</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">plugin</span>
+	
+	<span class="k">return</span> <span class="n">plugins</span>
+</div>
+<div class="viewcode-block" id="jwplayer_url"><a class="viewcode-back" href="../../../api/bambu.jwplayer.html#bambu.jwplayer.helpers.jwplayer_url">[docs]</a><span class="k">def</span> <span class="nf">jwplayer_url</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;video&#39;</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">reverse</span><span class="p">(</span>
+		<span class="s">&#39;jwplayer&#39;</span><span class="p">,</span>
+		<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="n">field</span><span class="p">]</span>
+	<span class="p">)</span>
+</div>
+<div class="viewcode-block" id="jwplayer_swf_url"><a class="viewcode-back" href="../../../api/bambu.jwplayer.html#bambu.jwplayer.helpers.jwplayer_swf_url">[docs]</a><span class="k">def</span> <span class="nf">jwplayer_swf_url</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;video&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">640</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="n">static_url</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+	<span class="n">ct</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+	<span class="n">streamer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;JWPLAYER_STREAMER&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+	<span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+	
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">static_url</span><span class="p">:</span>
+		<span class="n">static_url</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">STATIC_URL</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">static_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;http://&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">static_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;https://&#39;</span><span class="p">):</span>
+			<span class="n">static_url</span> <span class="o">=</span> <span class="s">&#39;http://</span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">static_url</span><span class="p">)</span>
+	
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="n">width</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">VIDEO_WIDTH</span>
+	
+	<span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="mf">9.0</span><span class="p">)</span>
+	<span class="n">video</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">video</span><span class="p">:</span>
+		<span class="k">return</span> <span class="bp">None</span>
+	
+	<span class="n">thumbnail</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;thumbnail&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">thumbnail</span><span class="p">:</span>
+		<span class="n">thumbnail</span> <span class="o">=</span> <span class="n">thumbnail</span><span class="o">.</span><span class="n">url</span>
+	
+	<span class="n">video_url</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">url</span>
+	<span class="n">base</span> <span class="o">=</span> <span class="n">video_url</span><span class="p">[:</span><span class="n">video_url</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+	<span class="n">video_name</span> <span class="o">=</span> <span class="n">video_url</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="p">):]</span>
+	
+	<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="s">&#39;file&#39;</span><span class="p">:</span> <span class="n">streamer</span> <span class="ow">and</span> <span class="n">video_name</span> <span class="ow">or</span> <span class="n">video_url</span><span class="p">,</span>
+		<span class="s">&#39;skin&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">jwplayer/skins/bekle.zip&#39;</span> <span class="o">%</span> <span class="n">static_url</span><span class="p">,</span>
+		<span class="s">&#39;flashplayer&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">jwplayer/player.swf&#39;</span> <span class="o">%</span> <span class="n">static_url</span><span class="p">,</span>
+		<span class="s">&#39;controlbar.position&#39;</span><span class="p">:</span> <span class="s">&#39;over&#39;</span>
+	<span class="p">}</span>
+	
+	<span class="k">if</span> <span class="n">thumbnail</span><span class="p">:</span>
+		<span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thumbnail</span>
+	
+	<span class="k">if</span> <span class="n">streamer</span><span class="p">:</span>
+		<span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+			<span class="p">{</span>
+				<span class="s">&#39;provider&#39;</span><span class="p">:</span> <span class="s">&#39;rtmp&#39;</span><span class="p">,</span>
+				<span class="s">&#39;streamer&#39;</span><span class="p">:</span> <span class="n">streamer</span>
+			<span class="p">}</span>
+		<span class="p">)</span>
+	
+	<span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">jwplayer/player.swf?</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+		<span class="n">static_url</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+	<span class="p">)</span>
+</div>
+<div class="viewcode-block" id="jwplayer_code"><a class="viewcode-back" href="../../../api/bambu.jwplayer.html#bambu.jwplayer.helpers.jwplayer_code">[docs]</a><span class="k">def</span> <span class="nf">jwplayer_code</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;video&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+	<span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;width&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">VIDEO_WIDTH</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;MAX_VIDEO_WIDTH&#39;</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="n">settings</span><span class="o">.</span><span class="n">MAX_VIDEO_WIDTH</span><span class="p">:</span>
+			<span class="n">width</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">MAX_VIDEO_WIDTH</span>
+	
+	<span class="n">height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="mf">9.0</span>
+	<span class="n">player_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;player_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s">&#39; id=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;player_id&#39;</span><span class="p">])</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span>
+	<span class="n">ctpk</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ct&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">pk</span>
+	
+	<span class="k">return</span> <span class="s">u&#39;&lt;iframe</span><span class="si">%(id)s</span><span class="s"> width=&quot;</span><span class="si">%(width)d</span><span class="s">&quot; height=&quot;</span><span class="si">%(height)d</span><span class="s">&quot; &#39;</span> \
+		<span class="s">u&#39;src=&quot;http://</span><span class="si">%(domain)s%(url)s</span><span class="s">?width=</span><span class="si">%(width)d</span><span class="s">&quot; &#39;</span> \
+		<span class="s">u&#39;style=&quot;border-width:0;overflow:hidden;&quot; frameborder=&quot;0&quot;&gt;&lt;/iframe&gt;&#39;</span> <span class="o">%</span> <span class="p">{</span>
+			<span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="n">player_id</span><span class="p">,</span>
+			<span class="s">&#39;width&#39;</span><span class="p">:</span> <span class="n">width</span><span class="p">,</span>
+			<span class="s">&#39;height&#39;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+			<span class="s">&#39;domain&#39;</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span>
+			<span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
+				<span class="s">&#39;jwplayer&#39;</span><span class="p">,</span>
+				<span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+					<span class="n">ctpk</span><span class="p">,</span>
+					<span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;pk&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;pk&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+					<span class="n">field</span>
+				<span class="p">]</span>
+			<span class="p">)</span>
+		<span class="p">}</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

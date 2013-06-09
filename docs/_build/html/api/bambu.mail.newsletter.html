@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>newsletter Package &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="index.html" />
+    <link rel="next" title="mapping Package" href="bambu.mapping.html" />
+    <link rel="prev" title="newsletter Package" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.mapping.html" title="mapping Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="#" title="newsletter Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="newsletter-package">
+<h1>newsletter Package<a class="headerlink" href="#newsletter-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">newsletter</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bambu.mail.newsletter"></span><dl class="class">
+<dt id="bambu.mail.newsletter.ProviderBase">
+<em class="property">class </em><tt class="descclassname">bambu.mail.newsletter.</tt><tt class="descname">ProviderBase</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/mail/newsletter.html#ProviderBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.mail.newsletter.ProviderBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="bambu.mail.newsletter.ProviderBase.map_args">
+<tt class="descname">map_args</tt><big>(</big><em>action</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/mail/newsletter.html#ProviderBase.map_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.mail.newsletter.ProviderBase.map_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bambu.mail.newsletter.ProviderBase.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>email</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/mail/newsletter.html#ProviderBase.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.mail.newsletter.ProviderBase.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bambu.mail.newsletter.mailchimp">
+<span id="mailchimp-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">mailchimp</span></tt> Module<a class="headerlink" href="#module-bambu.mail.newsletter.mailchimp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bambu.mail.newsletter.mailchimp.MailChimpProvider">
+<em class="property">class </em><tt class="descclassname">bambu.mail.newsletter.mailchimp.</tt><tt class="descname">MailChimpProvider</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/mail/newsletter/mailchimp.html#MailChimpProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.mail.newsletter.mailchimp.MailChimpProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bambu.mail.newsletter.ProviderBase" title="bambu.mail.newsletter.ProviderBase"><tt class="xref py py-class docutils literal"><span class="pre">bambu.mail.newsletter.ProviderBase</span></tt></a></p>
+<dl class="method">
+<dt id="bambu.mail.newsletter.mailchimp.MailChimpProvider.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>email</em>, <em>list_id</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/bambu/mail/newsletter/mailchimp.html#MailChimpProvider.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambu.mail.newsletter.mailchimp.MailChimpProvider.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">newsletter Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">newsletter</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-bambu.mail.newsletter.mailchimp"><tt class="docutils literal"><span class="pre">mailchimp</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href=""
+                        title="previous chapter">newsletter Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bambu.mapping.html"
+                        title="next chapter">mapping Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/bambu.mail.newsletter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bambu.mapping.html" title="mapping Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="#" title="newsletter Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

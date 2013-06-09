@@ -1,0 +1,387 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bambu.dataportability.simplexmlwriter &mdash; Bambu Tools 3.0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '3.0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Bambu Tools 3.0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="bambu.dataportability" href="../dataportability.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../dataportability.html" accesskey="U">bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bambu.dataportability.simplexmlwriter</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># SimpleXMLWriter</span>
+<span class="c"># $Id: SimpleXMLWriter.py 2312 2005-03-02 18:13:39Z fredrik $</span>
+<span class="c">#</span>
+<span class="c"># a simple XML writer</span>
+<span class="c">#</span>
+<span class="c"># history:</span>
+<span class="c"># 2001-12-28 fl   created</span>
+<span class="c"># 2002-11-25 fl   fixed attribute encoding</span>
+<span class="c"># 2002-12-02 fl   minor fixes for 1.5.2</span>
+<span class="c"># 2004-06-17 fl   added pythondoc markup</span>
+<span class="c"># 2004-07-23 fl   added flush method (from Jay Graves)</span>
+<span class="c"># 2004-10-03 fl   added declaration method</span>
+<span class="c">#</span>
+<span class="c"># Copyright (c) 2001-2004 by Fredrik Lundh</span>
+<span class="c">#</span>
+<span class="c"># fredrik@pythonware.com</span>
+<span class="c"># http://www.pythonware.com</span>
+<span class="c">#</span>
+<span class="c"># --------------------------------------------------------------------</span>
+<span class="c"># The SimpleXMLWriter module is</span>
+<span class="c">#</span>
+<span class="c"># Copyright (c) 2001-2004 by Fredrik Lundh</span>
+<span class="c">#</span>
+<span class="c"># By obtaining, using, and/or copying this software and/or its</span>
+<span class="c"># associated documentation, you agree that you have read, understood,</span>
+<span class="c"># and will comply with the following terms and conditions:</span>
+<span class="c">#</span>
+<span class="c"># Permission to use, copy, modify, and distribute this software and</span>
+<span class="c"># its associated documentation for any purpose and without fee is</span>
+<span class="c"># hereby granted, provided that the above copyright notice appears in</span>
+<span class="c"># all copies, and that both that copyright notice and this permission</span>
+<span class="c"># notice appear in supporting documentation, and that the name of</span>
+<span class="c"># Secret Labs AB or the author not be used in advertising or publicity</span>
+<span class="c"># pertaining to distribution of the software without specific, written</span>
+<span class="c"># prior permission.</span>
+<span class="c">#</span>
+<span class="c"># SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD</span>
+<span class="c"># TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANT-</span>
+<span class="c"># ABILITY AND FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR</span>
+<span class="c"># BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY</span>
+<span class="c"># DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,</span>
+<span class="c"># WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS</span>
+<span class="c"># ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE</span>
+<span class="c"># OF THIS SOFTWARE.</span>
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="c">##</span>
+<span class="c"># Tools to write XML files, without having to deal with encoding</span>
+<span class="c"># issues, well-formedness, etc.</span>
+<span class="c"># &lt;p&gt;</span>
+<span class="c"># The current version does not provide built-in support for</span>
+<span class="c"># namespaces. To create files using namespaces, you have to provide</span>
+<span class="c"># &quot;xmlns&quot; attributes and explicitly add prefixes to tags and</span>
+<span class="c"># attributes.</span>
+<span class="c">#</span>
+<span class="c"># &lt;h3&gt;Patterns&lt;/h3&gt;</span>
+<span class="c">#</span>
+<span class="c"># The following example generates a small XHTML document.</span>
+<span class="c"># &lt;pre&gt;</span>
+<span class="c">#</span>
+<span class="c"># from elementtree.SimpleXMLWriter import XMLWriter</span>
+<span class="c"># import sys</span>
+<span class="c">#</span>
+<span class="c"># w = XMLWriter(sys.stdout)</span>
+<span class="c">#</span>
+<span class="c"># html = w.start(&quot;html&quot;)</span>
+<span class="c">#</span>
+<span class="c"># w.start(&quot;head&quot;)</span>
+<span class="c"># w.element(&quot;title&quot;, &quot;my document&quot;)</span>
+<span class="c"># w.element(&quot;meta&quot;, name=&quot;generator&quot;, value=&quot;my application 1.0&quot;)</span>
+<span class="c"># w.end()</span>
+<span class="c">#</span>
+<span class="c"># w.start(&quot;body&quot;)</span>
+<span class="c"># w.element(&quot;h1&quot;, &quot;this is a heading&quot;)</span>
+<span class="c"># w.element(&quot;p&quot;, &quot;this is a paragraph&quot;)</span>
+<span class="c">#</span>
+<span class="c"># w.start(&quot;p&quot;)</span>
+<span class="c"># w.data(&quot;this is &quot;)</span>
+<span class="c"># w.element(&quot;b&quot;, &quot;bold&quot;)</span>
+<span class="c"># w.data(&quot; and &quot;)</span>
+<span class="c"># w.element(&quot;i&quot;, &quot;italic&quot;)</span>
+<span class="c"># w.data(&quot;.&quot;)</span>
+<span class="c"># w.end(&quot;p&quot;)</span>
+<span class="c">#</span>
+<span class="c"># w.close(html)</span>
+<span class="c"># &lt;/pre&gt;</span>
+<span class="c">##</span>
+
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">string</span>
+
+<span class="k">try</span><span class="p">:</span>
+	<span class="nb">unicode</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+		<span class="c"># 1.5.2: application must use the right encoding</span>
+		<span class="k">return</span> <span class="n">s</span>
+	<span class="n">_escape</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;[&amp;&lt;&gt;</span><span class="se">\&quot;</span><span class="s">\x80-\xff]+&quot;</span><span class="p">)</span> <span class="c"># 1.5.2</span>
+<span class="k">else</span><span class="p">:</span>
+<div class="viewcode-block" id="encode"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.encode">[docs]</a>	<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span></div>
+	<span class="n">_escape</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="s">r&#39;u&quot;[&amp;&lt;&gt;\&quot;\u0080-\uffff]+&quot;&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="encode_entity"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.encode_entity">[docs]</a><span class="k">def</span> <span class="nf">encode_entity</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">_escape</span><span class="p">):</span>
+	<span class="c"># map reserved and non-ascii characters to numerical entities</span>
+	<span class="k">def</span> <span class="nf">escape_entities</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+		<span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">():</span>
+			<span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&amp;#</span><span class="si">%d</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">))</span>
+		<span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">encode</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">escape_entities</span><span class="p">,</span> <span class="n">text</span><span class="p">),</span> <span class="s">&quot;ascii&quot;</span><span class="p">)</span>
+</div>
+<span class="k">del</span> <span class="n">_escape</span>
+
+<span class="c">#</span>
+<span class="c"># the following functions assume an ascii-compatible encoding</span>
+<span class="c"># (or &quot;utf-16&quot;)</span>
+
+<div class="viewcode-block" id="escape_cdata"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.escape_cdata">[docs]</a><span class="k">def</span> <span class="nf">escape_cdata</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">):</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&amp;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;amp;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;lt;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;gt;&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">encode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">UnicodeError</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">encode_entity</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">s</span>
+</div>
+<div class="viewcode-block" id="escape_attrib"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.escape_attrib">[docs]</a><span class="k">def</span> <span class="nf">escape_attrib</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">):</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&amp;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;amp;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;apos;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;quot;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;lt;&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;&amp;gt;&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">encode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">UnicodeError</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">encode_entity</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">s</span>
+
+<span class="c">##</span>
+<span class="c"># XML writer class.</span>
+<span class="c">#</span>
+<span class="c"># @param file A file or file-like object.  This object must implement</span>
+<span class="c">#	a &lt;b&gt;write&lt;/b&gt; method that takes an 8-bit string.</span>
+<span class="c"># @param encoding Optional encoding.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter">[docs]</a><span class="k">class</span> <span class="nc">SimpleXMLWriter</span><span class="p">:</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;us-ascii&quot;</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&quot;write&quot;</span><span class="p">):</span>
+			<span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__write</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">write</span>
+		<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&quot;flush&quot;</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">flush</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__open</span> <span class="o">=</span> <span class="mi">0</span> <span class="c"># true if start tag is open</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__tags</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span> <span class="o">=</span> <span class="n">encoding</span>
+
+	<span class="k">def</span> <span class="nf">__flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c"># flush internal buffers</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__open</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&gt;&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__open</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">:</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="n">escape_cdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="p">[]</span>
+
+	<span class="c">##</span>
+	<span class="c"># Writes an XML declaration.</span>
+
+<div class="viewcode-block" id="SimpleXMLWriter.declaration"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.declaration">[docs]</a>	<span class="k">def</span> <span class="nf">declaration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span>
+		<span class="k">if</span> <span class="n">encoding</span> <span class="o">==</span> <span class="s">&quot;us-ascii&quot;</span> <span class="ow">or</span> <span class="n">encoding</span> <span class="o">==</span> <span class="s">&quot;utf-8&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&lt;?xml version=&#39;1.0&#39;?&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;</span><span class="si">%s</span><span class="s">&#39;?&gt;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">encoding</span><span class="p">)</span>
+
+	<span class="c">##</span>
+	<span class="c"># Opens a new element.  Attributes can be given as keyword</span>
+	<span class="c"># arguments, or as a string/string dictionary. You can pass in</span>
+	<span class="c"># 8-bit strings or Unicode strings; the former are assumed to use</span>
+	<span class="c"># the encoding passed to the constructor.  The method returns an</span>
+	<span class="c"># opaque identifier that can be passed to the &lt;b&gt;close&lt;/b&gt; method,</span>
+	<span class="c"># to close all open elements up to and including this one.</span>
+	<span class="c">#</span>
+	<span class="c"># @param tag Element tag.</span>
+	<span class="c"># @param attrib Attribute dictionary.  Alternatively, attributes</span>
+	<span class="c">#	can be given as keyword arguments.</span>
+	<span class="c"># @return An element identifier.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.start"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.start">[docs]</a>	<span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__flush</span><span class="p">()</span>
+		<span class="n">tag</span> <span class="o">=</span> <span class="n">escape_cdata</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tag</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">attrib</span> <span class="ow">or</span> <span class="n">extra</span><span class="p">:</span>
+			<span class="n">attrib</span> <span class="o">=</span> <span class="n">attrib</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+			<span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+			<span class="n">attrib</span> <span class="o">=</span> <span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+			<span class="n">attrib</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attrib</span><span class="p">:</span>
+				<span class="n">k</span> <span class="o">=</span> <span class="n">escape_cdata</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">)</span>
+				<span class="n">v</span> <span class="o">=</span> <span class="n">escape_attrib</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot; </span><span class="si">%s</span><span class="s">=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__open</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+	<span class="c">##</span>
+	<span class="c"># Adds a comment to the output stream.</span>
+	<span class="c">#</span>
+	<span class="c"># @param comment Comment text, as an 8-bit string or Unicode string.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.comment"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.comment">[docs]</a>	<span class="k">def</span> <span class="nf">comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__flush</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&lt;!-- </span><span class="si">%s</span><span class="s"> --&gt;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">escape_cdata</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">))</span>
+
+	<span class="c">##</span>
+	<span class="c"># Adds character data to the output stream.</span>
+	<span class="c">#</span>
+	<span class="c"># @param text Character data, as an 8-bit string or Unicode string.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.data"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.data">[docs]</a>	<span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+	
+	<span class="c">##</span>
+	<span class="c"># Adds unparsed character data to the output stream.</span>
+	<span class="c">#</span>
+	<span class="c"># @param text Character data, as an 8-bit string or Unicode string.</span>
+	</div>
+<div class="viewcode-block" id="SimpleXMLWriter.cdata"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.cdata">[docs]</a>	<span class="k">def</span> <span class="nf">cdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">text</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">UnicodeError</span><span class="p">:</span>
+			<span class="n">text</span> <span class="o">=</span> <span class="n">encode_entity</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">__flush</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&#39;&lt;![CDATA[</span><span class="si">%s</span><span class="s">]]&gt;&#39;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
+
+	<span class="c">##</span>
+	<span class="c"># Closes the current element (opened by the most recent call to</span>
+	<span class="c"># &lt;b&gt;start&lt;/b&gt;).</span>
+	<span class="c">#</span>
+	<span class="c"># @param tag Element tag.  If given, the tag must match the start</span>
+	<span class="c">#	tag.  If omitted, the current element is closed.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.end"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.end">[docs]</a>	<span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">,</span> <span class="s">&quot;unbalanced end(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">tag</span>
+			<span class="k">assert</span> <span class="n">escape_cdata</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoding</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>\
+				   <span class="s">&quot;expected end(</span><span class="si">%s</span><span class="s">), got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tag</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">,</span> <span class="s">&quot;unbalanced end()&quot;</span>
+		<span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__flush</span><span class="p">()</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__open</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__open</span> <span class="o">=</span> <span class="mi">0</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot; /&gt;&quot;</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__write</span><span class="p">(</span><span class="s">&quot;&lt;/</span><span class="si">%s</span><span class="s">&gt;&quot;</span> <span class="o">%</span> <span class="n">tag</span><span class="p">)</span>
+
+	<span class="c">##</span>
+	<span class="c"># Closes open elements, up to (and including) the element identified</span>
+	<span class="c"># by the given identifier.</span>
+	<span class="c">#</span>
+	<span class="c"># @param id Element identifier, as returned by the &lt;b&gt;start&lt;/b&gt; method.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.close"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.close">[docs]</a>	<span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+		<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__tags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">id</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+	
+	<span class="c">##</span>
+	<span class="c"># Adds an entire element.  This is the same as calling &lt;b&gt;start&lt;/b&gt;,</span>
+	<span class="c"># &lt;b&gt;data&lt;/b&gt;, and &lt;b&gt;end&lt;/b&gt; in sequence. The &lt;b&gt;text&lt;/b&gt; argument</span>
+	<span class="c"># can be omitted.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.element"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.element">[docs]</a>	<span class="k">def</span> <span class="nf">element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+		<span class="nb">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="p">),</span> <span class="n">extra</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+
+	<span class="c">##</span>
+	<span class="c"># Flushes the output stream.</span>
+</div>
+<div class="viewcode-block" id="SimpleXMLWriter.flush"><a class="viewcode-back" href="../../../api/bambu.dataportability.html#bambu.dataportability.simplexmlwriter.SimpleXMLWriter.flush">[docs]</a>	<span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">pass</span> <span class="c"># replaced by the constructor</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Bambu Tools 3.0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../dataportability.html" >bambu.dataportability</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Mark Steadman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
