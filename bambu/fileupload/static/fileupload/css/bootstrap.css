@@ -1,0 +1,51 @@
+.fileupload-container {
+	border: 2px dashed rgba(0, 0, 0, 0.25);
+	padding: 50px 10px;
+	background: #fff;
+}
+
+.fileupload-container.full {
+	border-color: #000;
+	background: rgba(0, 0, 255, 0.1);
+	padding: 10px;
+	
+	transition: padding .25s ease-in-out;
+	-moz-transition: padding .25s ease-in-out;
+	-webkit-transition: padding .25s ease-in-out;
+}
+
+.fileupload-container.full .progress {
+	margin-bottom: 5px;
+}
+
+.fileupload-container.error {
+	border-color: #900;
+	background: rgba(255, 0, 0, 0.1);
+}
+
+.fileupload-container.in {
+	border-color: #000;
+	background: rgba(0, 255, 0, 0.1);
+}
+
+.fileupload-container.in, .fileupload-container.hover, .fileupload-container.error {
+	transition: border-color .25s ease-in-out;
+	-moz-transition: border-color .25s ease-in-out;
+	-webkit-transition: border-color .25s ease-in-out;
+	
+	transition: background-color .25s ease-in-out;
+	-moz-transition: background-color .25s ease-in-out;
+	-webkit-transition: background-color .25s ease-in-out;
+}
+
+.fileupload-container small {
+	text-align: center; display: block;
+}
+
+.fileinput-button {
+	text-align: center;
+	margin: 0 auto 0 auto;
+	width: 80px;
+	display: block;
+	float: none;
+}

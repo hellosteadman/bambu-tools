@@ -1,0 +1,25 @@
+<script>
+	// <![CDATA[
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', '{{ id }}']);
+	{% for item in queue %}_gaq.push(['{{ item.0 }}', {% for subitem in item.1 %}{{ subitem|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}]);
+	{% if DEBUG %}try {
+		console.log('Analytics event:', '{{ item.0 }}'{% for subitem in item.1 %}, {{ subitem|safe }}{% endfor %});
+	} catch (err) {
+		// Can't log to console
+	}{% endif %}
+	{% endfor %}
+	
+	(
+		function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		}
+	)();
+	// ]]>
+</script>

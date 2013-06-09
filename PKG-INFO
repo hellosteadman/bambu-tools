@@ -1,0 +1,13 @@
+Metadata-Version: 1.0
+Name: bambu-tools
+Version: 2.1.4.3
+Summary: Tools for Django webapps
+Home-page: http://pypi.python.org/pypi/bambu-tools
+Author: Mark Steadman
+Author-email: mark@flamingtarball.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django

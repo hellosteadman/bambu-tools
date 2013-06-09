@@ -1,0 +1,46 @@
+{% extends 'form.inc.html' %}
+
+{% block fields %}
+	<fieldset>
+		<legend>A bit about you</legend>
+		{% for field in form.visible_fields %}
+			{% ifnotequal field.name 'DELETE' %}
+				{% if field.name == 'username' %}
+					<legend>Logging in</legend>
+				{% elif field.name == 'plan' %}
+					</fieldset><fieldset>
+						<legend>Billing info</legend>
+						{% if selected_plan.trial_months > 0 %}
+						<p>
+							You&rsquo;ll need to provide your billing details in the
+							next step so that, once your free trial period is over,
+							unless you choose to cancel, your account will be
+							automatically billed.
+						</p>
+						{% endif %}
+				{% elif not form.plan and field.name == 'period' %}
+					</fieldset><fieldset><legend>Billing info</legend>
+						{% if selected_plan.trial_months > 0 %}
+						<p>
+							You&rsquo;ll need to provide your billing details in the
+							next step so that, once your free trial period is over,
+							unless you choose to cancel, your account will be
+							automatically billed.
+						</p>
+						{% endif %}
+				{% elif field.name == 'newsletter_optin' %}
+					</fieldset>
+					<fieldset>
+						<legend>Newsletter{% if form.terms %} and terms{% else %} opt-in{% endif %}</legend>
+				{% elif field.name == 'challenge' %}
+					</fidlset>
+					<fieldset id="signup-challenge">
+						<legend>Are you human?</legend>
+						<p>Sorry we have to check.</p>
+				{% endif %}
+				
+				{% include 'field.inc.html' %}
+			{% endifnotequal %}
+		{% endfor %}
+	</fieldset>
+{% endblock fields %}

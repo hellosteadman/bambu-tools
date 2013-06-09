@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block page_header %}
+	<h1>Log in to {{ SITE.name }}</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<form method="post" class="form-horizontal">
+		{% include 'form.inc.html' %}
+		
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">Log in</button>
+			
+			<small>
+				Don&rsquo;t have an account?
+				<a href="{% url signup %}">Sign up</a>
+			</small>
+		</div>
+		
+		{% csrf_token %}
+	</form>
+{% endblock form_content %}

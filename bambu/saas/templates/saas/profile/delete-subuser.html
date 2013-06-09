@@ -1,0 +1,17 @@
+{% extends 'saas/profile/subusers.html' %}
+
+{% block content %}
+	<h2>Remove {{ deluser.first_name|default:deluser.username }}</h2>
+	
+	<form method="post" class="form-stacked">
+		{% include 'saas/profile/delete-subuser.inc.html' %}
+		
+		<div class="form-actions">
+			{% csrf_token %}
+			<div class="pull-right">
+				<a href="{{ next }}" class="btn">No</a>
+				<button type="submit" class="btn btn-primary">Yes</button>
+			</div>
+		</div>
+	</form>
+{% endblock content %}

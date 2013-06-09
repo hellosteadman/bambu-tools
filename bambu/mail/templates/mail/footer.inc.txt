@@ -1,0 +1,2 @@
+Regards,  
+The {{ SITE.name }} team

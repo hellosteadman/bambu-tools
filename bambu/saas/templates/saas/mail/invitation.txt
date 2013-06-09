@@ -1,0 +1,8 @@
+{% load url from future %}Hi.
+
+{% if reminder %}This is a reminder that {% endif %}{{ sender }} has invited you to join {{ SITE.name }} as part of their team.
+
+To accept the invitation, visit the following URL and sign up for an account (your membership is already paid for):  
+http://{{ SITE.domain }}{% url 'invitation_accept' guid %}
+
+We look forward to seeing you here soon!

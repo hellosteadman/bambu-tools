@@ -1,0 +1,90 @@
+{% load humanize markup icons %}
+{% load url from future %}
+
+<table class="table {% if not upgrade %}table-striped{% else %}feature-list-upgrade{% endif %} feature-list">
+	<thead>
+		<tr>
+			<th></th>
+			{% for plan in matrix.headings %}
+				<th{% if plan.best and not upgrade %} class="best"{% endif %}>
+					<span class="plan-name">{{ plan.name }}</span>
+					{% if not upgrade and not selected_plan %}
+						<span class="plan-price">
+							<br />
+							{% if not plan.price_monthly %}
+								<span class="price-free">Free</span>
+							{% else %}
+								{{ plan.price_monthly }} <span class="price-per">per month</span>
+								<span class="plan-price-year">
+									<br />or {{ plan.price_yearly }} <span class="price-per">per year</span>
+								</span>
+							{% endif %}
+						</span>
+					{% endif %}
+				</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	
+	<tbody>
+		{% for row in matrix.rows %}
+			<tr class="row-{{ row.slug }}">
+				<th>
+					<p class="feature-name">{{ row.heading }}</p>
+					{% if not upgrade %}
+						<div class="feature-description">
+							{{ row.description|markdown }}
+						</div>
+					{% endif %}
+				</th>
+				
+				{% for column in row.columns %}
+					<td{% if column.best and not upgrade %} class="best"{% endif %}>
+						{% if row.boolean %}
+							<span class="feature-{% if column.value %}enabled{% else %}disabled{% endif %}">{% if column.value %}&#10003;{% else %}&#10007;{% endif %}</span>
+						{% else %}
+							{% if column.value > -1 %}
+								<span class="feature-value">{{ column.value|capfirst|intcomma }}</span>
+							{% else %}
+								<span class="feature-value feature-unlimited">Unlimited</span>
+							{% endif %}
+						{% endif %}
+					</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+	
+	{% if not upgrade and not selected_plan %}
+		<tfoot>
+			<tr>
+				<th></th>
+				{% for plan in matrix.headings %}
+					<td{% if plan.best and not upgrade %} class="best"{% endif %}>
+						<a class="btn{% if not upgrade %} btn-large{% endif %} btn-primary" href="{% url 'signup' %}?plan={{ plan.pk }}{% if discount and request.GET.discount %}&amp;discount={{ discount }}{% endif %}">
+							{% if not upgrade %}
+								{% icon 'user' 'white' %}
+								{% ifnotequal selected_plan.pk plan.pk %}Sign up{% else %}Selected{% endifnotequal %}
+							{% else %}
+								{% icon 'share-alt' 'white' %} Upgrade
+							{% endif %}
+						</a>
+					</td>
+				{% endfor %}
+			</tr>
+		</tfoot>
+	{% else %}
+		<tfoot>
+			<td></td>
+			{% for plan in matrix.headings %}
+			<td>
+				{% if not plan.price_monthly %}
+					<small class="price-free">Free</small>
+				{% else %}
+					<small>{{ plan.price_monthly }}</small>
+				{% endif %}
+			</td>
+			{% endfor %}
+		</tfoot>
+	{% endif %}
+</table>

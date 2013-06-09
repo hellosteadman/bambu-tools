@@ -1,0 +1,45 @@
+{% load humanize %}
+<table class="table">
+	<thead>
+		<th>Feature</th>
+		<th>Maximum</th>
+		<th colspan="2">Your usage</th>
+	</thead>
+	
+	<tbody>
+		{% for feature in plan_features %}
+			<tr>
+				<th width="40%">{{ feature.name }}</th>
+				<td width="10" style="white-space: nowrap;">
+					{% if feature.boolean %}
+						{% if feature.value %}&#10003;{% else %}&#10007;{% endif %}
+					{% else %}
+						{% if feature.value > -1 %}
+							{{ feature.value|capfirst|intcomma }}
+						{% else %}
+							Unlimited
+						{% endif %}
+					{% endif %}
+				</td>
+				<td width="10" style="white-space: nowrap;">
+					{% if not feature.boolean and feature.usage %}
+						{{ feature.usage|capfirst|intcomma }}
+					{% else %}
+						&dash;
+					{% endif %}
+				</td>
+				<td>
+					{% if not feature.boolean %}
+						{% if feature.usage_percent %}
+							<div class="progress">
+								<div class="bar" style="width: {{ feature.usage_percent }}%;"></div>
+							</div>
+						{% endif %}
+					{% else %}
+						&dash;
+					{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

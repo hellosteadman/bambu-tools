@@ -1,0 +1,51 @@
+{% load forms %}
+
+<div class="control-group clearfix{% if field.errors %} error{% endif %}">
+	{% if not field|is_checkbox %}
+		<label class="control-label" for="id_{{ field.html_name }}">{{ field.label }} {% if not field.field.required %}<small> (optional)</small>{% endif %}</label>
+	{% endif %}
+	
+	<div class="controls">
+		{% if field|is_checkbox %}
+			<label>{{ field }} {{ field.label }}</label>
+		{% elif field|is_clearable_filefield %}
+			<input type="file" name="{{ field.html_name }}" id="id_{{ field.html_name }}" />
+		{% else %}
+			{{ field }}
+		{% endif %}
+		
+		{% if not field|is_clearable_filefield %}
+			{% if field.errors %}
+				<p class="help-block">{{ field.errors|join:' ' }}</p>
+			{% endif %}
+		
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe|linebreaks }}
+				</div>
+			{% endif %}
+		{% endif %}
+	</div>
+	
+	{% if field|is_clearable_filefield %}
+		<div class="controls">
+			{% if field.value %}
+				<label>
+					<input type="checkbox" name="{{ field.html_name }}-clear" id="{{ field.html_name }}-clear_id" />
+					Remove this file
+					{% if field.value.url %}<a class="btn btn-small" href="{{ field.value.url }}" target="_blank">View file</a>{% endif %}
+				</label>
+			{% endif %}
+			
+			{% if field.errors %}
+				<p class="help-block">{{ field.errors|join:' ' }}</p>
+			{% endif %}
+		
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe|linebreaks }}
+				</div>
+			{% endif %}
+		</div>
+	{% endif %}
+</div>

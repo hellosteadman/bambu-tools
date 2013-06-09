@@ -1,0 +1,15 @@
+{% extends 'enquiries/base.html' %}
+{% load icons %}
+{% load url from future %}
+
+{% block contact %}
+	<form action="{% url 'enquiry' %}" method="post" class="form-horizontal">
+		{% include 'form.inc.html' %}
+		
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} Send message</button>
+		</div>
+		
+		{% csrf_token %}
+	</form>
+{% endblock contact %}

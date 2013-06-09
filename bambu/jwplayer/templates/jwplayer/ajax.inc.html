@@ -1,0 +1,44 @@
+<script>
+	$(document).ready(
+		function() {
+			var player = $('#{{ id }}');
+			var width = player.width();
+			var height = Math.round(width / 16 * 9, 0);
+			var ratio = width / height;
+			var resizeTimeout = 0;
+			
+			player.html(
+				'<iframe src="{{ url }}?width=' + width + '" ' +
+				'width="' + width + '" ' +
+				'height="' + height + '" ' +
+				'frameborder="0"></iframe>'
+			);
+			
+			$(window).resize(
+				function() {
+					if($('#{{ id }}').width() != width) {
+						$('#{{ id }}').css(
+							{
+								'height': $('#{{ id }}').width() / ratio
+							}
+						);
+						
+						if(!resizeTimeout) {
+							resizeTimeout = setTimeout(
+								function() {
+									width = $('#{{ id }}').width();
+									$('#{{ id }} iframe').attr('src',
+										'{{ url }}?width=' + width
+									);
+									
+									resizeTimeout = 0;
+								},
+								1000
+							);
+						}
+					}
+				}
+			);
+		}
+	);
+</script>

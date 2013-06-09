@@ -1,0 +1,5 @@
+{% extends 'blog/posts.html' %}
+
+{% block page_header %}
+	<h1>Blog <small>By {{ author.get_full_name|default:author.username }}</small></h1>
+{% endblock page_header %}

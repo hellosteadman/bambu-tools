@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+	<div class="well">
+		<ul class="unstyled">
+			{% for category in categories %}
+				<li>
+					<a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock sidebar %}
+
+{% block page_header %}
+	<h1>Frequently asked questions</h1>
+{% endblock page_header %}

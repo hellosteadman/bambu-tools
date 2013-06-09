@@ -1,0 +1,97 @@
+{% extends 'api/doc/base.html' %}
+{% load markup prettycode %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{{ STATIC_URL }}api/js/google-prettify/prettify.css" />
+{% endblock extra_head %}
+
+{% block form_content %}
+	<h2>{{ name }}</h2>
+	
+	{{ doc|restructuredtext }}
+	{% include 'api/doc/endpoints.inc.html' %}
+	
+	<hr />
+	
+	<h3>Examples</h3>
+	
+	<ul class="nav nav-tabs">
+		<li class="active">
+			<a href="#example-list" data-toggle="tab">{{ verbose_name|capfirst }} list</a>
+		</li>
+		
+		<li>
+			<a href="#example-object" data-toggle="tab">Single {{ verbose_name }}</a>
+		</li>
+	</ul>
+	
+	<div class="tab-content">
+		<div class="tab-pane active" id="example-list">
+			<h4>Request</h4>
+			<pre>GET {{ urls.list.example.url }}
+Host: {{ SITE.domain }}</pre>
+			
+			<h4>Response</h4>
+			<pre class="api-example prettyprint">{{ urls.list.example.response|prettyjson }}</pre>
+		</div>
+		
+		<div class="tab-pane" id="example-object">
+			<h4>Request</h4>
+			<pre>GET {{ urls.object.example.url }}
+Host: {{ SITE.domain }}</pre>
+			
+			<h4>Response</h4>
+			<pre class="api-example prettyprint">{{ urls.object.example.response|prettyjson }}</pre>
+		</div>
+	</div>
+	
+	{% for inline in inlines %}
+		{% if forloop.first %}<hr />{% endif %}
+		
+		<h2>{{ inline.name }}</h2>
+		{{ inline.doc|restructuredtext }}
+		{% include 'api/doc/endpoints.inc.html' with urls=inline.urls verbose_name=inline.verbose_name verbose_name_plural=inline.verbose_name_plural formats=inline.formats %}
+		
+		<h3>Examples</h3>
+
+		<ul class="nav nav-tabs">
+			<li class="active">
+				<a href="#inline-example-list" data-toggle="tab">{{ inline.verbose_name|capfirst }} list</a>
+			</li>
+
+			<li>
+				<a href="#inline-example-object" data-toggle="tab">Single {{ inline.verbose_name }}</a>
+			</li>
+		</ul>
+		
+		<div class="tab-content">
+			<div class="tab-pane active" id="inline-example-list">
+				<h4>Request</h4>
+				<pre>GET {{ inline.urls.list.example.url }}
+Host: {{ SITE.domain }}</pre>
+				
+				<h4>Response</h4>
+				<pre class="api-example prettyprint">{{ inline.urls.list.example.response|prettyjson }}</pre>
+			</div>
+			
+			<div class="tab-pane" id="inline-example-object">
+				<h4>Request</h4>
+				<pre>GET {{ inline.urls.object.example.url }}
+Host: {{ SITE.domain }}</pre>
+				
+				<h4>Response</h4>
+				<pre class="api-example prettyprint">{{ inline.urls.object.example.response|prettyjson }}</pre>
+			</div>
+		</div>
+	{% endfor %}
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	<script src="{{ STATIC_URL }}api/js/google-prettify/prettify.js"></script>
+	
+	<script>
+		$(document).ready(prettyPrint);
+	</script>
+{% endblock javascript %}

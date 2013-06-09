@@ -1,0 +1,37 @@
+{% for update in updates.reverse %}
+	<div class="alert alert-{{ update.kind }}">
+		<strong>{{ update.text }}</strong>
+		{% if update.description %}{{ update.description|linebreaks }}{% endif %}
+	</div>
+{% endfor %}
+
+<script>
+	{% if not request.is_ajax %}
+		var latest_id = {{ latest_id }};
+		
+		function updateJobStatus() {
+			$.ajax(
+				{
+					url: '?latest=' + latest_id,
+					dataType: 'html',
+					success: function(data) {
+						var div = $('<div style="display: none;">' + data + '</div>');
+						
+						$('#job-status').prepend(div);
+						div.slideDown();
+					}
+				}
+			);
+			
+			if(ajaxTimeout) {
+				clearTimeout(ajaxTimeout);
+				$('#timeout').remove();
+				ajaxTimeout = 0;
+			}
+		}
+	{% else %}
+		{% if latest_id %}latest_id = {{ latest_id }};{% endif %}
+	{% endif %}
+	
+	setTimeout(updateJobStatus, 1000);
+</script>

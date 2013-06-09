@@ -1,0 +1,9 @@
+{% extends 'faq/topics.html' %}
+
+{% block form_content %}
+	<h2>{{ category.name }}</h2>
+	
+	<div class="accordion">
+		{% include 'faq/topics.inc.html' %}
+	</div>
+{% endblock form_content %}

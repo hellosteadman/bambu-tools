@@ -1,0 +1,6 @@
+{% load url from future %}Hi {{ name }}.
+
+Thanks for signing up to {{ SITE.name }}. Please verify your email address by
+visiting the URL below and entering the code **{{ code }}**.
+
+http://{{ SITE.domain }}{% url 'verify_email' guid %}{% if next %}?next={{ next|urlencode }}{% endif %}

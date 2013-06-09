@@ -1,0 +1,49 @@
+{% extends 'saas/base.html' %}
+{% load url from future %}
+{% load humanize %}
+
+{% block content %}
+	<div class="page-header" data-importance="2">
+		<h1>Upgrade your plan{% if feature and feature.feature.upgrade_cta %} <small>{{ feature.feature.upgrade_cta }}</small>{% endif %}</h1>
+	</div>
+	
+	<div class="row">
+		<div class="span5">
+			{% if feature %}
+				<p class="upgrade-notice">
+					Sorry, but your <strong>{{ plan.name }}</strong> plan doesn&rsquo;t cover this.<br />
+					Would you like to upgrade? It&rsquo;s really simple to do.
+				</p>
+			{% endif %}
+			
+			<hr />
+			
+			<form method="post" action="{% url 'upgrade' %}" class="form-horizontal">
+				{% include 'form.inc.html' %}
+				
+				<div class="form-actions">
+					<input type="submit" class="btn btn-success" value="Upgrade" />
+					<input type="hidden" name="next" value="{{ next }}" />
+					{% csrf_token %}
+				</div>
+			</form>
+		</div>
+		
+		<div class="span7">
+			{% if matrix.headings|length > 0 %}
+				{% include 'saas/matrix.inc.html' with upgrade='True' %}
+			{% else %}
+				<h2>Contact us</h2>
+				<p>Please give us a call on +44 (0)XXX XXX XXXX to arrange an enterprise upgrade.</p>
+			{% endif %}
+		</div>
+	</div>
+{% endblock content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	{% if form.plan %}
+		{% include 'saas/js.inc.html' %}
+	{% endif %}
+{% endblock javascript %}

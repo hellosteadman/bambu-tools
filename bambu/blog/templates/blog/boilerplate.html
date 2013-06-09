@@ -1,0 +1,34 @@
+{% extends 'blog/posts-day.html' %}
+{% load url from future %}
+
+{% block extra_head %}
+	{% include 'blog/boilerplate-header.inc.html' %}
+	{{ block.super }}
+	
+	<style data-bpfield="css">
+		/* Custom CSS */
+	</style>
+{% endblock extra_head %}
+
+{% block form_content %}
+	<article class="post">
+		<h2>
+			<a href="#" data-bpfield="title">{{ post.title }}</a>
+			<small data-bpfield="date">{{ post.date|date }}</small>
+			<a href="#comments"><span class="badge" title="No comments">0</span></a>
+		</h2>
+		
+		<div class="post-body" data-bpfield="body">
+			<!-- Add your post content here -->
+			{{ post.body|safe }}
+			<!-- Finish up -->
+		</div>
+		
+		<div class="well post-meta">
+			<p>
+				Posted on <strong>{{ post.date|date }}</strong>
+				by <a href="{% url 'blog_posts_by_author' post.author.username %}">{{ post.author.get_full_name|default:post.author.username }}</a>
+			</p>
+		</div>
+	</article>
+{% endblock form_content %}

@@ -1,0 +1,30 @@
+{% load icons comments %}
+<form action="{{ comment_form_action|default:'comment/' }}#comment-form" method="post" class="form-horizontal">
+	{% if form.non_field_errors %}
+		<div class="alert-message alert-error alert-block">
+			{% for error in comment_form.non_field_errors %}
+			{{ error }}
+			{% endfor %}
+		</div>
+	{% endif %}
+	
+	{% for field in comment_form.visible_fields %}
+		{% ifequal field.name 'h0n3ytr4p' %}<div class="h0n3ytr4p">{% endifequal %}
+		{% include 'field.inc.html' %}
+		{% ifequal field.name 'h0n3ytr4p' %}</div>{% endifequal %}
+	{% endfor %}
+	
+	<div class="form-actions">
+		{{ comment_form.hidden_fields|join:'' }}
+		
+		{% if obj %}
+			<input type="hidden" name="content_type" value="{{ obj|contenttype }}" />
+			<input type="hidden" name="object_id" value="{{ obj.pk }}" />
+		{% endif %}
+		
+		<button type="submit" class="btn btn-success">{% icon 'ok' 'white' %} Submit comment</button>
+		<small>Comments may require approval.</small>
+	</div>
+	
+	{% csrf_token %}
+</form>

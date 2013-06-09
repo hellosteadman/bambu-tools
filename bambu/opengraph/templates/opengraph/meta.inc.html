@@ -1,0 +1,24 @@
+{% if app_id %}<meta name="fb:app_id" content="{{ app_id }}" />{% endif %}
+{% for key, value in values %}{% if value %}
+	{% if value.items %}
+		{% for subkey, subvalue in value.items %}
+			{% if subvalue.items %}
+				{% for subsubkey, subsubvalue in subvalue.items %}
+					{% if subsubkey %}
+						<meta property="og:{{ key }}:{{ subkey }}:{{ subsubkey }}" content="{{ subsubvalue }}" />
+					{% else %}
+						<meta property="og:{{ key }}:{{ subkey }}" content="{{ subsubvalue }}" />
+					{% endif %}
+				{% endfor %}
+			{% else %}
+				{% if subkey %}
+					<meta property="og:{{ key }}:{{ subkey }}" content="{{ subvalue }}" />
+				{% else %}
+					<meta property="og:{{ key }}" content="{{ subvalue }}" />
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% else %}
+	<meta property="og:{{ key }}" content="{{ value }}" />
+	{% endif %}
+{% endif %}{% endfor %}

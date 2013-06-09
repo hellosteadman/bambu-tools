@@ -1,0 +1,19 @@
+{% extends 'webhooks/base.html' %}
+{% load icons %}
+
+{% block page_header %}
+	<h1>Manage webhooks</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<div class="span9">
+		<form method="post" class="form-horizontal">
+			{% include 'form.inc.html' %}
+			
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} Update webhooks</button>
+				{% csrf_token %}
+			</div>
+		</form>
+	</div>
+{% endblock form_content %}

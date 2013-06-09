@@ -1,0 +1,28 @@
+{% extends 'saas/profile/base.html' %}
+{% load url from future %}
+
+{% block content %}
+	<div class="page-header" data-importance="2">
+		<h1>Hi {{ request.user.first_name|default:request.user.username }}!<small> Welcome back to {{ SITE.name }}</small></h1>
+	</div>
+	
+	<div class="row">
+		<div class="span4">
+			{% block sidebar %}
+				{{ block.super }}
+			{% endblock %}
+		</div>
+		
+		<div class="span8">
+			<h3>Your {{ plan.plan.name }} plan</h3>
+			<p>
+				Please <a href="{% url 'enquiry' %}">contact us</a> if you&rsquo;d like to
+				cancel or upgrade your subscription.
+			</p>
+			
+			{% include 'saas/profile/plan.inc.html' %}
+		</div>
+	</div>
+	
+	{% block form_footer %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% load url from future %}
+
+{% for update in updates.reverse %}
+	<div class="alert alert-{{ update.kind }}">
+		<strong>{{ update.text }}</strong>
+		{% if update.description %}{{ update.description|linebreaks }}{% endif %}
+	</div>
+{% endfor %}
+
+<script>
+	{% if not request.is_ajax %}
+		var latest_id = {{ latest_id }};
+		
+		function updateJobStatus() {
+			try {
+				console.log('Update job status');
+			} catch (err) {
+				// Can't write to console
+			}
+			
+			if(ajaxTimeout) {
+				clearTimeout(ajaxTimeout);
+				$('#timeout').remove();
+				ajaxTimeout = 0;
+			}
+			
+			$.ajax(
+				{
+					url: '?latest=' + latest_id,
+					dataType: 'html',
+					success: function(data) {
+						var div = $('<div style="display: none;">' + data + '</div>');
+						
+						$('#job-status').prepend(div);
+						div.slideDown();
+					}
+				}
+			);
+		}
+	{% else %}
+		{% if latest_id %}latest_id = {{ latest_id }};{% endif %}
+		
+		$('#progress-bar').css(
+			{
+				width: '{{ job.progress }}%'
+			}
+		);
+	{% endif %}
+	
+	{% if job.data %}
+		document.location = '{% url 'download_export' job.guid %}';
+	{% else %}
+		setTimeout(updateJobStatus, 1000);
+	{% endif %}
+</script>

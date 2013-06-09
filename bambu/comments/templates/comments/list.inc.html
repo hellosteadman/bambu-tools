@@ -1,0 +1,28 @@
+{% load humanize %}
+
+<a id="comments"></a>
+{% if obj.comments.live.count > 0 %}
+	<hr />
+	<h2>{{ obj.comments.live.count|apnumber|capfirst }} comment{{ obj.comments.live.count|pluralize }}</h2>
+	
+	{% for comment in obj.comments.live %}
+		{% include 'comments/comment.inc.html' %}
+		{% if not forloop.last %}<hr />{% endif %}
+	{% endfor %}
+	
+	{% if comment_form %}
+		<hr />
+		<a id="comment-form"></a>
+		<h3>Post a comment</h3>
+	{% endif %}
+{% else %}
+	{% if comment_form %}
+		<hr />
+		<a id="comment-form"></a>
+		<h3>Post a comment</h3>
+	{% endif %}
+{% endif %}
+
+{% if comment_form %}
+	{% include 'comments/form.inc.html' with obj=obj %}
+{% endif %}

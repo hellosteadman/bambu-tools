@@ -1,0 +1,7 @@
+{{ body }}
+
+{% for action in actions %}- {{ action.1 }}  
+  {{ action.0 }}
+
+{% endfor %}
+{% include 'mail/footer.inc.txt' %}

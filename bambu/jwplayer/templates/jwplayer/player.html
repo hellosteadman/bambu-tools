@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Player</title>
+		<script src="{{ STATIC_SECURE_URL }}jwplayer/jwplayer.js"></script>
+		<style>
+			html, body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+			#player {
+				margin: 0 auto 0 auto; width: 100%; height: 100%; background: #000; color: #fff;
+				text-align: center; position: relative;
+			}
+			
+			#status {
+				position: absolute; top: 50%; bottom: 50%; margin-bottom: 0.5em;
+				display: block; text-align: center; width: 100%;
+			}
+			
+			object, embed { display: block; }
+		</style>
+	</head>
+	
+	<body>
+		<div id="player">
+			<span id="status">{% if not video_url %}No video found.{% else %}Loading video...{% endif %}</span>
+		</div>
+		
+		<div id="position"></div>
+		
+		<script>
+			document.getElementById('player').style['height'] = document.height + 'px';
+			
+			jwplayer('player').setup(
+				{
+					'flashplayer': '{{ STATIC_SECURE_URL }}jwplayer/player.swf',
+					'width': {{ width }},
+					'height': {{ height }},
+					'file': '{{ video_name|safe }}',{% if thumbnail %}
+					'image': '{{ thumbnail|safe }}',{% endif %}
+					'skin': '{{ STATIC_SECURE_URL }}jwplayer/skins/bekle.zip',
+					'logo.file': '{{ MEDIA_URL }}img/logo.png',
+					'logo.hide': false,
+					'logo.position': 'top-left',
+					'logo.link': 'http://{{ SITE.domain }}/'{% if streamer %},
+					'provider': 'rtmp',
+					'streamer': '{{ streamer }}'{% else %},
+					'provider': 'http',
+					'http.startparam': 'start'{% endif %},
+					'modes': [
+						{
+							'type': 'flash',
+							'src': '{{ STATIC_SECURE_URL }}jwplayer/player.swf'
+						},
+						{
+							'type': 'html5',
+							'config': {
+								'file': '{{ video_url|safe }}',
+								'provider': 'video'
+							}
+						}
+					]{% if plugins %},
+					'plugins': {
+						{% for plugin, options in plugins.items %}
+						'{{ plugin }}': {
+							{% for key, value in options.items %}
+								'{{ key }}': '{{ value|safe|escapejs }}'{% if not forloop.last %},
+								{% endif %}
+							{% endfor %}
+						}{% if not forloop.last %},{% endif %}
+					}{% endfor %}
+					{% endif %}
+				}
+			);
+		</script>
+		
+		{% if chapters|length > 0 %}
+		<script>
+			if(window.parent && window.parent.location.host == '{{ SITE.domain }}') {
+				var chapter = 0;
+				
+				jwplayer().onTime(
+					function(e) {
+						var pos = Math.round(e.position, 0) * 1000;
+						switch(pos) {{% for chapter in chapters %}
+							case {{ chapter.0 }}:
+								if(chapter != {{ chapter.0 }}) {
+									chapter = {{ chapter.0 }};
+									console.log('Chapter {{ chapter.0 }}');
+									window.parent.location.hash = '#chapter{{ forloop.counter }}';
+								}
+								
+								break;
+							{% endfor %}
+						}
+					}
+				);
+			}
+		</script>
+		{% endif %}
+	</body>
+</html>

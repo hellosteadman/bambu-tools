@@ -1,0 +1,6 @@
+{% load navigation %}
+<ul class="nav">
+	{% menu 'navbar' %}
+		<li{% if item.active %} class="active{% if item.highlight %} highlight{% endif %}"{% endif %}><a href="{{ item.url }}"{% if item.description %} title="{{ item.description }}"{% endif %}>{{ item.title }}</a></li>
+	{% endmenu %}
+</ul>

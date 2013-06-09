@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load icons %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Login</h1>
+{% endblock page_header %}
+
+{% block sidebar %}
+	{% block signup_call %}
+		<h3>Don&rsquo;t have an account?</h3>
+		<p>
+			<a href="{% url 'signup' %}" class="btn btn-success">{% icon 'user' 'white' %} Sign up to {{ SITE.name }} now</a>
+		</p>
+	{% endblock signup_call %}
+{% endblock sidebar %}
+
+{% block form_content %}
+	<form method="post" class="form-horizontal">
+		<p>Please enter your {{ SITE.name }} username and password.</p>
+		{% include 'form.inc.html' %}
+		
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} Login to {{ SITE.name }}</button>
+			<a href="{% url 'forgot_password' %}">Forgotten your password?</a>
+			{% csrf_token %}
+		</div>
+	</form>
+{% endblock form_content %}

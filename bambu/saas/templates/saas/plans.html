@@ -1,0 +1,9 @@
+{% extends 'saas/base.html' %}
+
+{% block content %}
+	<div class="page-header" data-importance="2">
+		<h1>Plans and pricing<small> Sign up to {{ SITE.name }} today</small></h1>
+	</div>
+	
+	{% include 'saas/matrix.inc.html' %}
+{% endblock content %}

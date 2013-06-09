@@ -1,0 +1,24 @@
+{% load icons %}
+{% load url from future %}
+
+<form id="invite" action="{% url 'profile_subusers_invnite' %}" method="post" class="modal hide fade">
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal">&times;</a>
+		<h2>Invite team members</h2>
+	</div>
+	
+	<div class="modal-body form-horizontal">
+		<p>Enter the email address of the team members you&rsquo;d like to invite, putting one on each line.</p>
+		
+		{% if form.emails.errors %}
+			<div class="alert alert-error">{{ form.emails.errors|join:'<Br />' }}
+		{% endif %}
+		
+		{{ form.emails }}
+	</div>
+	
+	<div class="modal-footer">
+		<button class="btn btn-primary" type="submit">{% icon 'ok' %} Send invitations</button>
+		{% csrf_token %}
+	</div>
+</form>

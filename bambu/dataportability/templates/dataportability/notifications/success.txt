@@ -1,0 +1,7 @@
+The import of file {{ job.name }} was successful.  
+Here's a log of the activity:
+
+{% for update in job.updates.all %}
+- **{{ update.get_kind_display }}**: {{ update.text }}{% if update.description %}  
+  {{ update.description }}{% endif %}
+{% endfor %}

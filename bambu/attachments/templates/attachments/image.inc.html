@@ -1,0 +1,8 @@
+{% load thumbnail %}
+<p{% if align == 'left' %} class="pull-left attachment-align-left"{% elif align == 'right' %} class="pull-right attachment-align-right"{% endif %}>
+	{% if url %}<a href="{{ url }}" class="attachment-link">{% endif %}
+		{% thumbnail attachment.file size upscale=False as thumb %}
+		<img class="attachment-thumbnail" src="{{ thumb.url }}" alt="{{ attachment.title }}" />
+		{% endthumbnail %}
+	{% if url %}</a>{% endif %}
+</p>

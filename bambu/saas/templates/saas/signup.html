@@ -1,0 +1,92 @@
+{% extends 'saas/base.html' %}
+{% load url from future %}
+
+{% block content %}
+	{% block page_header %}
+		<div class="page-header" data-importance="2">
+			<h1>Sign up<small> Get your {{ SITE.name }} account</small></h1>
+		</div>
+	{% endblock page_header %}
+	
+	<div class="row">
+		<div class="span6">
+			<form method="post" action="{% url 'signup' %}" class="form-horizontal">
+				{% include 'saas/form.inc.html' %}
+
+				<div class="form-actions">
+					<input type="submit" class="btn btn-success" value="Sign up" />
+					<input type="hidden" name="next" value="{{ next }}" />
+					{% csrf_token %}
+				</div>
+			</form>
+		</div>
+		
+		<div class="span6">
+			<div id="saas-features" data-spy="affix" data-offset-top="212">
+				{% include 'saas/features.inc.html' %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	{% if form.plan %}
+		{% include 'saas/js.inc.html' %}
+	{% endif %}
+	
+	<script>
+		function validateUser(control, field) {
+			var value = control.val();
+			
+			switch(field) {
+				case 'username':
+					var url = '{% url 'username_exists_ajax' %}?v=' + escape(value)
+					break;
+				case 'email':
+					var url = '{% url 'email_exists_ajax' %}?v=' + escape(value)
+					break;
+				default:
+					return;
+			}
+			
+			jQuery.getJSON(url,
+				function(exists) {
+					var group = control.closest('.control-group');
+					
+					if(exists) {
+						group.addClass('error');
+						if(group.find('.help-inline').length == 0) {
+							control.after(
+								' <small class="help-inline">Sorry, a user has already registered with this info</small>'
+							);
+						} else {
+							group.find('.help-inline').html(
+								'Sorry, a user has already registered with this info'
+							);
+						}
+					} else {
+						group.removeClass('error').find('.help-inline').remove();
+					}
+				}
+			);
+		}
+		
+		jQuery(document).ready(
+			function($) {
+				$('input[name="username"]').bind('change',
+					function() {
+						validateUser($(this), 'username');
+					}
+				);
+				
+				$('input[name="email"]').bind('change',
+					function() {
+						validateUser($(this), 'email');
+					}
+				);
+			}
+		);
+	</script>
+{% endblock javascript %}

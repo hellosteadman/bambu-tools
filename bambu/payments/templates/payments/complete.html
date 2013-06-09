@@ -1,0 +1,31 @@
+{% extends 'payments/base.html' %}
+{% load analytics icons %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Payment complete<small> Thank you</small></h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<p>
+		Your {% if payment.recurring %}subscription{% else %}payment{% endif %}
+		has been {% if payment.recurring %}setup{% else %}made{% endif %}
+		successfully. Thanks very much!
+	</p>
+	
+	<a href="{% url 'profile' %}" class="btn btn-primary">{% icon 'user' 'white' %} Continue to your profile</a>
+	
+	<dl class="horizontal">
+		<dt>Net amount</dt>
+		<dd>{{ payment.net_amount|floatformat:2 }} {{ payment.currency }}</dd>
+		
+		<dt>{{ payment.tax_rate.shorthand }}</dt>
+		<dd>{{ payment.tax_amount|floatformat:2 }} {{ payment.currency }}</dd>
+		
+		<dt>Total amount</dt>
+		<dd>{{ payment.total_amount|floatformat:2 }} {{ payment.currency }}</dd>
+		
+		<dt>Paid via</dt>
+		<dd>{{ gateway.verbose_name }}</dd>
+	</dl>
+{% endblock form_content %}

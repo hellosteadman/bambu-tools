@@ -1,0 +1,17 @@
+{% extends 'faq/base.html' %}
+
+{% block form_content %}
+	{% for category in categories %}
+		<h2>{{ category.name }}</h2>
+		
+		<div class="accordion">
+			{% include 'faq/topics.inc.html' with topics=category.topics.all|slice:':5' %}
+		</div>
+		
+		{% if category.topics.count > 5 %}
+		<p><a href="{{ category.get_absolute_url }}">More questions</a></p>
+		{% endif %}
+		
+		{% if not forloop.last %}<hr />{% endif %}
+	{% endfor %}
+{% endblock form_content %}

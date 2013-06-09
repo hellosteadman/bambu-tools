@@ -1,0 +1,5 @@
+{% load url from future %}Sorry, but the import of file {{ job.name }} was unsuccessful.  
+There were one or more errors that occurred during the process:
+{% for error in job.updates.all %}{% if error.kind == 'error' %}
+- {{ error.text }}{% if error.description %}  
+  {{ error.description }}{% endif %}{% endif %}{% endfor %}

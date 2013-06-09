@@ -1,0 +1,142 @@
+{% load url from future %}
+
+<div id="{{ id }}" class="fileupload-container">
+	<small>Drag a file here</small>
+	<span class="btn fileinput-button">
+		<span>Choose files</span>
+		<input id="{{ id }}_input" type="file" name="fileupload[]" multiple>
+	</span>
+</div>
+
+<script>
+	function getCookie_{{ handler }}(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = $.trim(cookies[i]);
+				if (cookie.substring(0, name.length + 1) == (name + '=')) {
+					return decodeURIComponent(cookie.substring(name.length + 1));
+				}
+			}
+		}
+	}
+	
+	function createUploader_{{ handler }}() {
+		var csrftoken = getCookie_{{ handler }}('csrftoken');
+		
+		$('#{{ id }}_input').fileupload(
+			{
+				dataType: 'json',
+				url: '{% url 'fileupload' %}?handler={{ handler|urlencode }}&params={{ params|urlencode }}',
+				dropZone: $('#{{ id }}'),
+				singleFileUploads: false,
+				add: function(e, data) {
+					var addFiles = 0;
+					
+					$.each(data.files,
+						function(index, file) {
+							try {
+								console.log(file);
+							} catch (err) {
+								// Can't log to console
+							}
+							
+							if(typeof(file.size) == 'number' && file.size > 0) {
+								addFiles ++;
+							}
+							
+							if(addFiles == 1) {
+								$(document).trigger('fileupload:start');
+							}
+						}
+					);
+					
+					if(addFiles == 0) {
+						return;
+					}
+					
+					$('#{{ id }}').addClass('full').removeClass('error').html(
+						'<div class="progress"><div class="bar"></div></div>' +
+						'<small>Calculating time remaining</small>'
+					);
+					
+					data.submit();
+				},
+				progressall: function(e, data) {
+					if(!data.total) {
+						return;
+					}
+					
+					var progress = data.loaded / data.total * 100;
+					var kbps = Math.round(
+						data.bitrate / 1024, 0
+					).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+					
+					$('#{{ id }} .progress .bar').css('width', progress + '%');
+					if(progress >= 100) {
+						$('#{{ id }} small').html('Finishing up');
+					} else {
+						$('#{{ id }} small').html('Uploading at ' + kbps + 'kbps');
+					}
+				},
+				done: function(e, data) {
+					$('#{{ id }}').removeClass('full').html(
+						'<small>Upload a new file</small>' +
+						'<span class="btn fileinput-button">' +
+							'<span>Choose files</span>' +
+							'<input id="{{ id }}_input" type="file" name="fileupload[]" multiple>' +
+						'</span>'
+					);
+					
+					$(document).trigger('fileupload:done');
+					{{ callback_js }}(data);
+					createUploader_{{ handler }}();
+				},
+				error: function(e, data) {
+					$('#{{ id }}').addClass('error').find('small').html(
+						'Errors occurred during the upload. Please try again'
+					);
+				}
+			}
+		);
+	}
+	
+	jQuery(document).ready(
+		function($) {
+			createUploader_{{ handler }}();
+			
+			$(document).bind('dragover',
+				function(e) {
+					var dropZone = $('#{{ id }}');
+					var timeout = window.dropZoneTimeout;
+					
+					if (!timeout) {
+						dropZone.addClass('in');
+					} else {
+						clearTimeout(timeout);
+					}
+					
+					if (e.target === dropZone[0]) {
+						dropZone.addClass('hover');
+					} else {
+						dropZone.removeClass('hover');
+					}
+					
+					window.dropZoneTimeout = setTimeout(
+						function() {
+							window.dropZoneTimeout = null;
+							dropZone.removeClass('in hover');
+						}, 100
+					);
+				}
+			);
+			
+			$(document).bind('drop dragover',
+				function(e) {
+					e.preventDefault();
+				}
+			);
+		}
+	);
+</script>

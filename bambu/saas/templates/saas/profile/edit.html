@@ -1,0 +1,19 @@
+{% extends 'saas/profile/base.html' %}
+{% load icons %}
+
+{% block page_header %}
+	<h1>Edit your profile</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<div class="span9">
+		<form method="post" class="form-horizontal">
+			{% include 'form.inc.html' %}
+			
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} Update profile</button>
+				{% csrf_token %}
+			</div>
+		</form>
+	</div>
+{% endblock form_content %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load url from future %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>Access denied</h1>
+	</div>
+	
+	<p>
+		Sorry, but the details you&rsquo;ve provided are incorrect. Please try again<br />
+		You can read the <a href="{% url 'api:doc' %}">API documentation</a> if you need help.
+	</p>
+{% endblock content %}

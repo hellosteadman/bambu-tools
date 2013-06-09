@@ -1,0 +1,5 @@
+{% extends 'mail/base.html' %}
+
+{% block body %}{{ block.super }}{% if actions|length > 0 %}
+	<p>{% for action in actions %}<a href="{{ action.0 }}">{{ action.1 }}</a>{% if not forloop.last %} | {% endif %}{% endfor %}</p>
+{% endif %}{% endblock %}

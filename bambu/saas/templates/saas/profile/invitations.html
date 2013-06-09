@@ -1,0 +1,21 @@
+{% extends 'saas/profile/base.html' %}
+{% load icons %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Manage invitations</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<div class="span9">
+		{{ grid }}
+		
+		<a class="btn btn-success" href="#invite" data-toggle="modal">{% icon 'plus' %} Invite more members</a>
+	</div>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	{% include 'saas/profile/invite.inc.html' %}
+{% endblock javascript %}

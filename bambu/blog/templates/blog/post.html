@@ -1,0 +1,6 @@
+{% extends 'blog/posts-day.html' %}
+
+{% block form_content %}
+	{% include 'blog/post.inc.html' with single=1 %}
+	{% include 'comments/list.inc.html' with obj=post %}
+{% endblock form_content %}

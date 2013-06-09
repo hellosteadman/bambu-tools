@@ -1,0 +1,9 @@
+Someone has sent an enquiry via the contact form at {{ SITE.name }}.
+
+Name: {{ name }}  
+Email address: <{{ email }}>  
+Subject: {{ subject }}  
+
+The message is as follows:
+
+{{ message }}

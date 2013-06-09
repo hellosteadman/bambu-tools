@@ -1,0 +1,9 @@
+<script src="http://js.pusher.com/2.0/pusher.min.js"></script>
+<script>
+	Pusher.log = function(message) {
+	  if (window.console && window.console.log) window.console.log(message);
+	};
+	
+	{% if DEBUG %}WEB_SOCKET_DEBUG = true;{% endif %}
+	var pusher = new Pusher('{{ KEY }}');
+</script>

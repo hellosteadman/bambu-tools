@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block page_header %}
+	<h1>Importing {{ job.name }}</h1>
+{% endblock page_header %}
+
+{% block sidebar %}
+	<h2>Bear with us</h2>
+	
+	<p>
+		This import job is now running, and might take a while to complete. You can move away
+		from this page, and you&rsquo;ll be notified when the process is complete.
+	</p>
+{% endblock sidebar %}
+
+{% block form_content %}
+	<div id="job-status">
+		{% if not push_enabled %}
+			{% include 'dataportability/import-updates.inc.html' %}
+		{% endif %}
+		<noscript>
+			<div class="alert">
+				It doesn't look like we can give you a live update right now, but you will get an
+				email as soon as the job has finished.
+			</div>
+		</noscript>
+	</div>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	<script>
+		var ajaxTimeout = setTimeout(
+			function() {
+				$('#job-status').html(
+					'<div id="timeout" class="alert">It doesn\'t look like we can give you a live update right now, but you will get an ' +
+					'email as soon as the job has finished.</div>'
+				);
+			},
+			5000
+		);
+	</script>
+	
+	{% if push_enabled %}
+		<script>
+			var channel = pusher.subscribe('bambu.dataportability.{{ job.pk }}');
+			channel.bind('update',
+				function(update) {
+					if(ajaxTimeout) {
+						clearTimeout(ajaxTimeout);
+						$('#timeout').remove();
+						ajaxTimeout = 0;
+					}
+					
+					$('#job-status').prepend(
+						'<div class="alert alert-' + update.kind + '">' +
+							'<strong>' + update.text + '</strong>' +
+							(update.description ? '<p>' + update.description.replace('\n', '<br />') + '</p>' : '') +
+						'</div>'
+					);
+				}
+			);
+		</script>
+	{% endif %}
+{% endblock javascript %}

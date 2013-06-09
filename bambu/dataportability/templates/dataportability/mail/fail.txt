@@ -1,0 +1,10 @@
+{% load url from future %}Hi {{ job.user.get_full_name|default:job.user.username }}.
+
+Sorry, but the import of file {{ job.name }} was unsuccessful.  
+There were one or more errors that occurred during the process:
+{% for error in errors %}
+- {{ error.text }}{% if error.description %}  
+  {{ error.description }}{% endif %}{% endfor %}
+
+Please [contact us](http://{{ SITE.domain }}{% url 'enquiry' %}) if you have any questions or
+need to discuss the process.

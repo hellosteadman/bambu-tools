@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Developer resources</h1>
+{% endblock page_header %}
+
+{% block sidebar %}
+	<h2>Endpoints</h2>
+	
+	<ul class="unstyled">
+		{% for resource in resources %}
+			<li>
+				<h3><a href="{{ resource.url }}">{{ resource.name }}</a></h3>
+				{% if resource.children %}
+					<ul class="unstyled">
+						{% for child in resource.children %}
+							<li><a href="{{ child.url }}">{{ child.name|title }}</a></li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+	
+	{% if apps_supported and request.user.is_authenticated %}
+		<h3>Your apps</h3>
+		<p><a href="{% url 'api:apps' %}">Manage your apps</a></p>
+	{% endif %}
+{% endblock sidebar %}

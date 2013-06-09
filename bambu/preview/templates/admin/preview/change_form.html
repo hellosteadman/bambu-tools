@@ -1,0 +1,26 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}preview/css/admin.css" />
+{% endblock extrastyle %}
+
+{% block extrahead %}
+	{{ block.super }}
+	<script type="text/javascript" src="{{ STATIC_URL }}preview/js/admin.js"></script>
+{% endblock extrahead %}
+
+{% block object-tools %}
+	{% if not is_popup %}
+		<ul class="object-tools">
+			<li style="display: none;"><a href="#" class="previewlink">{% trans "Preview" %}</a></li>
+			{% if change %}
+				{% block object-tools-items %}
+					<li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+					{% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+				{% endblock %}
+			{% endif %}
+		</ul>
+	{% endif %}
+{% endblock %}

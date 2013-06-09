@@ -1,0 +1,9 @@
+{% load url from future %}
+{% if tags and tags|length > 0 %}
+	<h3>Tags</h3>
+	<p class="tag-cloud">
+		{% for tag in tags %}
+			<a href="{% url 'blog_posts_by_tag' tag.slug %}" class="weight-{{ tag.weight }}">{{ tag.name }}</a>
+		{% endfor %}
+	</p>
+{% endif %}

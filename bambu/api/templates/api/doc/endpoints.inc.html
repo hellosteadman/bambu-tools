@@ -1,0 +1,19 @@
+<table class="table">
+	<tr>
+		<th width="20%">List {{ verbose_name_plural }}</th>
+		<td>
+			<code>http://{{ SITE.domain }}{{ urls.list.url|safe }}</code><br />
+			Allowed methods: {% for method in urls.list.allowed_methods %}{% if forloop.last %}and {% endif %}<code>{{ method }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+		</td>
+	</tr>
+	
+	<tr>
+		<th width="20%">Single {{ verbose_name }}</th>
+		<td>
+			<code>http://{{ SITE.domain }}{{ urls.object.url|safe }}</code><br />
+			Allowed methods: {% for method in urls.object.allowed_methods %}{% if forloop.last %}and {% endif %}<code>{{ method }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+		</td>
+	</tr>
+</table>
+
+<p>Supported formats: {% for format in formats %}{% if forloop.last %}and {% endif %}<abbr class="initialism">{{ format }}</abbr>{% if not forloop.last %}, {% endif %}{% endfor %}

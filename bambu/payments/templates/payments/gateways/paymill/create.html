@@ -1,0 +1,220 @@
+{% extends 'payments/gateways/base.html' %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<style>
+		select.card-expiry-month, select.card-expiry-year { width: auto; }
+		#cv2img { display: block; margin-top: 5px; }
+	</style>
+{% endblock extra_head %}
+
+{% block form_content %}
+	<form id="payment-form" action="#" method="post" class="form-horizontal">
+		<div class="alert alert-error">
+			<noscript>Sorry, but this payment method requires JavaScript to be enabled.</noscript>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_name">Cardholder&rsquo;s name</label>
+			<div class="controls">
+				<input id="id_name" class="card-holdername" type="text" />
+			</div>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_city">City</label>
+			<div class="controls">
+				<input id="id_city" name="city" type="text" />
+			</div>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_province">State or province</label>
+			<div class="controls">
+				<input id="id_province" name="provine" type="text" />
+			</div>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_country">Country</label>
+			<div class="controls">
+				<select id="id_country" name="country">
+					{% for c in countries %}
+						<option value="{{ c.pk }}"{% ifequal c.pk country %} selected{% endifequal %}>{{ c.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="control-group">
+			<label class="control-label" for="id_card">Card number</label>
+			<div class="controls">
+				<input id="id_card" type="text" />
+			</div>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_cv2">Verification number</label>
+			<div class="controls">
+				<input id="id_cv2" class="card-cvc" type="text" /><br />
+				<img id="cv2img" src="{{ STATIC_URL }}payments/cv2.png" />
+			</div>
+		</div>
+		
+		<div class="control-group">
+			<label class="control-label" for="id_expiry_month">Expiry date</label>
+			<div class="controls">
+				<select id="id_expiry_month" class="card-expiry-month">
+					{% for month in months %}<option value="{{ month.0 }}">{{ month.1 }}</option>{% endfor %}
+				</select>
+
+				<select id="id_expiry_year" class="card-expiry-year">
+					{% for year in years %}<option value="{{ year.0 }}">{{ year.1 }}</option>{% endfor %}
+				</select>
+			</div>
+		</div>
+		
+		<div class="form-actions">
+			<input class="card-currency" type="hidden" value="{{ payment.currency }}" />
+			<button class="btn btn-primary" type="submit">Submit payment</button>
+			{% csrf_token %}
+		</div>
+	</form>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	<script>var PAYMILL_PUBLIC_KEY = '{{ PUBLIC_KEY }}';</script>
+	<script src="https://bridge.paymill.com/"></script>
+	
+	<script>
+		function showError(err) {
+			var form = $('#payment-form');
+			
+			switch(err) {
+				case 'field_invalid_name':
+					msg = 'The cardholder name is required.';
+					$('#id_name').focus();
+					break;
+				case 'field_invalid_city':
+					msg = 'The city name is required.';
+					$('#id_city').focus();
+					break;
+				case 'field_invalid_province':
+					msg = 'The state or province name is required.';
+					$('#id_province').focus();
+					break;
+				case 'field_invalid_country':
+					msg = 'The country is required.';
+					$('#id_country').focus();
+					break;
+				case 'field_invalid_card_number':
+					msg = 'The card number is invalid.';
+					$('#id_card').focus();
+					break;
+				case 'field_invalid_card_exp':
+					msg = 'The card expiry date is invalid.';
+					$('#id_expiry_month').focus();
+					break;
+				case 'field_invalid_card_cvcg': case'field_invalid_card_cvc':
+					msg = 'The verification number is invalid.';
+					$('#id_cv2').focus();
+					break;
+				case 'field_invalid_account_holder':
+					msg = 'The cardholder name is invalid';
+					$('#id_name').focus();
+				default:
+					alert(err);
+			}
+			
+			form.find('.alert-error').html(msg).show();
+			form.find(':input').removeAttr('disabled');
+		}
+		
+		jQuery(document).ready(
+			function($) {
+				$('#payment-form .alert').hide();
+				$('#payment-form').bind('submit',
+					function(e) {
+						var token = $(this).find(':input[name="paymill_token"]').val();
+						
+						$(this).find('.alert').hide();
+						if(!token) {
+							var name = $('#id_name').val();
+							var city = $('#id_city').val();
+							var province = $('#id_province').val();
+							var country = $('#id_country').val();
+							var number = $('#id_card').val();
+							var cv2 = $('#id_cv2').val();
+							var expiryMonth = parseInt($('#id_expiry_month').val());
+							var expiryYear = parseInt($('#id_expiry_year').val());
+							
+							e.preventDefault();
+							$(this).find(':input').attr('disabled', 'disabled');
+							
+							if(!name) {
+								showError('field_invalid_name');
+								return;
+							}
+							
+							if(!city) {
+								showError('field_invalid_city');
+								return;
+							}
+							
+							if(!province) {
+								showError('field_invalid_province');
+								return;
+							}
+							
+							if(!country) {
+								showError('field_invalid_country');
+								return;
+							}
+							
+							if(!paymill.validateCardNumber(number)) {
+								showError('field_invalid_card_number');
+								return;
+							}
+							
+							if(!paymill.validateExpiry(expiryMonth, expiryYear)) {
+								showError('field_invalid_card_exp');
+								return;
+							}
+							
+							paymill.createToken(
+								{
+									number: number,
+									exp_month: expiryMonth,
+									exp_year: expiryYear,
+									cvc: cv2,
+									amount_int: {{ amount }},
+									currency: '{{ payment.currency }}',
+									cardholder: name
+								},
+								function(error, result) {
+									var form = $('#payment-form');
+									var msg = 'An unknown error has occurred';
+									
+									if(error) {
+										showError(error.apierror);
+									} else {
+										form.append(
+											'<input type="hidden" name="paymill_token" value="' + result.token + '"/>'
+										);
+										
+										form.submit();
+									}
+								}
+							);
+						} else {
+							$(this).find('input[type="hidden"]').removeAttr('disabled');
+						}
+					}
+				);
+			}
+		);
+	</script>
+{% endblock javascript %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Exporting {{ job.name }}</h1>
+{% endblock page_header %}
+
+{% block sidebar %}
+	<h2>Bear with us</h2>
+	
+	<p>
+		This export job is now running, and might take a while to complete.
+		<strong>Do not navigation away from this page</strong> as the download will be delivered
+		as soon as the job is complete.
+	</p>
+{% endblock sidebar %}
+
+{% block form_content %}
+	{% if not job.data %}
+		<div class="progress progress-striped">
+			<div id="progress-bar" class="bar active" style="width: {{ job.progress }}%;"></div>
+		</div>
+	{% endif %}
+	
+	<div id="job-status">
+		{% if not push_enabled and not job.data %}
+			{% include 'dataportability/export-updates.inc.html' %}
+		{% endif %}
+		
+		<noscript>
+			<div class="alert">
+				It doesn't look like we can give you a live update right now, but you will get an
+				email as soon as the job has finished.
+			</div>
+		</noscript>
+	</div>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	{% if not job.data %}
+		<script>
+			var ajaxTimeout = setTimeout(
+				function() {
+					$('#job-status').html(
+						'<div id="timeout" class="alert">It doesn\'t look like we can give you a live update right now, but you will get an ' +
+						'email as soon as the job has finished.</div>'
+					);
+				},
+				5000
+			);
+		</script>
+	
+		{% if push_enabled %}
+			<script>
+				var channel = pusher.subscribe('bambu.dataportability.{{ job.pk }}');
+			
+				channel.bind('file',
+					function(e) {
+						if(ajaxTimeout) {
+							clearTimeout(ajaxTimeout);
+							$('#timeout').remove();
+							ajaxTimeout = 0;
+						}
+						
+						$('#job-status').prepend(
+							'<div class="alert alert-success">' +
+								'<a class="btn btn-success" href="' + e.url + '">Download your file</a>&nbsp;' +
+								'for a limited time' +
+							'</div>'
+						);
+					}
+				);
+			
+				channel.bind('progress',
+					function(e) {
+						if(ajaxTimeout) {
+							clearTimeout(ajaxTimeout);
+							$('#timeout').remove();
+							ajaxTimeout = 0;
+						}
+						
+						
+						$('#progress-bar').css(
+							{
+								width: e.progress + '%'
+							}
+						);
+					}
+				);
+				
+				channel.bind('update',
+					function(update) {
+						if(ajaxTimeout) {
+							clearTimeout(ajaxTimeout);
+							$('#timeout').remove();
+							ajaxTimeout = 0;
+						}
+						
+						$('#job-status').prepend(
+							'<div class="alert alert-' + update.kind + '">' +
+								'<strong>' + update.text + '</strong>' +
+								(update.description ? '<p>' + update.description.replace('\n', '<br />') + '</p>' : '') +
+							'</div>'
+						);
+					}
+				);
+			</script>
+		{% endif %}
+	{% else %}
+		<script>
+			$(document).ready(
+				function() {
+					$('#job-status').prepend(
+						'<div class="alert alert-success">' +
+							'<a class="btn btn-success" href="{% url 'download_export' job.guid %}">Download your file</a>&nbsp;' +
+							'for a limited time' +
+						'</div>'
+					);
+				}
+			);
+		</script>
+	{% endif %}
+{% endblock javascript %}

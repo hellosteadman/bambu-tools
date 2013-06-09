@@ -1,0 +1,39 @@
+{% extends 'blog/posts.html' %}
+{% load markup oembed attachments %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Blog <small>Preview</small></h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<article class="post">
+		<h2>
+			<a href=".">{{ obj.title }}</a>
+			<small>{{ obj.date|date }}</small>
+			<a href="."><span class="badge" title="No comments">0</span></a>
+		</h2>
+		
+		<div class="post-body">
+			{{ obj.body|markdown|oembed|attachments:obj }}
+		</div>
+		
+		<div class="well post-meta">
+			<p>
+				Posted on <strong>{{ obj.date|date }}</strong>
+				by <a href="{% url 'blog_posts_by_author' obj.author.username %}">{{ obj.author.get_full_name|default:obj.author.username }}</a>
+				{% if obj.categories.count > 0 %}
+					in {% for category in obj.categories.all %}
+						<a href="{% url 'blog_posts_by_category' category.slug %}">{{ category.name }}</a>{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endif %}
+				{% if obj.tags|length > 0 %}
+					and tagged
+					{% for tag in obj.tags %}
+						<a href="{% url 'blog_posts_by_tag' tag|slugify %}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endif %}
+			</p>
+		</div>
+	</article>
+{% endblock form_content %}

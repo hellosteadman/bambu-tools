@@ -1,0 +1,20 @@
+{% load markup comments %}
+
+<article class="row comment">
+	<div class="span1 avatar-container">
+		<img class="avatar" src="{{ comment.email|gravatar }}" alt="{{ comment.name }}" />
+	</div>
+	
+	<div class="span7" id="comment-{{ comment.pk }}">
+		<h3>
+			{% if comment.website %}<a href="{{ comment.website }}" target="_blank">{% endif %}
+			{{ comment.name }}
+			{% if comment.website %}</a>{% endif %}
+			<small><a href="#comment-{{ comment.pk }}">{{ comment.sent|date }}</a></small>
+		</h3>
+		
+		{{ comment.body|striptags|markdown }}
+	</div>
+	
+	<div style="clear: both;"></div>
+</article>

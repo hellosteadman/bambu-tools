@@ -1,0 +1,14 @@
+{% extends 'payments/base.html' %}
+
+{% block page_header %}
+	<h1>Payment cancelled</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<p>
+		Your {% if payment.recurring %}subscription{% else %}payment{% endif %}
+		has not been authorised, as you have chosen to cancel it.
+	</p>
+	
+	<p>Your account will not be charged.</p>
+{% endblock form_content %}

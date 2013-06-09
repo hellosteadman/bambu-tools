@@ -1,0 +1,25 @@
+table.feature-list tbody th, table.feature-list tbody td { line-height: 32px; }
+table.feature-list tbody th { text-align: left; }
+table.feature-list thead th, table.feature-list tbody td, table.feature-list tfoot td {
+	text-align: center;
+}
+
+table.feature-list tbody th { width: 30%; }
+table.feature-list tbody td, table.feature-list tfoot td { vertical-align: middle; }
+
+table.feature-list th .feature-name { font-size: 18px; }
+table.feature-list th .feature-description { font-weight: normal; }
+table.feature-list span.plan-name { font-size: 18px; }
+table.feature-list span.plan-price { font-size: 14px; font-weight: normal; }
+table.feature-list span.plan-price .plan-price-year { color: #999; font-size: 12px; }
+table.feature-list-upgrade th .feature-name { font-size: inherit; }
+
+table.feature-list .best span.plan-name { font-size: 24px; }
+table.feature-list .best span.plan-price { font-size: 18px; font-weight: normal; }
+table.feature-list .best span.plan-price .plan-price-year { color: #999; font-size: 12px; }
+table.feature-list .best .feature-value { font-size: 150%; }
+
+span.feature-enabled { color: #090; font-size: 24px; }
+span.feature-disabled { color: #900; font-size: 24px; }
+
+p.upgrade-notice { height: 4.25em; }

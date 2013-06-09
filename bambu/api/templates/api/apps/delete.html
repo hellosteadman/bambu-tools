@@ -1,0 +1,16 @@
+{% extends 'api/base.html' %}
+
+{% block form_content %}
+	<h2>{{ app.name }} <small>Delete</small></h2>
+	<hr />
+		
+	<p>Are you sure you want to delete this app?</p>
+	
+	<div class="alert alert-block alert-warning">
+		<h4 class="alert-heading">Warning!</h4>
+		<p>Once deleted, no-one previously using this app will be able to login with it again.</p>
+	</div>
+	
+	<a class="btn btn-danger" href="?confirm=1">Yes, delete it</a>
+	<a class="btn" data-dismiss="modal">No, don&rsquo;t delete it</a>
+{% endblock form_content %}

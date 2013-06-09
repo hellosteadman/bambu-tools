@@ -1,0 +1,8 @@
+Hi {{ job.user.get_full_name|default:job.user.username }}.
+
+Just a quick note to say that the import of file {{ job.name }} was a success.{% if warnings.count > 0 %}  
+There were however one or more warnings:
+{% for warning in warnings %}
+- {{ warning.text }}{% if warning.description %}  
+  {{ warning.description }}{% endif %}{% endfor %}
+{% endif %}

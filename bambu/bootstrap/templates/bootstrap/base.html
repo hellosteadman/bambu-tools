@@ -1,0 +1,68 @@
+{% load bootstrap cache enqueue %}<!DOCTYPE html>
+<html {% html_attrs %}>
+	<head{% block head_attrs %}{% endblock %}>
+		<meta charset="UTF-8" />
+		{% block title %}<title>{% bootstrap_title %}</title>{% endblock title %}
+		{% block meta_tags %}
+			{% if meta_keywords %}<meta name="keywords" content="{{ meta_keywords|join:', ' }}" />{% endif %}
+			{% if meta_description %}<meta name="description" content="{{ meta_description }}" />{% endif %}
+		{% endblock meta_tags %}
+		
+		{% bootstrap_styles %}
+		
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/jquery.min.js"></script>
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/bootstrap.js"></script>
+		{% block extra_head %}{% endblock %}
+		{% enqueued_styles %}
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/modernizr.js"></script>
+	</head>
+	
+	<body class="{% spaceless %}{% if request.user.is_authenticated%}logged-in{% else %}anonymous{% endif %} {% if popup %}popup{% endif %} {% for class in body_classes %}{{ class }} {% endfor %}{% endspaceless %}">
+		{% include 'bootstrap/navbar.inc.html' %}
+		{% block after_header %}{% endblock after_header %}
+		
+		<div class="container" id="main-container">
+			{% if messages %}
+				{% for message in messages %}
+					<div class="alert{% for tag in message.tags.split %} alert-{{ tag }}{% endfor %}">
+						<a class="close" data-dismiss="alert">&times;</a>
+						<span>{{ message }}</span>
+					</div>
+				{% endfor %}
+			{% endif %}
+			
+			{% block breadcrumb_trail %}{% breadcrumb_trail %}{% endblock %}
+			
+			{% block content %}
+				<div class="page-header" data-importance="2">
+					{% block page_header %}{% endblock %}
+				</div>
+				
+				<div class="row">
+					<div class="span3">
+						{% block sidebar %}{% endblock %}
+					</div>
+					
+					<div class="span9">
+						{% block form_content %}{% endblock %}
+					</div>
+				</div>
+				
+				{% block form_footer %}{% endblock %}
+			{% endblock %}
+		</div>
+		
+		{% block pre_footer %}<hr />{% endblock pre_footer %}
+		
+		<div class="container">
+			<footer>
+				{% block footer %}
+					{% include 'bootstrap/footer.inc.html' %}
+				{% endblock footer %}
+			</footer>
+		</div>
+		
+		{% enqueued_scripts %}
+		{% block javascript %}{% endblock %}
+	</body>
+</html>

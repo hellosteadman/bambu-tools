@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load icons highlight %}
+
+{% block page_header %}
+	<h1>Search</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	{% if query %}
+		<h3>Results</h3>
+		
+		<div id="search-results">
+			{% for result in page.object_list %}
+				<h4>
+					<a href="{{ result.object.get_absolute_url }}">{{ result.object }}</a>
+				</h4>
+				
+				{% highlight result.text with query %}
+				{% if not forloop.last %}<hr />{% endif %}
+			{% empty %}
+				<p>No results found.</p>
+			{% endfor %}
+		</div>
+		
+		{% if page.has_previous or page.has_next %}
+			<div class="pagination">
+				<ul>
+					<li class="{% if not page.has_previous %}active{% endif %}"><a{% if page.has_previous %} href="?q={{ query }}&amp;page={{ page.previous_page_number }}"{% endif %}>&laquo; Previous page</a></li>
+					{% for p in page.paginator.page_range %}
+						<li><a href="?q={{ query }}&amp;page={{ p }}">{{ p }}</a></li>
+					{% endfor %}
+					
+					<li class="{% if not page.has_next %}active{% endif %}"><a{% if page.has_next %} href="?q={{ query }}&amp;page={{ page.next_page_number }}"{% endif %}>Next page &raquo;</a></li>
+				</ul>
+			</div>
+		{% endif %}
+	{% else %}
+		{# Show some example queries to run, maybe query syntax, something else? #}
+	{% endif %}
+{% endblock form_content %}
+
+{% block sidebar %}
+	<form class="form-horizontal">
+		{% include 'form.inc.html' %}
+		<button class="btn btn-primary" type="submit">
+			{% icon 'search' %} Search
+		</button>
+	</form>
+{% endblock sidebar %}

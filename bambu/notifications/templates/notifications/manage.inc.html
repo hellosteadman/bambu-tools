@@ -1,0 +1,36 @@
+{% load icons %}
+<form method="post" class="form-horizontal">
+	<p>Set how you&rsquo;d like to be notified when certain things happen.</p>
+	
+	{% if form.non_field_errors %}
+		<div class="alert alert-error">
+			{% for error in form.non_field_errors %}
+			{{ error }}
+			{% endfor %}
+		</div>
+	{% endif %}
+	
+	{% for field in form.visible_fields %}
+		<div class="control-group clearfix{% if field.errors %} error{% endif %}">
+			<span class="control-label" for="id_{{ field.html_name }}">{{ field.label }}</span>
+			<div class="controls">
+				{{ field }}
+
+				{% if field.errors %}
+					<p class="help-block">{{ field.errors|join:' ' }}</p>
+				{% endif %}
+
+				{% if field.help_text %}
+					<div class="help-block">
+						{{ field.help_text|safe|linebreaks }}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endfor %}
+	
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} Save settings</button>
+		{% csrf_token %}
+	</div>
+</form>

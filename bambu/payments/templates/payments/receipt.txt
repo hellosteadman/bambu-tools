@@ -1,0 +1,19 @@
+Dear {{ payment.customer.first_name|default:payment.customer.username }},
+
+This email confirms that your {% if payment.recurring %}billing agreement{% else %}payment{% endif %}
+has been {% if payment.recurring %}setup{% else %}made{% endif %} successfully. The details are below.
+
+{% if payment.trial_months %}There is a trial period of **{{ payment.trial_months }} month{{ payment.trial_months|pluralize }}**,
+after which time if you don't cancel, you'll be charged the following.
+{% endif %}
+**Payment number**: #{{ payment.pk }}  
+**Net amount**: {{ currency }}{{ payment.offer_net_amount|default:payment.net_amount }}  
+**{{ payment.tax_rate }}**: {{ currency }}{{ payment.offer_tax_amount|default:payment.tax_amount }}{% if payment.postage %}  
+**Postage**: {{ currency }}{{ payment.postage }}{% endif %}
+
+{% if payment.offer_months %}After **{{ payment.offer_months }} month{{ payment.offer_months|pluralize }}** you will
+be charged **{{ payment.currency }}{{ payment.total_amount }}
+{% if payment.recurring == 1 %}per month{% elif payment.recurring == 12 %}per year{% endif %}**.
+{% elif payment.recurring %}You will be charged the above amount every
+{% if payment.recurring == 1 %}month{% elif payment.recurring == 12 %}year{% endif %}.
+{% endif %}

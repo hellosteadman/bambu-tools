@@ -1,0 +1,97 @@
+{% load url from future %}
+{% if notifications.count > 0 %}
+	<div class="bambu-notifications-badge-container">
+		<a class="bambu-notifications-badge badge" href="javascript:;">{{ notifications.count }} notification{{ notifications.count|pluralize }}</a>
+	</div>
+	
+	<div class="bambu-notifications-badge-popup" style="display: none;">
+		<div class="bambu-popup-header">
+			<h2>Notifications</h2>
+		</div>
+		
+		<div class="bambu-popup-body">
+			<ul class="unstyled">
+				{% for notification in notifications %}
+					<li class="clearfix">
+						<a data-delete-notification="{{ notification.pk }}" class="close" href="{% url 'delete_notification' notification.pk %}">&times;</a>
+						<a class="pull-left bambu-notification" href="#notification-{{ notification.pk }}-modal" data-toggle="modal">
+							<div class="bambu-notification-content">
+								{{ notification.render }}
+							</div>
+							
+							<small class="bambu-notification-date">{{ notification.happened|timesince }} ago</small>
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	
+	<script>
+		jQuery(document).ready(
+			function($) {
+				$('a.bambu-notifications-badge').bind('click',
+					function() {
+						$('.bambu-notifications-badge-popup').toggle();
+					}
+				);
+				
+				$('a[data-delete-notification]').bind('click',
+					function(e) {
+						e.preventDefault();
+						$(this).hide().closest('li').addClass('removed');
+					
+						$.ajax(
+							{
+								url: $(this).attr('href'),
+								dataType: 'text',
+								context: $(this).closest('li'),
+								success: function(data) {
+									if(data == 'OK') {
+										$(this).animate(
+											{
+												opacity: 0
+											}
+										).slideUp(
+											function() {
+												$(this).remove();
+												var items = $('.bambu-notifications-badge-popup .bambu-popup-body li').length;
+												
+												$('.bambu-notifications-badge').html(
+													items + ' notification' + (items != 1 ? 's' : '')
+												);
+												
+												if(items == 0) {
+													$('.bambu-notifications-badge-popup').fadeOut();
+													$('.bambu-notifications-badge').fadeOut();
+												}
+											}
+										);
+									}
+								}
+							}
+						);
+					}
+				);
+			}
+		);
+	</script>
+	
+	{% for notification in notifications %}
+		<div class="modal hide fade" id="notification-{{ notification.pk }}-modal">
+			<div class="modal-header">
+				<h2>Notification</h2>
+			</div>
+			
+			<div class="modal-body">
+				{{ notification.render_long }}
+			</div>
+			
+			<div class="modal-footer">
+				{% for action in notification.actions.all %}
+					<a class="btn{% if forloop.first %} btn-primary{% endif %}" href="{{ action }}">{{ action.title }}</a>
+				{% endfor %}
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}

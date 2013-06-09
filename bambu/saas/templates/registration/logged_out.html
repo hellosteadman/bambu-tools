@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<p>You&rsquo;ve been logged out.</p>
+	<script>
+		setTimeout(
+			function() {
+				document.location = '/'
+			},
+			2000
+		);
+	</script>
+{% endblock content %}

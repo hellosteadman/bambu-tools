@@ -1,0 +1,6 @@
+Dear {{ payment.customer.first_name|default:payment.customer.username }},
+
+We're sorry to inform you that your payment of {{ currency }}{{ payment.total_amount }}
+could not be successfully completed.
+
+If you'd like further information, please contact us.

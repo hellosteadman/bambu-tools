@@ -1,0 +1,48 @@
+<script>
+	var plan_prices = {{ plan_prices|safe|default:'[]' }};
+	
+	$(document).ready(
+		function() {
+			$('#id_{{ form.plan.html_name }}').bind('change',
+				function(e) {
+					var period = $('#id_{{ form.period.html_name }}');
+					var options = plan_prices[$(this).val()];
+					var initial = period.val();
+					
+					period.find('option').remove();
+					for(var i = 0; i < options.length; i ++) {
+						if(options[i][2] > 0) {
+							period.append(
+								'<option value="' + options[i][0] + '">' + options[i][1] + '</option>'
+							);
+						}
+					}
+					
+					if(period.find('option').length == 0) {
+						period.closest('.control-group:visible').slideUp();
+						$('#id_{{ form.payment_gateway.html_name }}_0').closest('.control-group:visible').slideUp();
+						$('#id_{{ form.discount_code.html_name }}').closest('.control-group:visible').slideUp();
+					} else {
+						period.val(initial);
+						period.closest('.control-group').not(':visible').slideDown();
+						$('#id_{{ form.payment_gateway.html_name }}_0').closest('.control-group').not(':visible').slideDown();
+						$('#id_{{ form.discount_code.html_name }}').closest('.control-group').not(':visible').slideDown();
+					}
+				}
+			);
+			
+			var plan = $('#id_{{ form.plan.html_name }}').val();
+			var options = plan_prices[plan];
+			
+			if(typeof options == 'undefined') {
+				return;
+			}
+			
+			if(options[0][2] == 0) {
+				$('#id_{{ form.period.html_name }}').closest('.control-group').hide();
+				$('#id_{{ form.payment_gateway.html_name }}_0').closest('.control-group').hide();
+				$('#id_{{ form.discount_code.html_name }}').closest('.control-group').hide();
+			}
+		}
+	);
+</script>

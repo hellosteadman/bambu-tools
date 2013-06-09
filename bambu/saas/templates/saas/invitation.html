@@ -1,0 +1,132 @@
+{% extends 'saas/base.html' %}
+{% load humanize %}
+{% load url from future %}
+
+{% block content %}
+	{% block page_header %}
+		<div class="page-header" data-importance="2">
+			<h1>Join {{ invitation.sender.first_name|default:invitation.sender.username }}&rsquo;s team<small> Get your {{ SITE.name }} account</small></h1>
+		</div>
+	{% endblock page_header %}
+	
+	<div class="row">
+		<div class="span6">
+			<form method="post" action="{% url 'invitation_accept' invitation.guid %}" class="form-horizontal">
+				{% include 'saas/form.inc.html' %}
+				
+				<div class="form-actions">
+					<input type="submit" class="btn btn-success" value="Sign up" />
+					<input type="hidden" name="next" value="{{ next }}" />
+					{% csrf_token %}
+				</div>
+			</form>
+		</div>
+		
+		<div class="span6">
+			<h3>Your team is on the {{ plan.plan }} plan</h3>
+			
+			<table class="table">
+				<thead>
+					<th>Feature</th>
+					<th>Maximum</th>
+					<th colspan="2">Your usage</th>
+				</thead>
+				
+				<tbody>
+					{% for feature in plan_features %}
+						<tr>
+							<th width="40%">{{ feature.name }}</th>
+							<td width="10" style="white-space: nowrap;">
+								{% if feature.boolean %}
+									{% if feature.value %}&#10003;{% else %}&#10007;{% endif %}
+								{% else %}
+									{% if feature.value > -1 %}
+										{{ feature.value|capfirst|intcomma }}
+									{% else %}
+										Unlimited
+									{% endif %}
+								{% endif %}
+							</td>
+							<td width="10" style="white-space: nowrap;">
+								{% if not feature.boolean and feature.usage %}
+									{{ feature.usage|capfirst|intcomma }}
+								{% else %}
+									&dash;
+								{% endif %}
+							</td>
+							<td>
+								{% if not feature.boolean %}
+									{% if feature.usage_percent %}
+										<div class="progress">
+											<div class="bar" style="width: {{ feature.usage_percent }}%;"></div>
+										</div>
+									{% endif %}
+								{% else %}
+									&dash;
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	<script>
+		function validateUser(control, field) {
+			var value = control.val();
+			
+			switch(field) {
+				case 'username':
+					var url = '{% url 'username_exists_ajax' %}?v=' + escape(value)
+					break;
+				case 'email':
+					var url = '{% url 'email_exists_ajax' %}?v=' + escape(value)
+					break;
+				default:
+					return;
+			}
+			
+			jQuery.getJSON(url,
+				function(exists) {
+					var group = control.closest('.control-group');
+					
+					if(exists) {
+						group.addClass('error');
+						if(group.find('.help-inline').length == 0) {
+							control.after(
+								' <small class="help-inline">Sorry, a user has already registered with this info</small>'
+							);
+						} else {
+							group.find('.help-inline').html(
+								'Sorry, a user has already registered with this info'
+							);
+						}
+					} else {
+						group.removeClass('error').find('.help-inline').remove();
+					}
+				}
+			);
+		}
+		
+		jQuery(document).ready(
+			function($) {
+				$('input[name="username"]').bind('change',
+					function() {
+						validateUser($(this), 'username');
+					}
+				);
+				
+				$('input[name="email"]').bind('change',
+					function() {
+						validateUser($(this), 'email');
+					}
+				);
+			}
+		);
+	</script>
+{% endblock javascript %}

@@ -1,0 +1,7 @@
+{% load navigation %}
+
+<ul class="unstyled">
+	{% menupart 'profile:edit' login=True long=True %}
+		<li><a href="{{ item.url }}">{{ item.title }}</a></li>
+	{% endmenupart %}
+</ul>

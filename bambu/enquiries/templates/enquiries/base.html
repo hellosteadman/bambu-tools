@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="page-header" data-importance="2">
+		<h1>Contact us <small>Send an enquiry or give feedback</small></h1>
+	</div>
+	
+	<div class="row">
+		<div class="span8">
+			{% block contact %}{% endblock %}
+		</div>
+		
+		<div class="span4">
+			<h2>Where to find us</h2>
+			<address>
+				<strong>Flaming Tarball Ltd</strong><br />
+				Studio 39, Fazeley Studios<br />
+				191 Fazeley Street<br />
+				Birmingham<br />B7 4BB
+			</address>
+		</div>
+	</div>
+{% endblock content %}

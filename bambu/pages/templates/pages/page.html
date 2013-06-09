@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load markup oembed attachments %}
+
+{% block page_header %}
+	<h1>
+		{{ page.title|default:page.name }}
+		{% if page.subtitle %}<small>{{ page.subtitle }}</small>{% endif %}
+	</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	{% if page.body %}
+		{{ page.body|markdown|oembed|attachments:page }}
+	{% else %}
+		&nbsp;
+	{% endif %}
+{% endblock form_content %}
+
+{% block sidebar %}
+	{% include 'pages/sidebar.inc.html' %}
+{% endblock sidebar %}

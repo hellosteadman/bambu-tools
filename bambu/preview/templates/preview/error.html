@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block page_header %}
+	<h1>Preview error</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<p>
+		Sorry, it wasn&rsquo;t possible to preview your {{ opts.verbose_name }}
+		because of the following errors:
+	</p>
+	
+	{{ errors }}
+{% endblock form_content %}

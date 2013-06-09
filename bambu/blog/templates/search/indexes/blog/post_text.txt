@@ -1,0 +1,5 @@
+{{ object.title }}
+{{ object.author.get_full_name|default:object.author.username }}
+{{ object.body|striptags }}
+{{ object.tags.all|join:' ' }}
+{{ object.categories.all|join:' ' }}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>{% load analytics %}
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Player</title>
+		<style>
+			html, body {
+				margin: 0; padding: 0; overflow: hidden;  background: #000;
+				line-height: 100%;
+			}
+			
+			#not-found {
+				display: block; margin: -64px 0 0 -49px;
+				position: absolute; top: 50%; left: 50%;
+			}
+		</style>
+	</head>
+	
+	<body style="height: 100%;">
+		<img id="not-found" src="{{ STATIC_URL }}jwplayer/404.png" />
+	</body>
+</html>

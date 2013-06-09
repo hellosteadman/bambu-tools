@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Sign up to {{ SITE.name }}</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<form method="post" class="form-horizontal">
+		{% include 'signup/form.inc.html' %}
+		
+		<div class="Form-actions">
+			<button type="submit" class="btn btn-primary">Create account</button>
+		</div>
+		
+		{% csrf_token %}
+	</form>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	<script>
+		function validateUser(control, field) {
+			var value = control.val();
+			
+			switch(field) {
+				case 'username':
+					var url = '{% url 'username_exists_ajax' %}?v=' + escape(value)
+					break;
+				case 'email':
+					var url = '{% url 'email_exists_ajax' %}?v=' + escape(value)
+					break;
+				default:
+					return;
+			}
+			
+			jQuery.getJSON(url,
+				function(exists) {
+					var group = control.closest('.control-group');
+					
+					if(exists) {
+						group.addClass('error');
+						if(group.find('.help-inline').length == 0) {
+							control.after(
+								' <small class="help-inline">Sorry, a user has already registered with this info</small>'
+							);
+						} else {
+							group.find('.help-inline').html(
+								'Sorry, a user has already registered with this info'
+							);
+						}
+					} else {
+						group.removeClass('error').find('.help-inline').remove();
+					}
+				}
+			);
+		}
+		
+		jQuery(document).ready(
+			function($) {
+				$('input[name="username"]').bind('change',
+					function() {
+						validateUser($(this), 'username');
+					}
+				);
+				
+				$('input[name="email"]').bind('change',
+					function() {
+						validateUser($(this), 'email');
+					}
+				);
+			}
+		);
+	</script>
+{% endblock javascript %}

@@ -1,0 +1,7 @@
+{% load icons %}
+<p{% if align == 'left' %} class="pull-left attachment-align-left"{% elif align == 'right' %} class="pull-right attachment-align-right"{% endif %}>
+	<a href="{{ url }}" class="attachment-link attachment-download btn">
+		{% icon 'download' %} {{ attachment.title }}
+		<small>({{ attachment.size|filesizeformat }})</small>
+	</a>
+</p>

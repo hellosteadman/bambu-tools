@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "payments.taxrate", "fields": {"chargeable_percent": 20.0, "payable_percent": 20.0, "shorthand": "VAT", "name": "Value Added Tax"}}]

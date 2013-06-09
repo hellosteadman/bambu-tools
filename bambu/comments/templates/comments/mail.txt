@@ -1,0 +1,8 @@
+{% load url from future %}Someone has commented on your {{ comment.content_type }} entitled "{{ comment.content_object }}".
+
+Name: {{ comment.name }}  
+Email address: <{{ comment.email }}>{% if comment.website %}  
+Website: <{{ comment.website }}>{% endif %}
+
+{% for line in comment.body.splitlines %}
+> {{ line }}{% endfor %}

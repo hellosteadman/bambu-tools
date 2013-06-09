@@ -1,0 +1,1 @@
+{{ user.get_full_name|default:user.username }} has accepted your invitation to join your {{ SITE.name }} team.

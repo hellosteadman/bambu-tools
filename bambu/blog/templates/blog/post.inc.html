@@ -1,0 +1,46 @@
+{% load markup oembed attachments thumbnail %}
+{% load url from future %}
+
+<article class="post post-{{ post.pk }} post-{{ post.slug }}{% if post.css %} post-custom-css{% endif %}">
+	{% if post.title %}
+		<h2>
+			<a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+			<small>{{ post.date|date }}</small>
+			<a href="{{ post.get_absolute_url }}#comments"><span class="badge{% if post.comments.live.count > 0 %} badge-success{% endif %}" title="{{ post.comments.live.count|default:'No' }} comment{{ post.comments.live.count|pluralize }}">{{ post.comments.live.count }}</span></a>
+		</h2>
+	{% endif %}
+	
+	{% with post.featured_attachment as thumbnail %}
+		{% if thumbnail %}
+			<a href="{{ post.get_absolute_url }}">
+				{% thumbnail thumbnail.file THUMBNAIL_WIDTH upscale=False as thumb %}
+					<img src="{{ thumb.url }}" alt="{{ post.title }}" />
+				{% endthumbnail %}
+			</a>
+		{% endif %}
+	{% endwith %}
+	
+	<div class="post-body">
+		{{ post.body|markdown|oembed|attachments:post }}
+	</div>
+	
+	{% if single %}
+		<div class="well post-meta">
+			<p>
+				Posted on <strong>{{ post.date|date }}</strong>
+				by <a href="{% url 'blog_posts_by_author' post.author.username %}">{{ post.author.get_full_name|default:post.author.username }}</a>
+				{% if post.categories.count > 0 %}
+					in {% for category in post.categories.all %}
+						<a href="{% url 'blog_posts_by_category' category.slug %}">{{ category.name }}</a>{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endif %}
+				{% if post.tags.count > 0 %}
+					and tagged
+					{% for tag in post.tags.all %}
+						<a href="{% url 'blog_posts_by_tag' tag.slug %}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				{% endif %}
+			</p>
+		</div>
+	{% endif %}
+</article>

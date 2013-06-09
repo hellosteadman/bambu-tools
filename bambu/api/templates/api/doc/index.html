@@ -1,0 +1,37 @@
+{% extends 'api/doc/base.html' %}
+{% load markup %}
+
+{% block form_content %}
+	<h2>Welcome to the {{ SITE.name }} API</h2>
+	
+	<p>
+		{{ SITE.name }} uses a RESTful API. If you&rsquo;re not familiar with it,
+		you can read the <a href="http://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank">Wikipedia entry</a>
+		on the topic. In short however, you can perform four types of action via the {{ SITE.name }}
+		REST API:
+	</p>
+	
+	<dl class="dl-horizontal">
+		<dt>GET</dt>
+		<dd>Return a single record or a list of records</dd>
+		
+		<dt>POST</dt>
+		<dd>Create a new record</dd>
+		
+		<dt>PUT</dt>
+		<dd>Update an existing record</dd>
+		
+		<dt>DELETE</dt>
+		<dd>Remove a record</dd>
+	</dl>
+	
+	<p>
+		There are a number of API endpoints divided up into sections. Please use the
+		<strong>Endpoints</strong> menu to find your way around.
+	</p>
+	
+	{% if auth %}
+		<h3>{{ auth.name }}</h3>
+		{{ auth.doc|restructuredtext }}
+	{% endif %}
+{% endblock form_content %}

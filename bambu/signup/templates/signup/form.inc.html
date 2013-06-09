@@ -1,0 +1,11 @@
+{% extends 'form.inc.html' %}
+
+{% block fields %}
+	{% for field in form.visible_fields %}
+		{% ifequal field.name 'username' %}<hr />{% endifequal %}
+		
+		{% ifnotequal field.name 'DELETE' %}
+			{% include 'field.inc.html' %}
+		{% endifnotequal %}
+	{% endfor %}
+{% endblock fields %}

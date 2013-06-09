@@ -1,0 +1,11 @@
+{% extends 'api/doc/base.html' %}
+{% load markup %}
+
+{% block form_content %}
+	<h2>{{ name }}</h2>
+	
+	{% for api in apis %}
+		<h3><a href="{{ api.url }}">{{ api.title }}</a></h3>
+		{{ api.doc|restructuredtext }}
+	{% endfor %}
+{% endblock form_content %}

@@ -1,0 +1,84 @@
+{% extends 'api/base.html' %}
+{% load icons %}
+{% load url from future %}
+
+{% block form_content %}
+	{% if apps.count > 0 %}
+		<h2>Your apps</h2>
+		<hr />
+		
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>App name</th>
+					<th>Key</th>
+					<th>Deployment</th>
+					<th width="15%">Actions</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+			{% for app in apps %}
+				<tr>
+					<td><a href="{% url 'api:edit_app' app.pk %}">{{ app.name }}</a></td>
+					<td>{{ app.key }}</td>
+					<td>{{ app.get_deployment_display }}</td>
+					<td>
+						<a class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm" href="{% url 'api:delete_app' app.pk %}">{% icon 'remove' 'white' %} Delete</a>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		
+		<hr />
+	{% endif %}
+	
+	{% if app_form %}
+		<h2>Create a new app</h2>
+		
+		<form action="{% url 'api:add_app' %}" method="post" class="form-horizontal">
+			{% include 'form.inc.html' with form=app_form %}
+			
+			<div class="form-actions">
+				{% csrf_token %}
+				<button type="submit" class="btn btn-success">{% icon 'ok' 'white' %} Save new app</button>
+			</div>
+		</form>
+	{% endif %}
+	
+	<div class="modal hide fade" id="delete-confirm">
+		<div class="modal-header">
+			<a class="close" data-dismiss="modal">&times;</a>
+			<h3>Delete app</h3>
+		</div>
+		
+		<div class="modal-body">
+			<p>Are you sure you want to delete this app?</p>
+			
+			<div class="alert alert-block alert-warning">
+				<h4 class="alert-heading">Warning!</h4>
+				<p>Once deleted, no-one previously using this app will be able to login with it again.</p>
+			</div>
+		</div>
+		
+		<div class="modal-footer">
+			<a href="#" class="btn btn-primary" data-dismiss="modal">No</a>
+			<a class="btn secondary">Yes</a>
+		</div>
+	</div>
+{% endblock form_content %}
+
+{% block javascript %}
+	{{ block.super }}
+	
+	<script>
+		$('a[data-target="#delete-confirm"]').bind('click',
+			function(e) {
+				$('#delete-confirm .btn.secondary').attr('href',
+					$(this).attr('href') + '?confirm=1'
+				);
+			}
+		);
+	</script>
+{% endblock javascript %}

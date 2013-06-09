@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load icons markup %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Login</h1>
+{% endblock page_header %}
+
+{% block sidebar %}
+	<h3>About {{ app.name }}</h3>
+	{{ app.description|markdown }}
+	
+	<div data-importance="2">
+		<h3>Don&rsquo;t have an account?</h3>
+		<p>
+			<a href="{% url 'signup' %}" class="btn btn-success">{% icon 'user' 'white' %} Sign up to {{ SITE.name }} now</a>
+		</p>
+	</div>
+{% endblock sidebar %}
+
+{% block form_content %}
+	<div data-importance="2">
+		<h2>Grant <em>{{ app.name }}</em> access to your account?</h2>
+		<p>
+			This app will be able to access some of the data you keep on {{ SITE.name }}, but not
+			personal details like email addresses and passwords.
+		</p>
+	</div>
+	
+	<form method="post" class="form-horizontal">
+		{% if request.user.is_anonymous %}
+			<p>Please enter your {{ SITE.name }} username and password.</p>
+			{% include 'form.inc.html' %}
+		{% else %}
+			<p>
+				You&rsquo;re already logged in as <strong>{{ request.user.username }}</strong>.<br />
+				Not you? <a href="{% url 'logout' %}?next={% filter urlencode %}{{ request.path }}?{{ request.META.QUERY_STRING|urlencode }}{% endfilter %}">Log out</a>.
+			</p>
+		{% endif %}
+		
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">{% icon 'ok' 'white' %} {% if request.user.is_anonymous %}Login and g{% else %}G{% endif %}rant access</button>
+			<a data-importance="2" href="{{ app.callback_url }}?error=Access not granted by user.">No, don&rsquo;t grant access</a>
+			{% csrf_token %}
+		</div>
+	</form>
+{% endblock form_content %}

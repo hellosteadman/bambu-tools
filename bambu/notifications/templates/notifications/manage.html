@@ -1,0 +1,12 @@
+{% extends 'webhooks/base.html' %}
+{% load icons %}
+
+{% block page_header %}
+	<h1>Notification settings</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<div class="span9">
+		{% include 'notifications/manage.inc.html' %}
+	</div>
+{% endblock form_content %}
