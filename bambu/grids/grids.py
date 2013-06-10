@@ -69,8 +69,9 @@ class Grid(object):
 		self._path = request.path
 		self._user = getattr(request, 'user', None)
 		self._hash = md5('%s|%s' % (self._path, self.prefix)).hexdigest()
+		self.ajax = kwargs.get('ajax', AJAX)
 		
-		if AJAX:
+		if self.ajax:
 			if 'bambu.enqueue' in settings.INSTALLED_APPS:
 				from bambu.enqueue import enqueue_script_file
 				enqueue_script_file(request, settings.STATIC_URL + 'grids/js/base.js')
@@ -224,7 +225,7 @@ class Grid(object):
 			self.pagination()
 		)
 		
-		if AJAX:
+		if self.ajax:
 			if not PUSHSTATE:
 				html += ('<script>$(document).ready(function() { bambu.grids.init(\'%s\', false); });</script>' % self._hash)
 			else:

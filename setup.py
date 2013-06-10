@@ -3,11 +3,23 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.0.0.1',
+	version = '3.0.0.2',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
 	url = 'http://pypi.python.org/pypi/bambu-tools',
+	install_requires = [
+		'Django>=1.4',
+		'Markdown>=2.2.1',
+		'django-taggit>=0.9.3',
+		'oauth>=1.0.1',
+		'oauth2>=1.5.211',
+		'pyquery>=1.2.4',
+		'python-dateutil>=1.5',
+		'requests>=1.1.0',
+		'sorl-thumbnail>=11.12',
+		'twitter>=1.9.1'
+	],
 	packages = [
 		'bambu',
 		'bambu.analytics', 'bambu.analytics.providers', 'bambu.analytics.templatetags',
