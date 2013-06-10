@@ -11,7 +11,7 @@ AKISMET_URL = 'http://%s.rest.akismet.com/1.1/comment-check'
 LOGGER = logging.getLogger('bambu.comments')
 
 if 'bambu.notifications' in settings.INSTALLED_APPS:
-	from bambu.notifications import notify
+	from bambu import notifications
 
 class Comment(models.Model):
 	name = models.CharField(max_length = 50)
@@ -96,7 +96,7 @@ class Comment(models.Model):
 					self.content_object.author
 				)
 			else:
-				notify('bambu.comments.comment_posted',
+				notifications.notify('bambu.comments.comment_posted',
 					self.content_object.author,
 					comment = self,
 					actions = [
