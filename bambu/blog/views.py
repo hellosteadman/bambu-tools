@@ -181,7 +181,7 @@ def post(request, year, month, day, slug):
 				'email': request.user.email,
 				'website': 'http://%s/' % Site.objects.get_current().domain
 			}
-	
+		
 		context['comment_form'] = CommentForm(initial = initial)
 	
 	context['body_classes'] = ['post-%s' % post.pk, 'post-%s' % post.slug]

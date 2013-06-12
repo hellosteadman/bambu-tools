@@ -1,6 +1,7 @@
 from django.template.response import TemplateResponse
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.utils.http import urlencode
 from bambu.enquiries.models import Enquiry
 from bambu.enquiries.forms import EnquiryForm
 
@@ -19,14 +20,21 @@ def enquiry(request):
 				option_value = enquiry.pk
 			)
 		
-		return HttpResponseRedirect('thanks/')
+		return HttpResponseRedirect(
+			'thanks/?%s' % urlencode(
+				{
+					'next': request.GET.get('next', '/')
+				}
+			)
+		)
 	
 	return TemplateResponse(
 		request,
 		'enquiries/enquiry.html',
 		{
 			'form': form,
-			'menu_selection': 'enquiry'
+			'menu_selection': 'enquiry',
+			'next': request.GET.get('next', '/')
 		}
 	)
 	
@@ -34,5 +42,7 @@ def enquiry_thanks(request):
 	return TemplateResponse(
 		request,
 		'enquiries/thanks.html',
-		{}
+		{
+			'next': request.GET.get('next', '/')
+		}
 	)

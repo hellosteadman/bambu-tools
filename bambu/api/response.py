@@ -1,8 +1,12 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models.query import QuerySet
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.http import urlencode
 from bambu.api import serialisers
+
+PAGE_LIMIT = getattr(settings, 'API_PAGE_LIMIT', None)
 
 SERIALISERS = {
 	'json': serialisers.JSONSerialiser,
@@ -48,9 +52,10 @@ class APIResponse(HttpResponse):
 			self.status_code = 400
 			return
 		
+		headers = {}
 		if hasattr(data, '__iter__') and not isinstance(data, dict):
 			page = request.GET.get('page', 1)
-			rpp = request.GET.get('rpp', 100)
+			rpp = request.GET.get('rpp', PAGE_LIMIT)
 			
 			try:
 				rpp = int(rpp)
@@ -62,18 +67,32 @@ class APIResponse(HttpResponse):
 			paginator = Paginator(data, rpp)
 			
 			try:
-				data = paginator.page(page)
+				page = paginator.page(page)
 			except EmptyPage:
-				data = None
+				page = None
 			except PageNotAnInteger:
 				return APIResponse(
 					Exception('page not an integer')
 				)
 			
-			if data:
-				data = data.object_list
+			qs = request.GET.copy()
+			qs['rpp'] = rpp
+			
+			if page.has_next():
+				qs['page'] = page.number + 1
+				headers['X-Page-Next'] = request.path + '?' + qs.urlencode()
+			
+			if page.has_previous():
+				qs['page'] = page.number - 1
+				headers['X-Page-Prev'] = request.path + '?' + qs.urlencode()
+			
+			if page:
+				data = page.object_list
 		
 		super(APIResponse, self).__init__(
 			serialiser.serialise(data),
 			mimetype = mimetype
 		)
+		
+		for key, value in headers.items():
+			self[key] = value

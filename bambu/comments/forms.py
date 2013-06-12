@@ -1,5 +1,9 @@
 from django import forms
+from django.conf import settings
 from bambu.comments.models import Comment
+from bambu.comments.helpers import sanitise
+
+MARKDOWN = getattr(settings, 'COMMENTS_MARKDOWN', True)
 
 class CommentForm(forms.ModelForm):
 	h0n3ytr4p = forms.CharField(
@@ -13,6 +17,15 @@ class CommentForm(forms.ModelForm):
 		self.fields['email'].label = u'Email address'
 		self.fields['email'].help_text = u'It won\'t be shared'
 		self.fields['body'].label = u'Your comment'
+	
+	def save(self, commit = True):
+		obj = super(CommentForm, self).save(commit = False)
+		obj.body = sanitise(self.cleaned_data['body'], MARKDOWN)
+		
+		if commit:
+			obj.save()
+		
+		return obj
 	
 	class Meta:
 		model = Comment

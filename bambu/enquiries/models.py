@@ -26,7 +26,9 @@ class Enquiry(models.Model):
 				'subject': self.subject,
 				'message': self.message
 			},
-			recipient = User.objects.filter(is_staff = True)
+			recipient = [
+				u for u in User.objects.filter(is_staff = True)
+			]
 		)
 	
 	class Meta:

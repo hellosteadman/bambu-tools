@@ -9,7 +9,7 @@ register = Library()
 @register.filter()
 def contenttype(value):
 	return ContentType.objects.get_for_model(value).pk
-	
+
 @register.filter()
 def gravatar(value, size = 60):
 	if isinstance(value, User):
