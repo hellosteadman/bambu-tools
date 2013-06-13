@@ -9,7 +9,9 @@ def enquiry(request):
 	form = EnquiryForm(request.POST or None)
 	
 	if request.method == 'POST' and form.is_valid():
-		enquiry = form.save()
+		enquiry = form.save(commit = False)
+		spam = enquiry.check_for_spam(request)
+		enquiry.save(notify = not spam)
 		
 		if 'bambu.analytics' in settings.INSTALLED_APPS:
 			from bambu.analytics import track_event, events
