@@ -1,4 +1,4 @@
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now
 from django.db.models import F
 from django.conf import settings
 from datetime import datetime
@@ -21,7 +21,7 @@ class RequestLoggerBase(object):
 				return td.days * 24 * 60 * 60 + getattr(td, 'seconds', 0)
 		
 		seconds = max(1.0, float(THROTTLE_MINUTES * 60))
-		return int(total_seconds(datetime.now().replace(tzinfo = utc) - EPOCH) / seconds) * 60
+		return int(total_seconds(now() - EPOCH) / seconds) * 60
 	
 	def validate_request(self, app):
 		if THROTTLE_MINUTES > 0:

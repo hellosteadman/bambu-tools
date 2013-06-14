@@ -3,10 +3,10 @@ from django.template.response import TemplateResponse
 from django.utils import simplejson
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.timezone import now
 from bambu.payments import gateways, states
 from bambu.payments.models import RemoteClient, RemoteOffer, RemoteSubscription, Payment
 from bambu.international.models import Country
-from datetime import datetime
 from urlparse import parse_qs
 
 URL_CLIENTS = 'https://api.paymill.com/v2/clients'
@@ -195,7 +195,7 @@ class PaymillGateway(gateways.Gateway):
 		)
 	
 	def create_view(self, request, payment):
-		year = datetime.now().year
+		year = now().year
 		
 		if request.method == 'POST' and request.POST.get('paymill_token'):
 			payment.state = request.POST.get('state')

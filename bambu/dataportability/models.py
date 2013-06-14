@@ -6,9 +6,8 @@ from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from uuid import uuid4
-from datetime import datetime
 from bambu.dataportability import helpers, receivers
 from bambu.dataportability.managers import *
 from bambu.dataportability.tasks import import_task, export_task
@@ -64,7 +63,7 @@ class Status(models.Model):
 		return self.text
 	
 	def save(self, *args, **kwargs):
-		self.job.updated = datetime.utcnow().replace(tzinfo = utc)
+		self.job.updated = now()
 		super(Status, self).save(*args, **kwargs)
 	
 	class Meta:
@@ -135,7 +134,7 @@ class ExportJob(Job):
 			self.name = '%s_%d_%s%s' % (
 				self.content_type.model,
 				self.object_id,
-				datetime.utcnow().replace(tzinfo = utc).strftime('%Y-%m-%d'),
+				now().strftime('%Y-%m-%d'),
 				helpers.get_extension_for_writer(self.writer)
 			)
 		

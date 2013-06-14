@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils import simplejson
 from django.utils.http import urlencode
-from datetime import datetime
+from django.utils.timezone import now
 import requests, time, hmac, hashlib, base64
 
 APP_ID = getattr(settings, 'PUSHER_APP_ID', None)
@@ -20,10 +20,9 @@ def push(channel, event, **data):
 		}
 	)
 	
-	now = datetime.now()
 	params = {
 		'auth_key': KEY,
-		'auth_timestamp': str(int(time.mktime(now.timetuple()))),
+		'auth_timestamp': str(int(time.mktime(now().timetuple()))),
 		'auth_version': VERSION,
 		'body_md5': hashlib.md5(json).hexdigest()
 	}

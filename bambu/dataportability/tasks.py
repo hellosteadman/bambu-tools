@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.core.files import File
 from django.utils.importlib import import_module
-from django.utils.timezone import utc
-from datetime import datetime
+from django.utils.timezone import now
 from bambu.dataportability import helpers
 from tempfile import mkstemp
 import os
@@ -40,7 +39,7 @@ def export_task(pk):
 	for j in ExportJob.objects.filter(user = job.user):
 		if j.progress == 100:
 			j.delete()
-		elif (datetime.utcnow().replace(tzinfo = utc) - job.updated).seconds > 60 * 60:
+		elif (now() - job.updated).seconds > 60 * 60:
 			j.delete()
 	
 	def finished(stream):

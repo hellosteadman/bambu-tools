@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.template import Template, Context
 from django.conf import settings
 from taggit.managers import TaggableManager
@@ -14,7 +14,6 @@ from bambu.preview.models import Preview
 from bambu import webhooks
 from mimetypes import guess_type
 from hashlib import md5
-from datetime import datetime
 from pyquery import PyQuery
 
 class Category(models.Model):
@@ -146,7 +145,7 @@ class Post(models.Model):
 		super(Post, self).save(*args, **kwargs)
 		Preview.objects.clear_for_model(self, self.author)
 		
-		if publish and self.date <= datetime.utcnow().replace(tzinfo = utc):
+		if publish and self.date <= now():
 			self.publish()
 	
 	def publish(self):
@@ -176,7 +175,7 @@ class Post(models.Model):
 	class QuerySet(models.query.QuerySet):
 		def live(self):
 			return self.filter(
-				date__lte = datetime.utcnow().replace(tzinfo = utc),
+				date__lte = now(),
 				published = True
 			)
 		

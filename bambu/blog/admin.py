@@ -2,13 +2,12 @@ from django.contrib import admin
 from django.contrib.admin.helpers import AdminForm, InlineAdminFormSet, AdminErrorList
 from django.conf import settings
 from django.conf.urls import patterns
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from bambu.blog.models import *
 from bambu.blog.forms import PostForm, UploadForm
 from bambu.attachments.admin import AttachmentInline
 from bambu.preview.admin import PreviewableModelAdmin
-from datetime import datetime
 
 class PostAdmin(PreviewableModelAdmin):
 	list_display = ('title', 'date', 'published')
@@ -154,7 +153,7 @@ class PostAdmin(PreviewableModelAdmin):
 		if static_url.startswith('/') and not static_url.startswith('//'):
 			static_url = 'http://%s%s' % (site.domain, static_url)
 		
-		date = datetime.now().replace(tzinfo = utc)
+		date = now()
 		html = template.render(
 			Context(
 				{

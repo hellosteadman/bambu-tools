@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.datastructures import SortedDict
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now as rightnow
 from bambu.saas import helpers, receivers
 from bambu.saas.managers import PlanManager, UserPlanManager
 from bambu.mail.shortcuts import render_to_mail
@@ -226,7 +226,7 @@ class UserPlan(models.Model):
 	
 	def save(self, *args, **kwargs):
 		if not self.started:
-			now = datetime.utcnow().replace(tzinfo = utc).replace()
+			now = rightnow()
 			self.started = now
 			
 			day = now.day
@@ -427,7 +427,7 @@ class UserPlanChange(models.Model):
 				user = self.user,
 				plan = self.new_plan,
 				paid = True,
-				paid_start = datetime.now().replace(tzinfo = utc)
+				paid_start = rightnow()
 			)
 		
 		for group in self.new_plan.groups.all():

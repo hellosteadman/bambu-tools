@@ -1,4 +1,4 @@
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now
 from datetime import datetime, timedelta
 from bambu.cron.frequency import *
 
@@ -62,7 +62,7 @@ class CronJob(object):
 	
 	def next_run_date(self, next = None):
 		if next is None:
-			next = datetime.utcnow().replace(tzinfo = utc)
+			next = now()
 		
 		if self.frequency == -1:
 			if next.month == 12:

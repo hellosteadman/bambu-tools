@@ -1,5 +1,4 @@
-from datetime import datetime
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.db import transaction
 import logging
 
@@ -24,7 +23,6 @@ class CronSite(object):
 	
 	def setup(self):
 		from bambu.cron.models import Job
-		now = datetime.utcnow().replace(tzinfo = utc)
 		
 		for handler in self._registry.values():
 			next = handler.next_run_date()
@@ -52,11 +50,10 @@ class CronSite(object):
 	
 	def run(self, force = False, debug = False):
 		from bambu.cron.models import Job
-		now = datetime.utcnow().replace(tzinfo = utc)
 		
 		kwargs = {}
 		if not force:
-			kwargs['next_run__lte'] = now
+			kwargs['next_run__lte'] = now()
 		
 		for job in Job.objects.filter(running = False, **kwargs).select_for_update(nowait = False):
 			handler = self._registry.get(job.name)

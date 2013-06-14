@@ -1,17 +1,15 @@
 from django import forms
 from django.conf import settings
-from django.utils.timezone import utc
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.core.files import File
 from django.template.defaultfilters import slugify
 from bambu.blog.models import Post
-from datetime import datetime
 from zipfile import ZipFile
 
 class PostForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(PostForm, self).__init__(*args, **kwargs)
-		self.fields['date'].initial = datetime.utcnow().replace(tzinfo = utc)
+		self.fields['date'].initial = now()
 		self.fields['tags'].required = False
 		
 		if 'markitup' in settings.INSTALLED_APPS:
@@ -55,7 +53,7 @@ class UploadForm(forms.ModelForm):
 		
 		post = super(UploadForm, self).save(commit = False)
 		post.body = 'Intermediate'
-		post.date = datetime.now().replace(tzinfo = utc)
+		post.date = now()
 		post.published = False
 		post.save()
 		

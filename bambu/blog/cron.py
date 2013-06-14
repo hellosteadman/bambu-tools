@@ -1,13 +1,12 @@
 from bambu import cron
 from bambu.blog.models import Post
-from datetime import datetime, timedelta
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 class PostJob(cron.CronJob):
 	frequency = cron.MINUTE
 	
 	def run(self, logger):
-		date = datetime.utcnow().replace(tzinfo = utc)
+		date = now()
 		
 		for post in Post.objects.filter(date__lte = date, broadcast = False):
 			post.publish()

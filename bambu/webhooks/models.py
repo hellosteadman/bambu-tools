@@ -1,8 +1,7 @@
 from django.db import models
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.conf import settings
 from bambu.webhooks import helpers
-from datetime import datetime
 import requests, logging
 
 LOGGER = logging.getLogger('bambu.webhooks')
@@ -54,7 +53,7 @@ class Action(models.Model):
 				}
 			)
 		
-		self.receiver.last_called = datetime.now().replace(tzinfo = utc)
+		self.receiver.last_called = now()
 		self.receiver.save()
 		
 		self.delete()

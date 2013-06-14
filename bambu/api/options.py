@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url, include
 from django.utils.functional import curry
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.db import models
@@ -87,7 +87,6 @@ class ModelAPI(API):
 	def make_example_object(self, model = None, pk = 1):
 		from django.contrib.webdesign import lorem_ipsum
 		from django.template.defaultfilters import slugify
-		from datetime import datetime
 		import random
 		
 		model = model or self.model
@@ -122,9 +121,9 @@ class ModelAPI(API):
 				elif isinstance(field, models.BooleanField):
 					value = field.default
 				elif isinstance(field, models.DateTimeField):
-					value = datetime.utcnow().replace(tzinfo = utc)
+					value = now()
 				elif isinstance(field, models.DateField):
-					value = datetime.utcnow().date().replace(tzinfo = utc)
+					value = now().date().replace(tzinfo = utc)
 				elif isinstance(field, models.FileField):
 					value = 'filename.dat'
 				elif isinstance(field, models.AutoField):

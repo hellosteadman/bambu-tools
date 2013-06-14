@@ -2,12 +2,11 @@ from django.contrib.auth import authenticate
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.template.defaultfilters import slugify
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.core.urlresolvers import reverse
 from django.core.files import File
 from bambu.xmlrpc import handler, XMLRPCException
 from bambu.blog.models import Post, Category, PostUpload
-from datetime import datetime
 from tempfile import mkstemp
 from logging import getLogger
 from pyquery import PyQuery
@@ -199,7 +198,7 @@ def new_post(blogid, username, password, content, publish):
 		author = user,
 		title = content.get('title'),
 		body = clean_body(content.get('description', '')),
-		date = content.get('dateCreated', datetime.now().replace(tzinfo = utc)),
+		date = content.get('dateCreated', now()),
 		slug = content.get('wp_slug', slugify(content.get('title'))) or None,
 		published = publish
 	)
