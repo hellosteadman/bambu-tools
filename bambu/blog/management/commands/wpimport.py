@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.utils.timezone import utc
+from django.utils.timezone import get_current_timezone
 from django.template.defaultfilters import slugify
 from django.db import transaction
 from django.core.files import File
@@ -140,7 +140,11 @@ class Command(BaseCommand):
 						continue
 					
 					try:
-						date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S').replace(tzinfo = utc)
+						date = datetime.strptime(date,
+							'%Y-%m-%d %H:%M:%S'
+						).replace(
+							tzinfo = get_current_timezone()
+						)
 					except:
 						continue
 					
@@ -235,7 +239,7 @@ class Command(BaseCommand):
 							comment_date = datetime.strptime(
 								comment_date, '%Y-%m-%d %H:%M:%S'
 							).replace(
-								tzinfo = utc
+								tzinfo = get_current_timezone()
 							)
 						except:
 							continue

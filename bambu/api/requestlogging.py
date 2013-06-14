@@ -1,4 +1,4 @@
-from django.utils.timezone import utc, now
+from django.utils.timezone import get_current_timezone, now
 from django.db.models import F
 from django.conf import settings
 from datetime import datetime
@@ -7,7 +7,7 @@ import pickle
 
 THROTTLE_REQUESTS = getattr(settings, 'API_THROTTLE_REQUESTS', 60)
 THROTTLE_MINUTES = getattr(settings, 'API_THROTTLE_MINUTES', 1)
-EPOCH = datetime(1970, 1, 1).replace(tzinfo = utc)
+EPOCH = datetime(1970, 1, 1).replace(tzinfo = get_current_timezone())
 
 class RequestLoggerBase(object):
 	def log_request(self, app):

@@ -37,10 +37,10 @@ class CronSite(object):
 				).update(
 					next_run = next
 				)
-				
+			
 			self.logger.info(
 				'%s set to run on %s' % (
-					handler, next.strftime('%c')
+					handler, next.strftime('%c %z')
 				)
 			)
 		

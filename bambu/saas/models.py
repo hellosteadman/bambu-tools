@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.datastructures import SortedDict
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.utils.timezone import utc, now as rightnow
+from django.utils.timezone import get_current_timezone, now as rightnow
 from bambu.saas import helpers, receivers
 from bambu.saas.managers import PlanManager, UserPlanManager
 from bambu.mail.shortcuts import render_to_mail
@@ -239,7 +239,7 @@ class UserPlan(models.Model):
 			
 			self.paid_start = (
 				datetime(year, month, day, 0, 0, 0) - timedelta(days = 1)
-			).replace(tzinfo = utc)
+			).replace(tzinfo = get_current_timezone())
 			
 			day = self.paid_start.day
 			month = self.paid_start.month + self.period
@@ -251,7 +251,7 @@ class UserPlan(models.Model):
 			
 			self.expiry = (
 				datetime(year, month, day, 0, 0, 0) - timedelta(days = 1)
-			).replace(tzinfo = utc)
+			).replace(tzinfo = get_current_timezone())
 		
 		super(UserPlan, self).save(*args, **kwargs)
 	

@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import F
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.utils.timezone import utc
 from django.utils.http import urlencode
 from bambu.api.managers import *
 from bambu.api import helpers

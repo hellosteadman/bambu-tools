@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.contrib.contenttypes import generic
 from django.conf import settings
-from django.utils.timezone import utc
+from django.utils.timezone import get_current_timezone
 from bambu.payments import states, gateways, signals, receivers
 from bambu.mail import render_to_mail
 from datetime import datetime, timedelta
@@ -72,7 +72,7 @@ class Payment(models.Model):
 			year += 1
 			month -= 12
 		
-		return datetime(year, month, day, 0, 0, 0) - timedelta(days = 1).replace(tzinfo = utc)
+		return datetime(year, month, day, 0, 0, 0) - timedelta(days = 1).replace(tzinfo = get_current_timezone())
 	
 	def process_view(self, request, cancel = False, update = None):
 		from bambu.payments import site

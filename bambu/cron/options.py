@@ -1,4 +1,4 @@
-from django.utils.timezone import utc, now
+from django.utils.timezone import get_current_timezone, now
 from datetime import datetime, timedelta
 from bambu.cron.frequency import *
 
@@ -66,9 +66,9 @@ class CronJob(object):
 		
 		if self.frequency == -1:
 			if next.month == 12:
-				next = datetime(next.year + 1, 1, next.day).replace(tzinfo = utc)
+				next = datetime(next.year + 1, 1, next.day).replace(tzinfo = get_current_timezone())
 			else:
-				next = datetime(next.year, next.month + 1, next.day).replace(tzinfo = utc)
+				next = datetime(next.year, next.month + 1, next.day).replace(tzinfo = get_current_timezone())
 		else:
 			next += timedelta(minutes = self.frequency * self.interval)
 		
@@ -93,7 +93,9 @@ class CronJob(object):
 		if not self.second is None:
 			second = self.second
 		
-		next = datetime(next.year, month, day, hour, minute, second).replace(tzinfo = utc)
+		next = datetime(next.year, month, day, hour, minute, second).replace(
+			tzinfo = get_current_timezone()
+		)
 		
 		if not self.weekday is None:
 			while next.weekday() != self.weekday:

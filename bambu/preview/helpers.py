@@ -3,7 +3,7 @@ from django.db.models.query import QuerySet
 from django.db.models.fields.related import ForeignKey
 from django.core.files import File
 from django.conf import settings
-from django.utils.timezone import utc
+from django.utils.timezone import get_current_timezone
 from datetime import date, datetime, time
 from uuid import uuid4
 from os import path
@@ -46,9 +46,9 @@ def unserialise(field, value):
 	if isinstance(field, ForeignKey):
 		return field.rel.to.objects.get(pk = value)
 	elif isinstance(field, DateTimeField):
-		return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').replace(tzinfo = utc)
+		return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').replace(tzinfo = get_current_timezone())
 	elif isinstance(field, DateField):
-		return datetime.strptime(value, '%Y-%m-%d').replace(tzinfo = utc)
+		return datetime.strptime(value, '%Y-%m-%d').replace(tzinfo = get_current_timezone())
 	elif isinstance(field, ManyToManyField):
 		return field.rel.to.objects.filter(pk__in = value)
 	elif isinstance(field, FileField):

@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
-from django.utils.timezone import utc, now
+from django.utils.timezone import get_current_timezone, now
 from taggit.models import Tag
 from datetime import datetime
 from bambu.blog.models import Post, Category
@@ -48,7 +48,9 @@ def posts(request, **kwargs):
 					int(kwargs['year']),
 					int(kwargs['month']),
 					int(kwargs['day'])
-				).replace(tzinfo = utc)
+				).replace(
+					tzinfo = get_current_timezone()
+				)
 				
 				context['day'] = date.strftime('%B %d, %Y')
 				
@@ -65,7 +67,9 @@ def posts(request, **kwargs):
 					int(kwargs['year']),
 					int(kwargs['month']),
 					1
-				).replace(tzinfo = utc)
+				).replace(
+					tzinfo = get_current_timezone()
+				)
 				
 				context['month'] = date.strftime('%B %Y')
 				

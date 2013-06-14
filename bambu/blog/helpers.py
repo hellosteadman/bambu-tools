@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.utils.timezone import utc
+from django.utils.timezone import get_current_timezone
 from taggit.models import Tag
 from datetime import datetime
 
@@ -43,7 +43,7 @@ def title_parts(**kwargs):
 						int(kwargs['year']),
 						int(kwargs['month']),
 						int(kwargs['day'])
-					).replace(tzinfo = utc).strftime('%B %d, %Y')
+					).replace(tzinfo = get_current_timezone()).strftime('%B %d, %Y')
 				)
 			else:
 				title_parts.insert(0,
@@ -51,7 +51,7 @@ def title_parts(**kwargs):
 						int(kwargs['year']),
 						int(kwargs['month']),
 						1
-					).replace(tzinfo = utc).strftime('%B %Y')
+					).replace(tzinfo = get_current_timezone()).strftime('%B %Y')
 				)
 		else:
 			title_parts.insert(0, kwargs['year'])
