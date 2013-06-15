@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
-from django.utils.timezone import get_current_timezone, now
+from django.utils.timezone import get_current_timezone, now as rightnow
 from taggit.models import Tag
 from datetime import datetime
 from bambu.blog.models import Post, Category
@@ -152,7 +152,7 @@ def post(request, year, month, day, slug):
 		'slug': slug
 	}
 	
-	now = now()
+	now = rightnow()
 	if not request.user.is_staff:
 		kwargs['date__lte'] = now
 		kwargs['published'] = True
