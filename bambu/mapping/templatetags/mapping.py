@@ -37,7 +37,7 @@ def shlex(text):
 		elif c == ' ' and not in_quotes:
 			portions.append(remainder)
 			remainder = ''
-		elif c != '=' and c != '.' and c != '-' and c in string.punctuation and not in_quotes:
+		elif c != '=' and c != '.' and c != '-' and c != '_' and c in string.punctuation and not in_quotes:
 			raise template.TemplateSyntaxError(
 				"Could not parse the remainder: '%s%s' from '%s'" % (remainder, c, text)
 			)

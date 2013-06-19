@@ -12,7 +12,12 @@ class GoogleMapsProvider(ProviderBase):
 				zoom: %(zoom)d,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 				disableDefaultUI: true,
-				controls: [%(controls)s]
+				panControl: %(pancontrol)s,
+				zoomControl: %(zoomcontrol)s,
+				mapTypeControl: %(typecontrol)s,
+				scaleControl: %(scalecontrol)s,
+				streetViewControl: %(streetviewcontrol)s,
+				overviewMapControl: %(overviewcontrol)s
 			}
 		);""" % {
 			'varname': self.get_map_varname(),
@@ -22,7 +27,13 @@ class GoogleMapsProvider(ProviderBase):
 			'zoom': self.settings.get('zoom', 10),
 			'controls': ', '.join(
 				["'%s'" % c for c in controls]
-			)
+			),
+			'pancontrol': 'PAN' in controls and 'true' or 'false',
+			'zoomcontrol': 'ZOOM' in controls and 'true' or 'false',
+			'typecontrol': 'TYPE' in controls and 'true' or 'false',
+			'scalecontrol': 'SCALE' in controls and 'true' or 'false',
+			'streetviewcontrol': 'STREETVIEW' in controls and 'true' or 'false',
+			'overviewcontrol': 'OVERVIEW' in controls and 'true' or 'false',
 		}
 	
 	def add_marker(self):
