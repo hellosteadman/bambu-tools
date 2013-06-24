@@ -7,7 +7,7 @@
 	
 	<div class="controls">
 		{% if field|is_checkbox %}
-			<label>{{ field }} {{ field.label }}</label>
+			<label class="checkbox">{{ field }} {{ field.label }}</label>
 		{% elif field|is_clearable_filefield %}
 			<input type="file" name="{{ field.html_name }}" id="id_{{ field.html_name }}" />
 		{% else %}
@@ -18,7 +18,7 @@
 			{% if field.errors %}
 				<p class="help-block">{{ field.errors|join:' ' }}</p>
 			{% endif %}
-		
+			
 			{% if field.help_text %}
 				<div class="help-block">
 					{{ field.help_text|safe|linebreaks }}
@@ -30,7 +30,7 @@
 	{% if field|is_clearable_filefield %}
 		<div class="controls">
 			{% if field.value %}
-				<label>
+				<label class="checkbox">
 					<input type="checkbox" name="{{ field.html_name }}-clear" id="{{ field.html_name }}-clear_id" />
 					Remove this file
 					{% if field.value.url %}<a class="btn btn-small" href="{{ field.value.url }}" target="_blank">View file</a>{% endif %}
@@ -40,7 +40,7 @@
 			{% if field.errors %}
 				<p class="help-block">{{ field.errors|join:' ' }}</p>
 			{% endif %}
-		
+			
 			{% if field.help_text %}
 				<div class="help-block">
 					{{ field.help_text|safe|linebreaks }}

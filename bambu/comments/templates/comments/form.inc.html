@@ -1,6 +1,6 @@
 {% load icons comments %}
 <form action="{{ comment_form_action|default:'comment/' }}#comment-form" method="post" class="form-horizontal">
-	{% if form.non_field_errors %}
+	{% if comment_form.non_field_errors %}
 		<div class="alert-message alert-error alert-block">
 			{% for error in comment_form.non_field_errors %}
 			{{ error }}

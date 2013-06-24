@@ -6,5 +6,5 @@ comment_posted = NotificationTemplate(
 	short = 'A comment was submitted on "[http://{{ SITE.domain }}{{ comment.content_object.get_absolute_url }}]({{ comment.content_object }})"',
 	long = 'comments/mail.txt',
 	staff_only = True,
-	label = u'A user commented on a blog post'
+	label = u'A user submits a comment'
 )

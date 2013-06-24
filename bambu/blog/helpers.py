@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils.timezone import get_current_timezone
+from django.utils.importlib import import_module
+from django.conf import settings
 from taggit.models import Tag
 from datetime import datetime
 
@@ -86,3 +88,14 @@ def get_post_image(post):
 			pass
 	
 	return ''
+
+def get_comments_form():
+	klass = getattr(settings, 'BLOG_COMMENTS_FORM',
+		'bambu.comments.forms.CommentForm'
+	)
+	
+	module, dot, klass = klass.rpartition('.')
+	module = import_module(module)
+	klass = getattr(module, klass)
+	
+	return klass

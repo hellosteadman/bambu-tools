@@ -7,7 +7,6 @@ from django.conf import settings
 from taggit.managers import TaggableManager
 from bambu.blog.managers import *
 from bambu.blog import helpers
-from bambu.comments.models import Comment
 from bambu.attachments.models import Attachment
 from bambu.attachments.helpers import upload_attachment_file
 from bambu.preview.models import Preview
@@ -15,6 +14,8 @@ from bambu import webhooks
 from mimetypes import guess_type
 from hashlib import md5
 from pyquery import PyQuery
+
+COMMENTS_MODEL = getattr(settings, 'BLOG_COMMENTS_MODEL', 'comments.Comment')
 
 class Category(models.Model):
 	name = models.CharField(max_length = 100, db_index = True)
@@ -49,7 +50,7 @@ class Post(models.Model):
 	)
 	
 	attachments = generic.GenericRelation(Attachment)
-	comments = generic.GenericRelation(Comment)
+	comments = generic.GenericRelation(COMMENTS_MODEL)
 	objects = PostManager()
 	
 	@models.permalink

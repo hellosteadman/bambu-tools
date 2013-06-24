@@ -21,7 +21,9 @@ class Transformer(object):
 class ModelTransformer(Transformer):
 	def transform(self, obj, level = 1, max_level = 1):
 		opts = obj._meta
-		fields = (field.name for field in opts.local_fields + opts.local_many_to_many)
+		fields = list(field.name for field in opts.local_fields + opts.local_many_to_many)
+		for parent in opts.parents:
+			fields += list(field.name for field in parent._meta.local_fields + parent._meta.local_many_to_many)
 		
 		if any(self.fields):
 			fields = [f for f in fields if f in self.fields]

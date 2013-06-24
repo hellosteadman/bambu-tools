@@ -7,9 +7,16 @@ UNCLEAN_TAGS = (
 )
 
 UNCLEAN_ATTRS = (
-	'onafterprint', 'onbeforeprint', 'onbeforeunloa', 'onerro', 'onhaschange', 'onload', 'onmessageNew',
-	'onoffline', 'ononline', 'onpagehide', 'onpageshow', 'onpopstate', 'onredo', 'onresize', 'onstorage', 'onundo',
-	'onunload'
+	'onabort', 'onafterprint', 'onbeforeprint', 'onbeforeunloa', 'onblur', 'oncanplay', 'oncanplaythrough',
+	'onchange', 'onclick', 'oncontextmenu', 'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave',
+	'ondragover', 'ondragstart', 'ondrop', 'ondurationchange', 'onemptiedNew', 'onendedNew', 'onerro', 'onerrorNew',
+	'onfocus', 'onformchange', 'onforminput', 'onhaschange', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress',
+	'onkeyup', 'onload', 'onloadeddataNew', 'onloadedmetadataNew', 'onloadstartNew', 'onmessage', 'onmousedown',
+	'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onoffline', 'ononline', 'onpagehide',
+	'onpageshow', 'onpauseNew', 'onplayNew', 'onplaying', 'onpopstate', 'onprogressNew', 'onratechangeNew',
+	'onreadystatechangeNew', 'onredo', 'onreset', 'onresize', 'onscroll', 'onseekedNew', 'onseekingNew', 'onselect',
+	'onstalledNew', 'onstorage', 'onsubmit', 'onsuspendNew', 'ontimeupdateNew', 'onundo', 'onunload', 'onvolumechangeNew',
+	'onwaiting'
 )
 
 def sanitise(text, markdown = False):

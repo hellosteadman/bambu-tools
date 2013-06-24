@@ -13,14 +13,15 @@ from django.utils.timezone import get_current_timezone, now as rightnow
 from taggit.models import Tag
 from datetime import datetime
 from bambu.blog.models import Post, Category
-from bambu.blog.helpers import view_filter, title_parts
-from bambu.comments.forms import CommentForm
+from bambu.blog.helpers import view_filter, title_parts, get_comments_form
 from bambu.enqueue import enqueue_css_block
 
 POSTS_PER_PAGE = getattr(settings, 'BLOG_POSTS_PER_PAGE', 10)
 THUMBNAIL_WIDTH = getattr(settings, 'BLOG_THUMBNAIL_WIDTH',
 	getattr(settings, 'OEMBED_WIDTH', 640)
 )
+
+COMMENTS_FORM_CLASS = get_comments_form()
 
 def _context(request):
 	categories = Category.objects.filter(
@@ -178,7 +179,7 @@ def post(request, year, month, day, slug):
 	
 	if not request.GET.get('comment-sent'):
 		initial = {}
-	
+		
 		if request.user.is_authenticated():
 			initial = {
 				'name': request.user.get_full_name() or request.user.username,
@@ -186,7 +187,7 @@ def post(request, year, month, day, slug):
 				'website': 'http://%s/' % Site.objects.get_current().domain
 			}
 		
-		context['comment_form'] = CommentForm(initial = initial)
+		context['comment_form'] = COMMENTS_FORM_CLASS(initial = initial)
 	
 	context['body_classes'] = ['post-%s' % post.pk, 'post-%s' % post.slug]
 	if preview:
@@ -218,7 +219,7 @@ def post_comment(request, year, month, day, slug):
 	except Post.DoesNotExist:
 		raise Http404('Post not found.')
 	
-	form = CommentForm(request.POST)
+	form = COMMENTS_FORM_CLASS(request.POST)
 	if request.POST.get('h0n3ytr4p'):
 		return HttpResponse('')
 	
