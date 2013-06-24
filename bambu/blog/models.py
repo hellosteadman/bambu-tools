@@ -10,10 +10,11 @@ from bambu.blog import helpers
 from bambu.attachments.models import Attachment
 from bambu.attachments.helpers import upload_attachment_file
 from bambu.preview.models import Preview
-from bambu import webhooks
 from mimetypes import guess_type
 from hashlib import md5
-from pyquery import PyQuery
+
+if 'bambu.webhooks' in settings.INSTALLED_APPS:
+	from bambu import webhooks
 
 COMMENTS_MODEL = getattr(settings, 'BLOG_COMMENTS_MODEL', 'comments.Comment')
 
@@ -226,7 +227,8 @@ class PostUpload(models.Model):
 	class Meta:
 		db_table = 'blog_post_upload'
 
-webhooks.site.register('post_published',
-	description = 'Fired when a post is published',
-	staff_only = True
-)
+if 'bambu.webhooks' in settings.INSTALLED_APPS:
+	webhooks.site.register('post_published',
+		description = 'Fired when a post is published',
+		staff_only = True
+	)

@@ -11,9 +11,8 @@ class ShortURL(models.Model):
 	def __unicode__(self):
 		return self.url
 	
-	@models.permalink
 	def get_absolute_url(self):
-		return ('short_url', [self.slug])
+		return '/%s/' % self.slug
 	
 	def save(self, *args, **kwargs):
 		if not self.slug:

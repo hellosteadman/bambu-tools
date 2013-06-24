@@ -1,16 +1,19 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
+from django.utils.importlib import import_module
 
 URL_LENGTH = getattr(settings, 'SHORTURL_LENGTH', 7)
 
 def shorten(url):
-	from bambu.urlshortener.models import ShortURL
+	from threading import local
+	_thread_locals = local()
 	
-	site = Site.objects.get_current()
+	provider = getattr(_thread_locals, 'bambu_urlshortener', None)
+	if not provider:
+		module, dot, klass = getattr(settings, 'SHORTURL_PROVIDER',
+			'bambu.urlshortener.providers.db.DatabaseProvider'
+		).rpartition('.')
+		
+		module = import_module(module)
+		_thread_locals.bambu_urlshortener = getattr(module, klass)
 	
-	try:
-		shortened = ShortURL.objects.filter(url = url).select_for_update(nowait = False)[0]
-	except IndexError:
-		shortened = ShortURL.objects.create(url = url)
-	
-	return 'http://%s%s' % (site.domain, shortened.get_absolute_url())
+	return _thread_locals.bambu_urlshortener().shorten(url)

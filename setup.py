@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.0.4',
+	version = '3.0.5',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
@@ -54,7 +54,7 @@ setup(
 		'bambu.saas', 'bambu.saas.migrations', 'bambu.saas.views',
 		'bambu.signup', 'bambu.signup.migrations', 'bambu.signup.views',
 		'bambu.sites',
-		'bambu.urlshortener', 'bambu.urlshortener.migrations',
+		'bambu.urlshortener', 'bambu.urlshortener.migrations', 'bambu.urlshortener.providers',
 		'bambu.webhooks', 'bambu.webhooks.migrations',
 		'bambu.xmlrpc'
 	],

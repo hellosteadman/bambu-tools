@@ -14,6 +14,6 @@ def tracking(context):
 		try:
 			return request._analytics_handler.render(request)
 		except Exception, ex:
-			LOGGER.error(ex, exc_info = ex)
+			LOGGER.warn(ex, exc_info = ex)
 	
 	return u''
