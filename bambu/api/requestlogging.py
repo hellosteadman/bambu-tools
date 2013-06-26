@@ -1,5 +1,6 @@
 from django.utils.timezone import get_current_timezone, now
 from django.db.models import F
+from django.db import transaction
 from django.conf import settings
 from datetime import datetime
 from logging import getLogger
@@ -44,9 +45,10 @@ class DatabaseRequestLogger(RequestLoggerBase):
 	def log_request(self, app):
 		timestamp = self.get_timestamp()
 		
-		app.requests.get_or_create(timestamp = timestamp)
-		app.requests.update(count = F('count') + 1)
-		app.requests.filter(timestamp__lt = timestamp).delete()
+		with transaction.commit_on_success():
+			app.requests.get_or_create(timestamp = timestamp)
+			app.requests.update(count = F('count') + 1)
+			app.requests.filter(timestamp__lt = timestamp).delete()
 	
 	def get_request_count(self, app, timestamp):
 		try:

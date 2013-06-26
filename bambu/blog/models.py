@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site
 from django.utils.timezone import now
@@ -205,13 +205,15 @@ class PostUpload(models.Model):
 		return self.title
 	
 	def convert_to_attachment(self, post):
-		attachment = post.attachments.create(
-			file = self.file,
-			size = self.size,
-			mimetype = self.file.size
-		)
+		with transaction.commit_on_success():
+			attachment = post.attachments.create(
+				file = self.file,
+				size = self.size,
+				mimetype = self.file.size
+			)
 		
-		self.delete()
+			self.delete()
+		
 		return attachment
 	
 	def save(self, *args, **kwargs):

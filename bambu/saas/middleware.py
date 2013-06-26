@@ -9,7 +9,13 @@ class UserPlanMiddleware(object):
 		if user.is_anonymous():
 			return
 		
-		try:
-			request.plan = UserPlan.objects.get_for_user(user)
-		except UserPlan.DoesNotExist:
-			request.plan = None
+		def getplan():
+			if not hasattr(request, '_userplan'):
+				try:
+					request._userplan = UserPlan.objects.get_for_user(user)
+				except UserPlan.DoesNotExist:
+					request._userplan = None
+			
+			return request._userplan
+		
+		request.plan = getplan

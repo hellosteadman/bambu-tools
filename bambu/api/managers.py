@@ -25,7 +25,7 @@ class TokenManager(Manager):
 		
 		"""
 		
-		token, created = self.select_for_update(nowait = False).get_or_create(
+		token, created = self.select_for_update().get_or_create(
 			app = app, 
 			token_type = token_type, 
 			timestamp = timestamp,

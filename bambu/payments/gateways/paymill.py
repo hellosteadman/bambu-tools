@@ -46,11 +46,11 @@ class PaymillGateway(gateways.Gateway):
 	
 	def _client(self, customer, gateway):
 		try:
-			return RemoteClient.objects.filter(
+			return RemoteClient.objects.get(
 				client = customer,
 				gateway = gateway
-			).select_for_update(nowait = False)[0]
-		except IndexError:
+			)
+		except RemoteClient.DoesNotExist:
 			response = self._api(
 				URL_CLIENTS
 			).param(
@@ -82,14 +82,14 @@ class PaymillGateway(gateways.Gateway):
 	
 	def _offer(self, amount, currency, interval, trial, name, gateway):
 		try:
-			return RemoteOffer.objects.filter(
+			return RemoteOffer.objects.get(
 				amount = amount,
 				currency = currency,
 				interval = interval,
 				trial = trial,
 				gateway = gateway
-			).select_for_update(nowait = False)[0]
-		except IndexError:
+			)
+		except RemoteOffer.DoesNotExist:
 			response = self._api(
 				URL_OFFERS
 			).param(
@@ -132,10 +132,10 @@ class PaymillGateway(gateways.Gateway):
 	def _subscription(self, client, offer, payment, gateway, new_offer = None, new_payment = None):
 		try:
 			if new_offer and new_payment:
-				subscription = RemoteSubscription.objects.filter(
+				subscription = RemoteSubscription.objects.select_for_update().get(
 					payment = payment,
 					live = self.live
-				).select_for_update(nowait = False)[0]
+				)
 				
 				response = self._api(
 					URL_SUBSCRIPTION % subscription.remote_id
@@ -151,7 +151,7 @@ class PaymillGateway(gateways.Gateway):
 					payment = payment,
 					live = self.live
 				)
-		except IndexError:
+		except RemoteSubscription.DoesNotExist:
 			response = self._api(
 				URL_SUBSCRIPTIONS
 			).param(
@@ -369,10 +369,10 @@ class PaymillGateway(gateways.Gateway):
 			remote_id = resource['transaction']['payment']['id']
 			
 			try:
-				payment = Payment.objects.filter(
+				payment = Payment.objects.get(
 					remote_id = remote_id
-				).select_for_update(nowait = False)[0]
-			except IndexError:
+				)
+			except Payment.DoesNotExist:
 				self.logger.warn('Transaction failed (could not find corresponding payment)')
 				return HttpResponse('OK')
 			
@@ -393,10 +393,10 @@ class PaymillGateway(gateways.Gateway):
 			remote_id = resource['subscription']['payment']['id']
 			
 			try:
-				payment = Payment.objects.filter(
+				payment = Payment.objects.get(
 					remote_id = remote_id
-				).select_for_update(nowait = False)[0]
-			except IndexError:
+				)
+			except Payment.DoesNotExist:
 				self.logger.warn('Transaction failed (could not find corresponding payment)')
 				return HttpResponse('OK')
 			

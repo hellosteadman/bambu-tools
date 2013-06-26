@@ -3,7 +3,7 @@ from django.utils.functional import curry
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from django.db import models
+from django.db import models, transaction
 from django.forms import Form, ModelForm
 from django.forms.models import modelform_factory
 from django.http import Http404
@@ -367,8 +367,9 @@ class ModelAPI(API):
 		obj = self.get_object(request, object_id, **kwargs)
 		
 		if request.method == 'DELETE':
-			obj.delete()
-			return ['OK']
+			with transaction.commit_on_success():
+				obj.delete()
+				return ['OK']
 		elif request.method == 'PUT':
 			request.method = "POST"
 			request._load_post_and_files()

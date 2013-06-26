@@ -78,8 +78,6 @@ class Comment(models.Model):
 				email__iexact = self.email,
 				approved = True,
 				spam = False
-			).select_for_update(
-				nowait = False
 			).exists()
 		
 		super(Comment, self).save(*args, **kwargs)

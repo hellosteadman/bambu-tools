@@ -7,6 +7,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.webdesign import lorem_ipsum
 from django.conf.urls import patterns, url
 from django.conf import settings
+from django.db import models, transaction
 from bambu import api
 from bambu.api import helpers
 from bambu.api.forms import UserRegistrationForm
@@ -74,6 +75,7 @@ class UserAPI(api.ModelAPI):
 		return request.user
 	
 	@anonymous
+	@transaction.commit_on_success
 	def register_view(self, request):
 		form = UserRegistrationForm(request.POST)
 		if form.is_valid():
@@ -81,6 +83,7 @@ class UserAPI(api.ModelAPI):
 		else:
 			raise Exception(dict(form.errors.items()))
 	
+	@transaction.commit_on_success
 	def unregister_view(self, request):
 		request.user.delete()
 		return True

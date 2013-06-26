@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils.timezone import now
 from django.conf import settings
 from bambu.webhooks import helpers
@@ -53,7 +53,7 @@ class Action(models.Model):
 				}
 			)
 		
-		self.receiver.last_called = now()
-		self.receiver.save()
-		
-		self.delete()
+		with transaction.commit_on_success():
+			self.receiver.last_called = now()
+			self.receiver.save()
+			self.delete()

@@ -1,6 +1,7 @@
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.http import HttpResponseRedirect
@@ -70,6 +71,7 @@ def logout(request):
 	messages.success(request, u'You have been logged out.')
 	return HttpResponseRedirect(LOGOUT_REDIRECT_URL)
 
+@transaction.commit_on_success
 def verify_email(request, guid):
 	validation = get_object_or_404(EmailValidation, guid = guid)
 	next = validation.next_url
@@ -109,14 +111,15 @@ def reset_password(request, guid = None):
 	form = form_class(request.POST or None)
 	
 	if request.method == 'POST' and form.is_valid():
-		try:
-			user = User.objects.get(email__iexact = form.cleaned_data['email'])
-			if user.password_resets.exists():
-				reset = user.password_resets.create(
-					next_url = next
-				)
-		except User.DoesNotExist:
-			pass
+		with transaction.commit_on_success():
+			try:
+				user = User.objects.get(email__iexact = form.cleaned_data['email'])
+				if user.password_resets.exists():
+					reset = user.password_resets.create(
+						next_url = next
+					)
+			except User.DoesNotExist:
+				pass
 		
 		return TemplateResponse(
 			request,

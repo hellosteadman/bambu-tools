@@ -1,11 +1,11 @@
 {% load humanize %}
 
 <a id="comments"></a>
-{% if obj.comments.live.count > 0 %}
+{% if obj.comments.live.exists %}
 	<hr />
 	<h2>{{ obj.comments.live.count|apnumber|capfirst }} comment{{ obj.comments.live.count|pluralize }}</h2>
 	
-	{% for comment in obj.comments.live %}
+	{% for comment in obj.comments.select_related.live %}
 		{% include 'comments/comment.inc.html' %}
 		{% if not forloop.last %}<hr />{% endif %}
 	{% endfor %}

@@ -42,12 +42,10 @@
 					<td{% if column.best and not upgrade %} class="best"{% endif %}>
 						{% if row.boolean %}
 							<span class="feature-{% if column.value %}enabled{% else %}disabled{% endif %}">{% if column.value %}&#10003;{% else %}&#10007;{% endif %}</span>
+						{% elif column.value > -1 %}
+							<span class="feature-value">{{ column.value|capfirst|intcomma }}</span>
 						{% else %}
-							{% if column.value > -1 %}
-								<span class="feature-value">{{ column.value|capfirst|intcomma }}</span>
-							{% else %}
-								<span class="feature-value feature-unlimited">Unlimited</span>
-							{% endif %}
+							<span class="feature-value feature-unlimited">Unlimited</span>
 						{% endif %}
 					</td>
 				{% endfor %}

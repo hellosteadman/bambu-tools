@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -100,13 +101,13 @@ def _get_plan_prices(current_plan = None):
 def upgrade(request):
 	feature = request.GET.get('feature')
 	form = None
+	plan = request.plan()
 	
-	try:
-		plan = UserPlan.objects.get_for_user(request.user)
-		if plan.user.pk == request.user.pk:
-			form = PlanChangeForm(request.POST or None, current_plan = plan)
-	except UserPlan.DoesNotExist:
+	if not plan:
 		raise Http404('UserPlan not found.')
+	
+	if plan.user.pk == request.user.pk:
+		form = PlanChangeForm(request.POST or None, current_plan = plan)
 	
 	value = None
 	
@@ -118,19 +119,20 @@ def upgrade(request):
 			feature = None
 	
 	if request.method == 'POST' and form and form.is_valid():
-		change = form.save()
-		
-		if change.paid:
-			messages.success(request, u'Your account has been updated successfully.')
-			return HttpResponseRedirect(
-				settings.LOGIN_REDIRECT
-			)
-		else:
-			request.session['PAYMENT_GATEWAY'] = form.cleaned_data.get('payment_gateway')
+		with transaction.commit_on_success():
+			change = form.save()
 			
-			return HttpResponseRedirect(
-				reverse('upgrade_pay')
-			)
+			if change.paid:
+				messages.success(request, u'Your account has been updated successfully.')
+				return HttpResponseRedirect(
+					settings.LOGIN_REDIRECT
+				)
+			else:
+				request.session['PAYMENT_GATEWAY'] = form.cleaned_data.get('payment_gateway')
+				
+				return HttpResponseRedirect(
+					reverse('upgrade_pay')
+				)
 	
 	prices = _get_plan_prices(plan.plan)
 	return TemplateResponse(
@@ -147,21 +149,21 @@ def upgrade(request):
 				pk = plan.plan.pk
 			).filter(
 				order__gte = plan.plan.order
-			).matrix()
+			).matrix
 		}
 	)
 
 @login_required
 def upgrade_pay(request):
-	try:
-		plan = UserPlan.objects.get_for_user(request.user)
-		if plan.user.pk != request.user.pk:
-			messages.warning(request, u'You can\'t make changes to another user\'s account.')
-			return HttpResponseRedirect(
-				settings.LOGIN_REDIRECT
-			)
-	except UserPlan.DoesNotExist:
+	plan = request.plan()
+	if not plan:
 		raise Http404('UserPlan not found.')
+	
+	if plan.user.pk != request.user.pk:
+		messages.warning(request, u'You can\'t make changes to another user\'s account.')
+		return HttpResponseRedirect(
+			settings.LOGIN_REDIRECT
+		)
 	
 	currency = getattr(settings, 'DEFAULT_CURRENCY', 'GBP')
 	
@@ -235,46 +237,47 @@ def signup(request):
 	)
 	
 	if request.method == 'POST':
-		if form.is_valid():
-			if 'challenge_words' in request.session:
-				del request.session['challenge_words']
-				request.session.modified = True
+		with transaction.commit_on_success():
+			if form.is_valid():
+				if 'challenge_words' in request.session:
+					del request.session['challenge_words']
+					request.session.modified = True
 			
-			user = form.save()
-			plan = form.cleaned_data.get('plan',
-				Plan.objects.get(pk = settings.SAAS_DEFAULT_PLAN),
-			)
-			
-			if 'bambu.analytics' in settings.INSTALLED_APPS:
-				from bambu.analytics import track_event, events
-				track_event(request, events.EVENT,
-					category = u'Users',
-					action = u'Signup',
-					option_label = plan.name,
-					option_value = user.pk
+				user = form.save()
+				plan = form.cleaned_data.get('plan',
+					Plan.objects.get(pk = settings.SAAS_DEFAULT_PLAN),
 				)
 			
-			if form.cleaned_data.get('newsletter_optin'):
-				user.pending_newsletter_optins.create()
-		
-			currency = getattr(settings, 'DEFAULT_CURRENCY', 'GBP')
-			price = plan.prices.get(currency = currency)
-		
-			if price.monthly == 0:
-				user.email_validations.create()
-				for group in plan.groups.all():
-					user.groups.add(group)
+				if 'bambu.analytics' in settings.INSTALLED_APPS:
+					from bambu.analytics import track_event, events
+					track_event(request, events.EVENT,
+						category = u'Users',
+						action = u'Signup',
+						option_label = plan.name,
+						option_value = user.pk
+					)
 			
-				return HttpResponseRedirect(
-					reverse('signup_complete')
-				)
-			else:
-				login(request, user)
-				request.session['PAYMENT_GATEWAY'] = form.cleaned_data['payment_gateway']
+				if form.cleaned_data.get('newsletter_optin'):
+					user.pending_newsletter_optins.create()
 			
-				return HttpResponseRedirect(
-					reverse('signup_pay')
-				)
+				currency = getattr(settings, 'DEFAULT_CURRENCY', 'GBP')
+				price = plan.prices.get(currency = currency)
+			
+				if price.monthly == 0:
+					user.email_validations.create()
+					for group in plan.groups.all():
+						user.groups.add(group)
+				
+					return HttpResponseRedirect(
+						reverse('signup_complete')
+					)
+				else:
+					login(request, user)
+					request.session['PAYMENT_GATEWAY'] = form.cleaned_data['payment_gateway']
+				
+					return HttpResponseRedirect(
+						reverse('signup_pay')
+					)
 	else:
 		request.session['challenge_words'] = form.challenge_words
 		request.session.modified = True
@@ -287,7 +290,7 @@ def signup(request):
 			'form': form,
 			'selected_plan': plan,
 			'next': request.GET.get('next'),
-			'matrix': Plan.objects.matrix(),
+			'matrix': Plan.objects.matrix,
 			'plan_prices': simplejson.dumps(prices),
 			'discount': code
 		}
@@ -316,48 +319,53 @@ def signup_pay(request):
 	except Payment.DoesNotExist:
 		payment = plan.create_payment(currency, gateway)
 	
-	return payment.process_view(request)
+	response = payment.process_view(request)
+	if response is None:
+		return HttpResponseRedirect('../')
+	
+	return response
 
 @never_cache
 def verify_email(request, guid = None):
 	if guid:
-		validation = get_object_or_404(EmailValidation, guid = guid)
-		user = validation.user
-		
-		user.is_active = True
-		user.save()
-		
-		if user.pending_newsletter_optins.exists():
-			newsletter_optin.send(
-				type(user),
+		with transaction.commit_on_success():
+			validation = get_object_or_404(EmailValidation, guid = guid)
+			
+			user = validation.user
+			user.is_active = True
+			user.save()
+			
+			if user.pending_newsletter_optins.exists():
+				newsletter_optin.send(
+					type(user),
+					user = user
+				)
+				
+				user.pending_newsletter_optins.all().delete()
+			
+			validation.delete()
+			messages.success(request, _('Thanks for confirming your email address.'))
+			
+			plan_signup.send(
+				UserPlan,
+				plan = UserPlan.objects.get_for_user(user),
 				user = user
 			)
 			
-			user.pending_newsletter_optins.all().delete()
-		
-		validation.delete()
-		messages.success(request, _('Thanks for confirming your email address.'))
-		
-		plan_signup.send(
-			UserPlan,
-			plan = UserPlan.objects.get_for_user(user),
-			user = user
-		)
-		
-		next = getattr(settings, 'SIGNUP_REDIRECT',
-			getattr(settings, 'LOGIN_REDIRECT_URL', '/')
-		)
-		
-		return HttpResponseRedirect(
-			'%s?%s' % (
-				settings.LOGIN_URL,
-				urlencode(
-					{
-						'next': next
-					}
+			next = getattr(settings, 'SIGNUP_REDIRECT',
+				getattr(settings, 'LOGIN_REDIRECT_URL', '/')
+			)
+			
+			return HttpResponseRedirect(
+				'%s?%s' % (
+					settings.LOGIN_URL,
+					urlencode(
+						{
+							'next': next
+						}
+					)
 				)
 			)
-		)
 	
 	return TemplateResponse(
 		request,
@@ -368,27 +376,29 @@ def verify_email(request, guid = None):
 @never_cache
 def reset_password(request, guid = None):
 	if guid:
-		reset = get_object_or_404(PasswordReset, guid = guid)
-		reset.reset()
-		
-		messages.success(request,
-			_('Your new password should be in your inbox shortly.')
-		)
-		
-		return HttpResponseRedirect(settings.LOGIN_URL)
+		with transaction.commit_on_success():
+			reset = get_object_or_404(PasswordReset, guid = guid)
+			reset.reset()
+			
+			messages.success(request,
+				_('Your new password should be in your inbox shortly.')
+			)
+			
+			return HttpResponseRedirect(settings.LOGIN_URL)
 	
 	form = PasswordResetForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
-		try:
-			user = User.objects.get(email__iexact = form.cleaned_data['email'])
-			reset, created = user.password_resets.get_or_create()
-		except User.DoesNotExist:
-			pass
-		
-		return TemplateResponse(
-			request,
-			'saas/password-reset.html'
-		)
+		with transaction.commit_on_success():
+			try:
+				user = User.objects.get(email__iexact = form.cleaned_data['email'])
+				reset, created = user.password_resets.get_or_create()
+			except User.DoesNotExist:
+				pass
+			
+			return TemplateResponse(
+				request,
+				'saas/password-reset.html'
+			)
 	
 	return TemplateResponse(
 		request,
@@ -401,11 +411,7 @@ def reset_password(request, guid = None):
 @never_cache
 @login_required
 def profile(request):
-	try:
-		plan = UserPlan.objects.get_for_user(request.user)
-	except UserPlan.DoesNotExist:
-		plan = None
-	
+	plan = request.plan()
 	higher_plans = 	Plan.objects.exclude(
 		pk = plan.plan.pk
 	).filter(
@@ -424,7 +430,7 @@ def profile(request):
 			),
 			'menu_selection': 'profile',
 			'title_parts': ('My profile',),
-			'matrix': higher_plans.matrix(),
+			'matrix': higher_plans.matrix,
 			'can_upgrade': higher_plans.exists()
 		}
 	)
@@ -438,12 +444,13 @@ def profile_edit(request):
 	)
 	
 	if request.method == 'POST' and form.is_valid():
-		user = form.save()
-		messages.success(request, u'Your profile has been updated.')
+		with transaction.commit_on_success():
+			user = form.save()
+			messages.success(request, u'Your profile has been updated.')
 		
-		return HttpResponseRedirect(
-			reverse('profile')
-		)
+			return HttpResponseRedirect(
+				reverse('profile')
+			)
 	
 	return TemplateResponse(
 		request,
@@ -464,7 +471,7 @@ def profile_edit(request):
 @login_required
 @permission_required('saas.change_subuser')
 def profile_subusers(request):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	
 	return TemplateResponse(
 		request,
@@ -486,7 +493,7 @@ def profile_subusers(request):
 @login_required
 @permission_required('saas.change_subuser')
 def profile_subusers_invitations(request):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	
 	return TemplateResponse(
 		request,
@@ -508,20 +515,21 @@ def profile_subusers_invitations(request):
 @feature_required('subusers')
 @permission_required('saas.create_subuser')
 def profile_subusers_invite(request):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	form = InvitationsForm(request.POST or None, plan = plan, user = request.user)
 	
 	if request.method == 'POST' and form.is_valid():
-		invitations = form.save()
-		if len(invitations) > 0:
-			messages.success(request, u'Your invitations have been sent successfully.')
-		
-		if request.is_ajax():
-			return HttpResponse('::OK::')
-		else:
-			return HttpResponseRedirect(
-				reverse('profile_subusers')
-			)
+		with transaction.commit_on_success():
+			invitations = form.save()
+			if len(invitations) > 0:
+				messages.success(request, u'Your invitations have been sent successfully.')
+			
+			if request.is_ajax():
+				return HttpResponse('::OK::')
+			else:
+				return HttpResponseRedirect(
+					reverse('profile_subusers')
+				)
 	
 	if request.is_ajax():
 		return TemplateResponse(
@@ -565,13 +573,14 @@ def invitation_accept(request, guid):
 	)
 	
 	if request.method == 'POST' and form.is_valid():
-		user = form.save()
-		invitation.delete()
-		login(request, user)
-		
-		return HttpResponseRedirect(
-			getattr(settings, 'LOGIN_REDIRECT_URL', '/')
-		)
+		with transaction.commit_on_success():
+			user = form.save()
+			invitation.delete()
+			login(request, user)
+			
+			return HttpResponseRedirect(
+				getattr(settings, 'LOGIN_REDIRECT_URL', '/')
+			)
 	
 	return TemplateResponse(
 		request,
@@ -589,7 +598,7 @@ def invitation_accept(request, guid):
 @login_required
 @permission_required('saas.delete_subuser')
 def profile_delete_subuser(request, username):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	
 	try:
 		user = plan.subusers.exclude(pk = request.user.pk).get(username = username)
@@ -627,8 +636,9 @@ def profile_delete_subuser(request, username):
 @never_cache
 @login_required
 @permission_required('saas.change_subuser')
+@transaction.commit_on_success
 def profile_delete_invitation(request, guid):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	get_object_or_404(Invitation, plan = plan, guid = guid).delete()
 	
 	messages.success(
@@ -642,7 +652,7 @@ def profile_delete_invitation(request, guid):
 @login_required
 @permission_required('saas.change_subuser')
 def profile_resend_invitation(request, guid):
-	plan = UserPlan.objects.get_for_user(request.user)
+	plan = request.plan()
 	get_object_or_404(Invitation, plan = plan, guid = guid).send()
 	
 	messages.success(

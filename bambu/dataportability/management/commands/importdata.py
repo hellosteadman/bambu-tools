@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.loading import get_model
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.conf import settings
@@ -62,14 +63,15 @@ class Command(BaseCommand):
 		if not handler in handlers:
 			raise CommandError('Import handler %s not found' % handler)
 		
-		job = ImportJob.objects.create(
-			handler = handlers[handler],
-			user = user,
-			data = File(open(filename, 'r')),
-			parser = helpers.get_parser_for_file(
-				path.split(filename)[-1]
-			),
-			content_object = obj
-		)
-		
-		job.start()
+		with transaction.commit_on_success():
+			job = ImportJob.objects.create(
+				handler = handlers[handler],
+				user = user,
+				data = File(open(filename, 'r')),
+				parser = helpers.get_parser_for_file(
+					path.split(filename)[-1]
+				),
+				content_object = obj
+			)
+			
+			job.start()

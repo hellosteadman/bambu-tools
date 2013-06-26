@@ -40,7 +40,7 @@ class DataStore(OAuthDataStore):
 	
 	def lookup_nonce(self, oauth_consumer, oauth_token, nonce):
 		if not oauth_token is None:
-			nonce, created = Nonce.objects.select_for_update(nowait = False).get_or_create(
+			nonce, created = Nonce.objects.select_for_update().get_or_create(
 				consumer_key = oauth_consumer.key, 
 				token_key = oauth_token.key,
 				key = nonce

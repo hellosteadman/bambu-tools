@@ -47,7 +47,7 @@ class App(models.Model):
 			key = helpers.generate_random_key(18)
 			secret = helpers.generate_random_key(32)
 			
-			while App.objects.filter(key__exact = key, secret__exact = secret).select_for_update(nowait = False).exists():
+			while App.objects.filter(key__exact = key, secret__exact = secret).exists():
 				secret = helpers.generate_random_key(32)
 			
 			self.key = key
@@ -129,7 +129,7 @@ class Token(models.Model):
 			
 			while Token.objects.filter(
 				key__exact = key, secret__exact = secret
-			).select_for_update(nowait = False).exists():
+			).exists():
 				secret = helpers.generate_random_key(32)
 			
 			self.key = key

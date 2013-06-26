@@ -13,14 +13,13 @@ class ModelGrid(Grid):
 	exclude = ()
 	search = ()
 	column_verbose_names = {}
+	select_related = True
 	
 	def __init__(self, request, data, *args, **kwargs):
 		if isinstance(data, Model):
-			queryset = data.objects.all()
-		elif isinstance(data, Manager):
-			queryset = data.all()
-		elif isinstance(data, QuerySet):
-			queryset = data
+			queryset = data.objects.select_related()
+		elif isinstance(data, (Manager, QuerySet)):
+			queryset = data.select_related()
 		else:
 			raise ValueError('Data attribute must extend Model or QuerySet')
 		

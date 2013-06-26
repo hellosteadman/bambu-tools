@@ -4,6 +4,7 @@ from django.utils.datastructures import SortedDict
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.timezone import get_current_timezone, now as rightnow
+from django.utils import simplejson
 from bambu.saas import helpers, receivers
 from bambu.saas.managers import PlanManager, UserPlanManager
 from bambu.mail.shortcuts import render_to_mail
@@ -41,40 +42,50 @@ class Plan(models.Model):
 		ordering = ('order',)
 	
 	class QuerySet(models.query.QuerySet):
+		def with_prices(self, currency):
+			return self.extra(
+				select = {
+					'price_monthly': 'SELECT `saas_price`.`monthly` FROM `saas_price` WHERE ' \
+						'`saas_price`.`plan_id` = `saas_plan`.`id` AND ' \
+						'`saas_price`.`currency` = %s LIMIT 1',
+					'price_yearly': 'SELECT `saas_price`.`yearly` FROM `saas_price` WHERE ' \
+						'`saas_price`.`plan_id` = `saas_plan`.`id` AND ' \
+						'`saas_price`.`currency` = %s LIMIT 1'
+				},
+				select_params = (currency, currency)
+			)
+		
 		def matrix(self, currency = None):
 			headings = []
 			features = SortedDict()
 			currency = currency or getattr(settings, 'CURRENCY_CODE', 'GBP')
 			
-			for feature in Feature.objects.all():
+			for feature in Feature.objects.select_related().extra(
+				select = {
+					'values': 'SELECT CONCAT(\'{\', GROUP_CONCAT(CONCAT(\'"\', `plan_id`, \'":"\', `value`, \'"\')), \'}\') FROM `saas_planfeature` WHERE ' \
+						'`saas_planfeature`.`feature_id` = `saas_feature`.`id`'
+				}
+			):
 				features[feature.slug] = (
 					feature.name,
 					feature.is_boolean,
-					feature.description
+					feature.description,
+					feature.values
 				)
 			
 			rows = [
 				{
 					'heading': n,
-					'columns': [],
+					'columns': c,
 					'slug': k,
 					'boolean': b,
-					'description': d or ''
-				} for (k, (n, b, d)) in features.items()
+					'description': d or u''
+				} for (k, (n, b, d, c)) in features.items()
 			]
 			
 			symbol = helpers.get_currency_symbol(currency)
-			for plan in self.all():
-				try:
-					price = plan.prices.get(currency = currency)
-				except Price.DoesNotExist:
-					try:
-						price = plan.prices.get(
-							currency = getattr(settings, 'CURRENCY_CODE', 'GBP')
-						)
-					except Price.DoesNotExist:
-						price = None
-				
+			plans = self.with_prices(currency)
+			for plan in plans:
 				h = {
 					'name': plan.name,
 					'pk': plan.pk
@@ -83,36 +94,39 @@ class Plan(models.Model):
 				if plan.best_value:
 					h['best'] = True
 				
-				if price:
+				if plan.price_monthly or plan.price_yearly:
 					h.update(
 						{
-							'price_monthly': price and helpers.format_price(
-								symbol, price.monthly
+							'price_monthly': helpers.format_price(
+								symbol, plan.price_monthly
 							) or None,
-							'price_yearly': price and helpers.format_price(
-								symbol, price.yearly
+							'price_yearly': helpers.format_price(
+								symbol, plan.price_yearly
 							) or None
 						}
 					)
 				
 				headings.append(h)
+			
+			for row in rows:
+				columns = []
+				column_dict = row['columns']
 				
-				for row in rows:
-					try:
-						feature = plan.features.get(feature__slug = row['slug'])
-						row['columns'].append(
-							{
-								'best': plan.best_value,
-								'value': feature.value
-							}
-						)
-					except:
-						row['columns'].append(
-							{
-								'best': plan.best_value,
-								'value': 0
-							}
-						)
+				if column_dict:
+					column_dict = simplejson.loads(row['columns'])
+				else:
+					column_dict = {}
+				
+				for plan in plans:
+					column_item = column_dict.get(unicode(plan.pk), -1)
+					columns.append(
+						{
+							'value': column_item,
+							'best': plan.best_value
+						}
+					)
+				
+				row['columns'] = columns
 			
 			return {
 				'headings': headings,
@@ -410,10 +424,10 @@ class UserPlanChange(models.Model):
 			self.user.groups.remove(group)
 		
 		try:
-			plan = UserPlan.objects.filter(
+			plan = UserPlan.objects.select_for_update().get(
 				user = self.user,
 				plan = self.old_plan
-			).select_for_update(nowait = False)[0]
+			)
 			
 			for user in plan.subusers.all():
 				for group in plan.subuser_groups.all():
@@ -422,7 +436,7 @@ class UserPlanChange(models.Model):
 			plan.paid = True
 			plan.plan = self.new_plan
 			plan.save()
-		except IndexError:
+		except UserPlan.DoesNotExist:
 			plan = UserPlan.objects.create(
 				user = self.user,
 				plan = self.new_plan,

@@ -1,4 +1,5 @@
 from django.db.models.base import ModelBase
+from django.db import transaction
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -346,7 +347,8 @@ class APISite(object):
 				'body_classes': ('api', 'api-apps')
 			}
 		)
-		
+	
+	@transaction.commit_on_success
 	def add_app_view(self, request):
 		from django.template.response import TemplateResponse
 		from django.contrib import messages
@@ -381,6 +383,7 @@ class APISite(object):
 			}
 		)
 	
+	@transaction.commit_on_success
 	def edit_app_view(self, request, pk):
 		from django.template.response import TemplateResponse
 		from django.shortcuts import get_object_or_404
@@ -424,9 +427,10 @@ class APISite(object):
 		app = get_object_or_404(App, admin = request.user, pk = pk)
 		
 		if request.GET.get('confirm') == '1':
-			app.delete()
-			messages.success(request, 'Your app has been deleted successfully.')
-			return HttpResponseRedirect('../../')
+			with transaction.commit_on_success():
+				app.delete()
+				messages.success(request, 'Your app has been deleted successfully.')
+				return HttpResponseRedirect('../../')
 		
 		return TemplateResponse(
 			request,

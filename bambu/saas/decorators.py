@@ -18,6 +18,9 @@ def feature_required(feature, redirect_url = '/upgrade/', **kw):
 						kw[k] = v(*args, **kwargs)
 				
 				plan = getattr(request, 'plan', None)
+				if plan:
+					plan = plan()
+				
 				if not plan:
 					try:
 						plan = UserPlan.objects.get_for_user(request.user)

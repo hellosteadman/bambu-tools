@@ -1,4 +1,5 @@
 from django.db.models import Count, F
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -24,15 +25,19 @@ THUMBNAIL_WIDTH = getattr(settings, 'BLOG_THUMBNAIL_WIDTH',
 COMMENTS_FORM_CLASS = get_comments_form()
 
 def _context(request):
-	categories = Category.objects.filter(
-		posts__pk__in = Post.objects.live().values_list('pk', flat = True)
-	).annotate(
-		post_count = Count('posts')
-	)
+	def categories():
+		return Category.objects.filter(
+			posts__pk__in = Post.objects.live().values_list('pk', flat = True)
+		).annotate(
+			post_count = Count('posts')
+		)
+	
+	def dates():
+		return Post.objects.live().dates('date', 'month').reverse()
 	
 	return {
 		'categories': categories,
-		'dates': Post.objects.live().dates('date', 'month').reverse(),
+		'dates': dates,
 		'menu_selection': 'blog',
 		'THUMBNAIL_WIDTH': unicode(THUMBNAIL_WIDTH)
 	}
@@ -158,7 +163,11 @@ def post(request, year, month, day, slug):
 		kwargs['date__lte'] = now
 		kwargs['published'] = True
 	
-	post = get_object_or_404(Post, **kwargs)
+	try:
+		post = Post.objects.select_related().get(**kwargs)
+	except:
+		raise Http404('No Post matches the given query.')
+	
 	if not post.published or post.date > now:
 		preview = True
 	
@@ -210,7 +219,7 @@ def post(request, year, month, day, slug):
 @require_POST
 def post_comment(request, year, month, day, slug):
 	try:
-		post = Post.objects.live().get(
+		post = Post.objects.live().select_rlated().get(
 			date__year = int(year),
 			date__month = int(month),
 			date__day = int(day),
@@ -225,33 +234,33 @@ def post_comment(request, year, month, day, slug):
 	
 	if form.is_valid():
 		comment = form.save(commit = False)
-		
-		if request.POST.get('content_type'):
-			comment.content_type = ContentType.objects.get(
-				pk = int(request.POST['content_type'])
+		with transaction.commit_on_success():
+			if request.POST.get('content_type'):
+				comment.content_type = ContentType.objects.get(
+					pk = int(request.POST['content_type'])
+				)
+			else:
+				comment.content_type = ContentType.objects.get_for_model(post)
+			
+			if request.POST.get('object_id'):
+				comment.object_id = comment.content_type.get_object_for_this_type(
+					pk = int(request.POST['object_id'])
+				).pk
+			else:
+				comment.object_id = post.pk
+			
+			comment.spam = comment.check_for_spam(request)
+			comment.save()
+			
+			messages.add_message(
+				request,
+				messages.SUCCESS,
+				u'Your comment has been submitted successfully.'
 			)
-		else:
-			comment.content_type = ContentType.objects.get_for_model(post)
-		
-		if request.POST.get('object_id'):
-			comment.object_id = comment.content_type.get_object_for_this_type(
-				pk = int(request.POST['object_id'])
-			).pk
-		else:
-			comment.object_id = post.pk
-		
-		comment.spam = comment.check_for_spam(request)
-		comment.save()
-		
-		messages.add_message(
-			request,
-			messages.SUCCESS,
-			u'Your comment has been submitted successfully.'
-		)
-	
-		return HttpResponseRedirect(
-			'%s?comment-sent=true' % post.get_absolute_url()
-		)
+			
+			return HttpResponseRedirect(
+				'%s?comment-sent=true' % post.get_absolute_url()
+			)
 	
 	context = _context(request)
 	context['post'] = post

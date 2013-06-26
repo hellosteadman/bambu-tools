@@ -7,7 +7,7 @@ from datetime import datetime
 
 def view_filter(**kwargs):
 	from bambu.blog.models import Post, Category
-	posts = Post.objects.live()
+	posts = Post.objects.select_related().live()
 	
 	if 'year' in kwargs:
 		posts = posts.filter(

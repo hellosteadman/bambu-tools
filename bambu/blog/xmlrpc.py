@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.contrib.auth import authenticate
 from django.contrib.sites.models import Site
 from django.conf import settings
@@ -190,6 +191,7 @@ def get_posts(blogid, username, password, numberOfPosts = 10):
 	return posts
 
 @handler('metaWeblog.newPost')
+@transaction.commit_on_success
 def new_post(blogid, username, password, content, publish):
 	user = auth(username, password, 'blog.create_posts')
 	
@@ -226,6 +228,7 @@ def new_post(blogid, username, password, content, publish):
 	return str(post.pk)
 
 @handler('metaWeblog.editPost')
+@transaction.commit_on_success
 def edit_post(postid, username, password, content, publish):
 	user = auth(username, password, 'blog.change_posts')
 	uploads = get_attachments(content.get('description'))
@@ -290,6 +293,7 @@ def edit_post(postid, username, password, content, publish):
 	return True
 
 @handler('metaWeblog.newMediaObject')
+@transaction.commit_on_success
 def upload_media(blogid, username, password, data):
 	if not data.has_key('bits'):
 		raise XMLRPCException('No data supplied for attachment.')
@@ -318,6 +322,7 @@ def upload_media(blogid, username, password, data):
 
 @handler('metaWeblog.deletePost')
 @handler('blogger.deletePost')
+@transaction.commit_on_success
 def delete_post(appkey, postid, username, password, publish):
 	user = auth(username, password, 'blog.delete_posts')
 	

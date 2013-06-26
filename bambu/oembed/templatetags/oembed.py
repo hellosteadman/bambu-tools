@@ -33,7 +33,7 @@ def oembed(value, width = WIDTH):
 			for (pattern, endpoint, format) in PATTERNS:
 				if not re.match(pattern, url, re.IGNORECASE) is None:
 					try:
-						resource = Resource.objects.select_for_update(nowait = False).get(
+						resource = Resource.objects.get(
 							url = url,
 							width = width
 						)
