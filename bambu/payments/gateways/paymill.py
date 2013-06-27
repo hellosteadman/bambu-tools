@@ -366,21 +366,7 @@ class PaymillGateway(gateways.Gateway):
 		elif event_type == 'transaction.succeeded':
 			self.logger.info('Transaction successful')
 		elif event_type == 'transaction.failed':
-			remote_id = resource['transaction']['payment']['id']
-			
-			try:
-				payment = Payment.objects.get(
-					remote_id = remote_id
-				)
-			except Payment.DoesNotExist:
-				self.logger.warn('Transaction failed (could not find corresponding payment)')
-				return HttpResponse('OK')
-			
-			payment.statuses.create(
-				state = states.PAYMENT_FAILED
-			)
-			
-			self.logger.info('Payment failed')
+			self.logger.info('Transaction failed')
 		elif event_type == 'subscription.created':
 			self.logger.info('Subscription created')
 		elif event_type == 'subscription.updated':
