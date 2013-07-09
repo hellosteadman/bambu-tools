@@ -238,6 +238,7 @@ ICONS = (
 	('plane', 'Plane'),
 	('play', 'Play'),
 	('play-circle', 'Play (circle)'),
+	('play-sign', 'Play sign'),
 	('plus', 'Plus'),
 	('plus-sign', 'Plus sign'),
 	('plus-sign-alt', 'Plus sign (alt)'),

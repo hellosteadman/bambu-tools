@@ -70,7 +70,7 @@ def wrap_api_function(site, view, detail_level, allowed_methods, processor):
 		)
 		
 		patch_vary_headers(response,
-			('X-Platform', 'X-Device', 'Cookie')
+			getattr(settings, 'API_CACHE_VARY_HEADERS', ('Cookie',))
 		)
 		
 		return response
