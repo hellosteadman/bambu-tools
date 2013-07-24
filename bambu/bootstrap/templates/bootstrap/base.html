@@ -17,7 +17,7 @@
 		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/modernizr.js"></script>
 	</head>
 	
-	<body class="{% spaceless %}{% if request.user.is_authenticated%}logged-in{% else %}anonymous{% endif %} {% if popup %}popup{% endif %} {% for class in body_classes %}{{ class }} {% endfor %}{% endspaceless %}">
+	<body class="{% spaceless %}{% if request.user.is_authenticated%}logged-in{% else %}anonymous{% endif %} {% if popup %}popup{% endif %} {% for class in body_classes %}{{ class }} {% endfor %}{% endspaceless %}{% if request.mobile %} mobile mobile-{{ request.formfactor }}{% endif %}">
 		{% include 'bootstrap/navbar.inc.html' %}
 		{% block after_header %}{% endblock after_header %}
 		

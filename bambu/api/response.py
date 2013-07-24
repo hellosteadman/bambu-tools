@@ -89,9 +89,24 @@ class APIResponse(HttpResponse):
 			if page:
 				data = page.object_list
 		
+		try:
+			content = serialiser.serialise(data)
+		except Exception, ex:
+			data = serialiser.serialise(
+				{
+					'error': any(ex.args) and ex.args[0] or unicode(ex)
+				}
+			)
+			
+			super(APIResponse, self).__init__(
+				data, mimetype = mimetype
+			)
+			
+			self.status_code = 400
+			return
+		
 		super(APIResponse, self).__init__(
-			serialiser.serialise(data),
-			mimetype = mimetype
+			content, mimetype = mimetype
 		)
 		
 		for key, value in headers.items():

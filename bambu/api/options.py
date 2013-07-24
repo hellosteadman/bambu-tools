@@ -40,8 +40,8 @@ class ModelAPI(API):
 	def __init__(self, model, api_site):
 		super(ModelAPI, self).__init__(api_site)
 		self.model = model
-		
 		self.inline_instances = []
+		
 		for inline_class in self.inlines:
 			fks_to_parent = [
 				f for f in inline_class.model._meta.fields

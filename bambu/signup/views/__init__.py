@@ -123,12 +123,12 @@ def reset_password(request, guid = None):
 		
 		return TemplateResponse(
 			request,
-			'community/password-reset.html'
+			'signup/password-reset.html'
 		)
 	
 	return TemplateResponse(
 		request,
-		'community/forgot-password.html',
+		'signup/forgot-password.html',
 		{
 			'form': form
 		}

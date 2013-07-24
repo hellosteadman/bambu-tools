@@ -3,10 +3,23 @@ from django.conf import settings
 from pymediainfo import MediaInfo
 import os, subprocess, logging, mimetypes, time
 
-VIDEO_ENCODING_COMMAND = 'ffmpeg -i %s -s 640x360 -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(16/9)):ow/(16/9):(ow-iw)/2:(oh-ih)/2" -aspect 16:9 -r 30000/1001 -b:v 200k -bt 240k -vcodec libx264 -vpre ipod640 -acodec libfaac -ac 2 -ar 48000 -ab 192k -y %s'
+ASPECT_RATIO = getattr(settings, 'FFMPEG_ASPECT_RATIO', '16:9')
+WIDTH = getattr(settings, 'FFMPEG_WIDTH', 640)
+
+if ASPECT_RATIO == '16:9':
+	ASPECT_RATIO_SLASH = '16/9'
+elif ASPECT_RATIO == '4:3':
+	ASPECT_RATIO_SLASH = '4/3'
+else:
+	raise Exception('Unrecognised aspect ratio %s' % ASPECT_RATIO)
+
+x, y = map(float, ASPECT_RATIO.split(':'))
+HEIGHT = str(int(float(WIDTH) / x * y))
+WIDTH = str(WIDTH)
+
+VIDEO_ENCODING_COMMAND = 'ffmpeg -i %s -s ' + WIDTH + 'x' + HEIGHT + ' -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -r 30000/1001 -b:v 200k -bt 240k -vcodec libx264 -vpre ipod' + WIDTH + ' -acodec libfaac -ac 2 -ar 48000 -ab 192k -y %s'
 AUDIO_ENCODING_COMMAND = 'ffmpeg -i %s %s -b 128k %s'
-# VIDEO_ENCODING_COMMAND = 'ffmpeg -i %s -s 640x360 -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(16/9)):ow/(16/9):(ow-iw)/2:(oh-ih)/2" -aspect 16:9 -r 30000/1001 -b:v 200k -bt 240k -ac 2 -ar 48000 -ab 192k -strict experimental -y %s'
-THUMBNAIL_ENCODING_COMMAND = 'ffmpeg -i %s -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(16/9)):ow/(16/9):(ow-iw)/2:(oh-ih)/2" -aspect 16:9 -f image2 -vframes 1 -y %s'
+THUMBNAIL_ENCODING_COMMAND = 'ffmpeg -i %s -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -f image2 -vframes 1 -y %s'
 
 def _run_command(command, extension, source):
 	handles = []
@@ -27,6 +40,8 @@ def _run_command(command, extension, source):
 				transpose = 'transpose=2,'
 	except OSError:
 		logger.warn('Mediainfo library not installed')
+	
+	d = {}
 	
 	try:
 		handle, dest = mkstemp(
@@ -65,11 +80,12 @@ def _run_command(command, extension, source):
 	if success:
 		return dest
 	else:
-		logger.error('Conversion failed',
-			extra = {
-				'data': d
-			}
-		)
+		if any(d):
+			logger.error('Conversion failed',
+				extra = {
+					'data': d
+				}
+			)
 		
 		return None
 

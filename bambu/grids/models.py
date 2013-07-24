@@ -39,7 +39,7 @@ class ModelGrid(Grid):
 			columns = []
 			
 			for f in opts.local_fields:
-				if f != opts.pk and f.editable and not f.name in exclude:
+				if f != opts.pk and f.editable and not f.name in self.exclude:
 					columns.append(f.name)
 		else:
 			columns = self.columns
