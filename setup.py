@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.0.7',
+	version = '3.0.8',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
@@ -89,6 +89,8 @@ setup(
 			'static/bootstrap/js/*.js',
 			'static/bootstrap/img/*.png',
 			'static/bootstrap/font/*.*',
+			'static/bootstrap/3.0/css/*.css',
+			'static/bootstrap/3.0/js/*.js',
 			'templates/bootstrap/*.html',
 			'templates/search/*.html',
 			'templates/*.html'

@@ -1,53 +1,50 @@
-{% load cache %}
+{% load cache bootstrap %}
 {% load url from future %}
 
 {% cache 600 'navbar' request.path request.user.is_authenticated %}
-	{% load navigation %}
-	<div class="navbar navbar-fixed-top">
-		<div class="navbar-inner">
+	{% if BOOTSTRAP_3 %}
+		<div class="navbar navbar-fixed-top{% if INVERSE %} navbar-inverse{% endif %}">
 			<div class="container">
-				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				
-				{% block brand %}
-					<a class="brand" href="{% url 'home' %}">{{ SITE.name }}</a>
-				{% endblock brand %}
-				
-				<div class="nav-collapse">
-					{% include 'menu.inc.html' %}
-					
-					{% if request.user.is_anonymous %}
-						{% if not no_login_form %}<form id="navbar-login" method="post" action="{% url 'login' %}" class="navbar-form pull-right">
-							<input class="input-small" name="username" type="text" placeholder="Username" />
-							<input class="input-small" name="password" type="password" placeholder="Password" />
-							<button class="btn btn-primary" type="submit">Log in</button>
-							{% csrf_token %}
-						</form>{% endif %}
-					{% else %}
-						<div class="pull-right">
-							<ul class="nav">
-								<li class="dropdown">
-									<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-										Logged in as
-										<strong>{{ request.user.username }}</strong>
-										<b class="caret"></b>
-									</a>
-									
-									<ul class="dropdown-menu">
-										{% menu 'profile' login=True %}
-											<li><a href="{{ item.url }}">{{ item.title }}</a></li>
-										{% endmenu %}
-										<li><a href="{% url 'logout' %}">Log out</a></li>
-									</ul>
-								</li>
-							</ul>
-						</div>
+				{% include 'bootstrap/navbar-brand.inc.html' %}
+				{% include 'menu.inc.html' %}
+
+				{% if request.user.is_anonymous %}
+					{% if not no_login_form %}
+						{% include 'bootstrap/navbar-anon.inc.html' %}
 					{% endif %}
+				{% else %}
+					{% include 'bootstrap/navbar-auth.inc.html' %}
+				{% endif %}
+			</div>
+		</div>
+	{% else %}
+		<div class="navbar navbar-fixed-top{% if INVERSE %} navbar-inverse{% endif %}">
+			<div class="navbar-inner">
+				<div class="container">
+					<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					
+					<a class="brand" href="{% url 'home' %}">{{ SITE.name }}</a>
+					
+					<div class="nav-collapse">
+						{% include 'bootstrap/navbar-brand.inc.html' %}
+						{% include 'menu.inc.html' %}
+						
+						{% if request.user.is_anonymous %}
+							{% if not no_login_form %}
+								{% include 'bootstrap/navbar-anon.inc.html' %}
+							{% endif %}
+						{% else %}
+							<div class="pull-right">
+								{% include 'bootstrap/navbar-auth.inc.html' %}
+							</div>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{% endif %}
 {% endcache %}

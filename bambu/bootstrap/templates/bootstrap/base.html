@@ -9,16 +9,17 @@
 		{% endblock meta_tags %}
 		
 		{% bootstrap_styles %}
+		{% typekit %}
 		
 		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/jquery.min.js"></script>
-		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/bootstrap.js"></script>
+		{% bootstrap_scripts %}
 		{% block extra_head %}{% endblock %}
 		{% enqueued_styles %}
 		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/modernizr.js"></script>
 	</head>
 	
 	<body class="{% spaceless %}{% if request.user.is_authenticated%}logged-in{% else %}anonymous{% endif %} {% if popup %}popup{% endif %} {% for class in body_classes %}{{ class }} {% endfor %}{% endspaceless %}{% if request.mobile %} mobile mobile-{{ request.formfactor }}{% endif %}">
-		{% include 'bootstrap/navbar.inc.html' %}
+		{% bootstrap_navbar %}
 		{% block after_header %}{% endblock after_header %}
 		
 		<div class="container" id="main-container">
@@ -49,7 +50,7 @@
 				</div>
 				
 				{% block form_footer %}{% endblock %}
-			{% endblock %}
+			{% endblock content %}
 		</div>
 		
 		{% block pre_footer %}<hr />{% endblock pre_footer %}
@@ -57,7 +58,7 @@
 		<div class="container">
 			<footer>
 				{% block footer %}
-					{% include 'bootstrap/footer.inc.html' %}
+					{% bootstrap_footer %}
 				{% endblock footer %}
 			</footer>
 		</div>
