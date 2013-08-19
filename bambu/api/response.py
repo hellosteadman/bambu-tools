@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.http import urlencode
 from bambu.api import serialisers
+from bambu.api.exceptions import APIException
 
 PAGE_LIMIT = getattr(settings, 'API_PAGE_LIMIT', None)
 
@@ -91,7 +92,7 @@ class APIResponse(HttpResponse):
 		
 		try:
 			content = serialiser.serialise(data)
-		except Exception, ex:
+		except APIException, ex:
 			data = serialiser.serialise(
 				{
 					'error': any(ex.args) and ex.args[0] or unicode(ex)

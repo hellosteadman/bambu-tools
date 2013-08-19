@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
         db.create_unique('saas_planfeature_groups', ['planfeature_id', 'group_id'])
 
         # Adding field 'UserPlan.paid_start'
-        db.add_column('saas_userplan', 'paid_start', self.gf('django.db.models.fields.DateField')(default=datetime.datetime.utcnow().date().replace(tzinfo = utc)), keep_default=False)
+        db.add_column('saas_userplan', 'paid_start', self.gf('django.db.models.fields.DateField')(default=datetime.datetime.utcnow().date()), keep_default=False)
 
 
     def backwards(self, orm):

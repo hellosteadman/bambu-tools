@@ -244,8 +244,8 @@ class ModelAPI(API):
 	def prepare_initial_data(self, form_class, obj = None, **kwargs):
 		return helpers.form_initial_data(form_class, obj, **kwargs)
 	
-	def get_query_set(self, request):
-		return self.model.objects.all()
+	def get_query_set(self, request, **kwargs):
+		return self.model.objects.filter(**kwargs)
 	
 	def prepare_output_data(self, request, obj, max_detail_level = 1):
 		return library.transform(
@@ -254,12 +254,41 @@ class ModelAPI(API):
 			exclude = self.exclude
 		)
 	
+	def add_field_to_include_filter(self, queryset, field, value):
+		if len(value) > 1:
+			return queryset.filter(
+				**{
+					'%s__in' % field: value
+				}
+			)
+		else:
+			return queryset.filter(
+				**{
+					field: value[0]
+				}
+			)
+	
+	def add_field_to_exclude_filter(self, queryset, field, value):
+		if len(value) > 1:
+			return queryset.exclude(
+				**{
+					'%s__in' % field: value
+				}
+			)
+		else:
+			return queryset.exclude(
+				**{
+					field: value[0]
+				}
+			)
+	
 	def list_view(self, request, **kwargs):
 		if request.method == 'GET':
 			include = {}
 			exclude = {}
 			fields = [f.name for f in self.model._meta.local_fields]
 			order_by = []
+			qs = self.get_query_set(request, **kwargs)
 			
 			for key, value in request.GET.items():
 				values = request.GET.getlist(key)
@@ -270,10 +299,7 @@ class ModelAPI(API):
 					if not key[1:] in fields:
 						continue
 					
-					if len(values) > 1:
-						exclude['%s__in' % key[1:]] = values
-					else:
-						exclude[key[1:]] = values[0]
+					qs = self.add_field_to_exclude_filter(qs, key[1:], values)
 				else:
 					if key.startswith('+'):
 						key = key[1:]
@@ -281,12 +307,8 @@ class ModelAPI(API):
 					if not key in fields:
 						continue
 					
-					if len(values) > 1:
-						include['%s__in' % key] = values
-					else:
-						include[key] = values[0]
+					qs = self.add_field_to_include_filter(qs, key, values)
 			
-			qs = self.get_query_set(request).filter(**kwargs)
 			fields = [f.name for f in qs.query.select_fields] + list(qs.query.aggregate_select.keys())
 			
 			if not any(fields):
@@ -359,7 +381,7 @@ class ModelAPI(API):
 	
 	def get_object(self, request, object_id, **kwargs):
 		try:
-			return self.get_query_set(request).get(pk = object_id, **kwargs)
+			return self.get_query_set(request, **kwargs).get(pk = object_id)
 		except self.model.DoesNotExist:
 			raise Http404('Object not found.')
 	

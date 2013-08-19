@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.0.8',
+	version = '3.2',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
@@ -239,7 +239,9 @@ setup(
 			'static/grids/js/*.js'
 		],
 		'bambu.international': [
-			'fixtures/*.json'
+			'fixtures/*.json',
+			'fixtures/*.dat',
+			'fixtures/*.txt'
 		],
 		'bambu.jwplayer': [
 			'static/jwplayer/*.js',

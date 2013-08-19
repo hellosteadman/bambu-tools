@@ -22,7 +22,7 @@ def bootstrap_styles(context):
 	else:
 		responsive_css_url = ''
 	
-	responsive = getattr(settings, 'BOOTSTRAP_RESPONSIVE', True),
+	responsive = getattr(settings, 'BOOTSTRAP_RESPONSIVE', True)
 	if not css_url and getattr(settings, 'BOOTSTRAP_VERSION', '2.3.2').startswith('3.0'):
 		css_url = settings.STATIC_URL + 'bootstrap/3.0/css/bootstrap.min.css'
 		responsive = False
@@ -133,6 +133,7 @@ def trymenu(parser, token):
 	parser.delete_first_token()
 	
 	if 'bambu.navigation' in settings.INSTALLED_APPS:
+		from bambu.navigation.templatetags.navigation import CycleNode
 		return CycleNode(key, nodelist, ' '.join(args))
 	
 	return LoadNode()

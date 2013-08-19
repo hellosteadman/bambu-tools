@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block page_header %}
+	<h1>Sign up to {{ SITE.name }}</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<p>
+		Thanks for signing up. Please check your inbox for an email containing a link you&rsquo;ll
+		need to visit in order to activate your account.
+	</p>
+	
+	<h2>Don&rsquo;t see the message?</h2>
+	<p>
+		Make sure to check your junk mail folder, then add the address to your contacts so you don&rsquo;t
+		miss any more updates from {{ SITE.name }}.
+	</p>
+{% endblock form_content %}

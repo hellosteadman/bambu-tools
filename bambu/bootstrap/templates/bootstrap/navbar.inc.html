@@ -7,7 +7,7 @@
 			<div class="container">
 				{% include 'bootstrap/navbar-brand.inc.html' %}
 				{% include 'menu.inc.html' %}
-
+				
 				{% if request.user.is_anonymous %}
 					{% if not no_login_form %}
 						{% include 'bootstrap/navbar-anon.inc.html' %}

@@ -17,11 +17,29 @@ class RegistrationForm(forms.Form):
 		help_text = _('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
 		error_messages = {
 			'invalid': _('This value may contain only letters, numbers and @/./+/-/_ characters.')
-		}
+		},
+		widget = forms.TextInput(
+			attrs = {
+				'autocomplete': 'off'
+			}
+		)
 	)
 	
-	password1 = forms.CharField(label = _('Password'), widget = forms.PasswordInput)
-	password2 = forms.CharField(label = _('Confirm password'), widget = forms.PasswordInput,
+	password1 = forms.CharField(
+		label = _('Password'),
+		widget = forms.PasswordInput(
+			attrs = {
+				'autocomplete': 'off'
+			}
+		)
+	)
+	
+	password2 = forms.CharField(label = _('Confirm password'),
+		widget = forms.PasswordInput(
+			attrs = {
+				'autocomplete': 'off'
+			}
+		),
 		help_text = _('Enter the same password as above, for verification.')
 	)
 	
@@ -102,11 +120,13 @@ class AuthenticationForm(forms.Form):
 class PasswordResetForm(forms.Form):
 	email = forms.EmailField(label = _('Email address'))
 
-class EmailValidationForm(forms.ModelForm):
-	def clean_code(self):
-		if not self.cleaned_data.get('code') == self.instance.code:
-			raise forms.ValidationError('That code is not correct.')
+class EmailValidationForm(forms.Form):
+	code = forms.CharField(max_length = 10, label = u'Verification code')
 	
-	class Meta:
-		model = EmailValidation
-		fields = ('code',)
+	def __init__(self, *args, **kwargs):
+		self.instance = kwargs.pop('instance')
+		super(EmailValidationForm, self).__init__(*args, **kwargs)
+	
+	def clean_code(self):
+		if self.cleaned_data.get('code') != self.instance.code:
+			raise forms.ValidationError('That code is not correct.')

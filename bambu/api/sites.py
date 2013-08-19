@@ -14,6 +14,7 @@ from django.db.models import get_model
 from bambu.api.options import *
 from bambu.api.response import APIResponse
 from bambu.api import transformers, helpers
+from bambu.api.exceptions import APIException
 import logging
 
 THROTTLE_REQUESTS = getattr(settings, 'API_THROTTLE_REQUESTS', 10000)
@@ -89,7 +90,7 @@ class APISite(object):
 		
 		try:
 			data = view(request, *args, **kwargs)
-		except Exception, ex:
+		except APIException, ex:
 			return APIResponse(format, request, ex)
 		
 		return APIResponse(format, request, data,

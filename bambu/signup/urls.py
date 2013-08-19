@@ -5,6 +5,9 @@ from bambu.signup.views import ajax
 
 urlpatterns = patterns('',
 	url(r'^signup/$', body_classes(register, 'signup'), name = 'signup'),
+	url(r'^signup/complete/$',
+		body_classes(register_complete, 'signup', 'signup-complete'), name = 'signup_complete'
+	),
 	url(r'^login/$', login, name = 'login'),
 	url(r'^logout/$', logout, name = 'logout'),
 	url(r'^verify/(?P<guid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$',

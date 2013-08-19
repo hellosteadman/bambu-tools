@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load url from future %}
+
+{% block page_header %}
+	<h1>Verify your email address</h1>
+{% endblock page_header %}
+
+{% block form_content %}
+	<p>
+		With the email you just received, you&rsquo;ll see a verification code. Please type that in the
+		box below. This is to prove that you&rsquo;re a human, and not an automated spam bot with an email
+		inbox.
+	</p>
+	
+	<form method="post" class="form-horizontal">
+		{% include 'form.inc.html' %}
+		
+		<div class="Form-actions">
+			<button type="submit" class="btn btn-primary">Verify address</button>
+		</div>
+		
+		{% csrf_token %}
+	</form>
+{% endblock form_content %}

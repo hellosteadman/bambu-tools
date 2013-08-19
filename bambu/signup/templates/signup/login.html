@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load url from future %}
 
 {% block page_header %}
 	<h1>Log in to {{ SITE.name }}</h1>
@@ -13,7 +14,7 @@
 			
 			<small>
 				Don&rsquo;t have an account?
-				<a href="{% url signup %}">Sign up</a>
+				<a href="{% url 'signup' %}">Sign up</a>
 			</small>
 		</div>
 		

@@ -1,16 +1,20 @@
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
+from django.utils.importlib import import_module
+from django.utils.http import urlencode
 from django.conf import settings
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.http import HttpResponseRedirect
-from django.utils.importlib import import_module
-from django.utils.http import urlencode
 from bambu.signup.models import *
 
 SIGNUP_FORM = getattr(settings, 'SIGNUP_FORM', 'bambu.signup.forms.RegistrationForm')
 LOGIN_FORM = getattr(settings, 'LOGIN_FORM', 'bambu.signup.forms.AuthenticationForm')
+LOGIN_URL = getattr(settings, 'LOGIN_URL')
+VALIDATION_FORM = getattr(settings, 'SIGNUP_VALIDATION_FORM', 'bambu.signup.forms.EmailValidationForm')
 PASSWORD_RESET_FORM = getattr(settings, 'PASSWORD_RESET_FORM', 'bambu.signup.forms.PasswordResetForm')
 LOGIN_REDIRECT_URL = getattr(settings, 'LOGIN_REDIRECT_URL', '/')
 LOGOUT_REDIRECT_URL = getattr(settings, 'LOGOUT_REDIRECT_URL', '/')
@@ -38,7 +42,7 @@ def register(request):
 		auth_login(request, user)
 		
 		return HttpResponseRedirect(
-			reverse('verify_email')
+			reverse('signup_complete')
 		)
 	
 	return TemplateResponse(
@@ -50,13 +54,24 @@ def register(request):
 		}
 	)
 
+def register_complete(request):
+	return TemplateResponse(
+		request,
+		'signup/complete.html',
+		{
+			'next': next
+		}
+	)
+
 def login(request):
 	form_class = _get_form(LOGIN_FORM)
 	form = form_class(request.POST or None)
 	
 	if request.method == 'POST' and form.is_valid():
 		if form.login(request):
-			return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+			return HttpResponseRedirect(
+				request.GET.get('next', LOGIN_REDIRECT_URL)
+			)
 	
 	return TemplateResponse(
 		request,
@@ -75,23 +90,34 @@ def logout(request):
 def verify_email(request, guid):
 	validation = get_object_or_404(EmailValidation, guid = guid)
 	next = validation.next_url
-	validation.user.is_active = True
-	validation.user.save()
-	validation.delete()
+	form_class = _get_form(VALIDATION_FORM)
+	form = form_class(data = request.POST or None, instance = validation)
 	
-	messages.success(request,
-		_('Thanks for confirming your email address.')
-	)
-	
-	return HttpResponseRedirect(
-		'%s?%s' % (
-			LOGIN_URL,
-			urlencode(
-				{
-					'next': next or LOGIN_REDIRECT_URL
-				}
+	if request.method == 'POST' and form.is_valid():
+		validation.user.is_active = True
+		validation.user.save()
+		validation.delete()
+		messages.success(request,
+			_('Thanks for confirming your email address.')
+		)
+		
+		return HttpResponseRedirect(
+			'%s?%s' % (
+				LOGIN_URL,
+				urlencode(
+					{
+						'next': next or LOGIN_REDIRECT_URL
+					}
+				)
 			)
 		)
+	
+	return TemplateResponse(
+		request,
+		'signup/validation.html',
+		{
+			'form': form
+		}
 	)
 
 def reset_password(request, guid = None):

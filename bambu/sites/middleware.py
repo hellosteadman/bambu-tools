@@ -7,8 +7,7 @@ class DomainRedirectMiddleware(object):
 	
 	def process_request(self, request):
 		domain = request.META.get('HTTP_HOST')
-		
-		if domain == 'localhost' or domain.startswith('localhost:'):
+		if not domain or domain == 'localhost' or domain.startswith('localhost:'):
 			return
 		
 		if self.domain != domain:

@@ -6,6 +6,7 @@ OAuth.
 
 from bambu.api.options import *
 from bambu.api.sites import APISite
+from bambu.api.exceptions import APIException
 from django.conf import settings
 from datetime import datetime
 

@@ -223,7 +223,7 @@ class UserPlan(models.Model):
 	objects = UserPlanManager()
 	
 	def __unicode__(self):
-		return unicode(self.plan)
+		return unicode(self.user.get_full_name() or self.user.username)
 	
 	def has_feature(self, feature, **kwargs):
 		try:

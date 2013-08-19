@@ -63,6 +63,11 @@ class Renderer(object):
 		return True
 	
 	def render_value(self, index, value, raw_data):
+		if isinstance(value, CheckboxRenderer):
+			return SafeString(
+				value(self.grid.prefix, self.grid._GET)
+			)
+		
 		if self.is_link_column(index, value):
 			if hasattr(raw_data, 'get_absolute_url'):
 				return render_link(value, raw_data.get_absolute_url())
@@ -143,6 +148,7 @@ class Renderer(object):
 		func = getattr(self.grid, action)
 		label = getattr(func, 'friendly_name', action.replace('_', ' ').capitalize())
 		perms = getattr(func, 'perms', [])
+		bulk_title = getattr(func, 'bulk_title', '')
 		
 		if self.grid._user:
 			for perm in perms:
@@ -240,7 +246,12 @@ class TableRenderer(Renderer):
 				)
 			)
 		
-		portions.append(self.grid.get_friendly_name(key))
+		if key == '__select__':
+			portions.append(
+				CheckboxRenderer()(self.grid.prefix, self.grid._GET)
+			)
+		else:
+			portions.append(self.grid.get_friendly_name(key))
 		
 		if sortable:
 			portions.append(u'</a>')
@@ -323,23 +334,28 @@ class TableRenderer(Renderer):
 
 class PaginationRenderer(object):
 	max_pagelinks = 5
+	rpp_options = (10, 20, 50, 100, 'all')
 	
 	def __init__(self, grid):
 		self.grid = grid
 	
 	def render(self, page):
+		portions = [u'<div class="pagination">']
+		
 		if page.has_other_pages():
+			portions.append(u'<ul>')
 			key = self.grid.prefix and '%s-page' % self.grid.prefix or 'page'
-			portions = [u'<div class="pagination"><ul>']
 			
 			if page.has_previous():
 				portions.append(
-					u'<li class="prev"><a href="%s">&larr; Previous</a></li>' % self.grid._context_sensitive_url(
-						**{key: page.previous_page_number()}
+					u'<li class="prev"><a href="%s" title="Previous page"><i class="icon-chevron-left"></i></a></li>' % self.grid._context_sensitive_url(
+						**{
+							key: page.previous_page_number()
+						}
 					)
 				)
 			else:
-				portions.append(u'<li class="prev disabled"><a>&larr; Previous</a></li>')
+				portions.append(u'<li class="prev disabled"><a><i class="icon-chevron-left"></i></a></li>')
 			
 			if page.paginator.num_pages > self.max_pagelinks:
 				minpage = ceil(float(page.number) - float(self.max_pagelinks) / 2.0)
@@ -405,17 +421,54 @@ class PaginationRenderer(object):
 			
 			if page.has_next():
 				portions.append(
-					u'<li class="next"><a href="%s">Next &rarr;</a></li>' % self.grid._context_sensitive_url(
+					u'<li class="next"><a href="%s" title="Next page"><i class="icon-chevron-right"></i></a></li>' % self.grid._context_sensitive_url(
 						**{key: page.next_page_number()}
 					)
 				)
 			else:
-				portions.append(u'<li class="next disabled"><a>Next &rarr;</a></li>')
+				portions.append(u'<li class="next disabled"><a><i class="icon-chevron-right"></i></a></li>')
 			
-			portions.append(u'</ul></div>')
-			return ''.join(portions)
-	
-		return ''
+			portions.append(u'</ul>')
+		
+		options = []
+		for option in self.rpp_options[:-1]:
+			if page.paginator.count > option:
+				options.append(
+					{
+						'text': unicode(option),
+						'selected': self.grid.per_page == option,
+						'value': unicode(option)
+					}
+				)
+		
+		if any(options):
+			options.append(
+				{
+					'text': u'Show all',
+					'selected': self.grid.per_page == -1,
+					'value': '-1'
+				}
+			)
+			
+			key = self.grid.prefix and '%s-rpp' % self.grid.prefix or 'rpp'
+			portions.append('<ul class="pull-right"><li><a title="Rows per page"><i class="icon-table"></i></a></li>')
+			
+			for option in options:
+				portions.append(
+					u'<li%s><a class="btn" href="%s">%s</a></li>' % (
+						option['selected'] and u' class="active"' or u'',
+						self.grid._context_sensitive_url(
+							**{
+								key: option['value']
+							}
+						),
+						option['text']
+					)
+				)
+			portions.append(u'</ul>')
+			
+		portions.append(u'<div class="clearfix"></div></div>')
+		return ''.join(portions)
 
 class FilterRenderer(object):
 	def __init__(self, grid):
@@ -528,3 +581,37 @@ class ModelFilterRenderer(FilterRenderer):
 			portions.append('});</script>')
 		
 		return ''.join(portions)
+
+class CheckboxRenderer(object):
+	def __init__(self, obj = None):
+		self.object = obj
+	
+	def __call__(self, prefix, GET = {}):
+		if self.object:
+			pk = getattr(self.object, 'pk', getattr(self.object, 'id'))
+			html_name = (prefix and '%s-select[%%s]' % (prefix) or 'select[%%s]') % str(pk)
+		else:
+			html_name = prefix and '%s-select[__all__]' % prefix or 'select[__all__]'
+		
+		html_id = 'id_%s' % html_name.replace('[', '_').replace(']', '_')
+		html = '<input id="%s" type="checkbox" value="1" name="%s" data-select-prefix="%s"%s />' % (
+			html_id, html_name, prefix,
+			(GET.get(html_name) == '1' and ' checked' or '')
+		)
+		
+		if not self.object:
+			html += '<script>jQuery(document).ready(' \
+				'function() {' \
+					'$(\'#%s\').bind(\'click\', ' \
+						'function() {' \
+							'if($(this).is(\':checked\')) {' \
+								'$(\'input[type="checkbox"][data-select-prefix=\' + $(this).attr(\'data-select-prefix\') + \']\').not($(this)).attr(\'checked\', \'checked\');' \
+							'} else {' \
+								'$(\'input[type="checkbox"][data-select-prefix=\' + $(this).attr(\'data-select-prefix\') + \']\').not($(this)).removeAttr(\'checked\');' \
+							'}' \
+						'}' \
+					');' \
+				'}' \
+			');</script>' % html_id
+		
+		return html
