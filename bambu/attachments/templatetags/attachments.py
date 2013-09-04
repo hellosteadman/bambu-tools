@@ -56,7 +56,7 @@ def attachments(value, obj, width = WIDTH):
 					).render(*args, **kwargs)
 				else:
 					inner = obj.attachments.all()[int(index) - 1].render(*args, **kwargs)
-			except IndexError:
+			except:
 				inner = ''
 		else:
 			inner = ''

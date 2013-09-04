@@ -219,7 +219,7 @@ def post(request, year, month, day, slug):
 @require_POST
 def post_comment(request, year, month, day, slug):
 	try:
-		post = Post.objects.live().select_rlated().get(
+		post = Post.objects.live().select_related().get(
 			date__year = int(year),
 			date__month = int(month),
 			date__day = int(day),

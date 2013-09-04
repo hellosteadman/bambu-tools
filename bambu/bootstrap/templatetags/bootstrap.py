@@ -43,13 +43,15 @@ def bootstrap_scripts():
 
 @register.inclusion_tag('bootstrap/navbar.inc.html', takes_context = True)
 def bootstrap_navbar(context):
-	return {
-		'BOOTSTRAP_3': getattr(settings, 'BOOTSTRAP_VERSION', '2.3.2').startswith('3.0'),
-		'NAVIGATION': ('bambu.navigation' in settings.INSTALLED_APPS and 'true' or 'false'),
-		'INVERSE': getattr(settings, 'BOOTSTRAP_NAVBAR_INVERSE', False),
-		'request': context.get('request'),
-		'SITE': SITE
-	}
+	context.update(
+		{
+			'BOOTSTRAP_3': getattr(settings, 'BOOTSTRAP_VERSION', '2.3.2').startswith('3.0'),
+			'NAVIGATION': ('bambu.navigation' in settings.INSTALLED_APPS and 'true' or 'false'),
+			'INVERSE': getattr(settings, 'BOOTSTRAP_NAVBAR_INVERSE', False),
+		}
+	)
+	
+	return context
 
 @register.inclusion_tag('bootstrap/footer.inc.html', takes_context = True)
 def bootstrap_footer(context):

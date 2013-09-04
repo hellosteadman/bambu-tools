@@ -170,7 +170,7 @@ class GoogleMapsProvider(ProviderBase):
 				self.settings['lon']
 			)
 		
-		return 'http://maps.googleapis.com/maps/api/staticmap?%s' % urlencode(kwargs)
+		return '//maps.googleapis.com/maps/api/staticmap?%s' % urlencode(kwargs)
 	
 	class Media:
-		js = ('http://maps.googleapis.com/maps/api/js?key=%(api_key)s&amp;sensor=false',)
+		js = ('//maps.googleapis.com/maps/api/js?key=%(api_key)s&amp;sensor=false',)
