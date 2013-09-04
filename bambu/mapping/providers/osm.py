@@ -93,7 +93,7 @@ class OpenStreetMapProvider(ProviderBase):
 	def find_address(self):
 		return """function(latitude, longitude, callback) {
 			$.getJSON(
-				'//nominatim.openstreetmap.org/reverse?lat=' + latitude +
+				'http://nominatim.openstreetmap.org/reverse?lat=' + latitude +
 				'&lon=' + longitude + '&format=json&json_callback=?',
 				function(data) {
 					if(data.lat && data.lon) {
@@ -116,7 +116,7 @@ class OpenStreetMapProvider(ProviderBase):
 	def find_coords(self):
 		return """function(address, callback) {
 			$.getJSON(
-				'//nominatim.openstreetmap.org/search?q=' + address +
+				'http://nominatim.openstreetmap.org/search?q=' + address +
 				'&format=json&json_callback=?',
 				function(data) {
 					if(data.length > 0) {
