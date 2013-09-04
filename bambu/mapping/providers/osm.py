@@ -16,7 +16,7 @@ class OpenStreetMapProvider(ProviderBase):
 		%(varname)s.setView(
 			new L.LatLng(%(lat)s, %(lon)s), %(zoom)d
 		).addLayer(
-			new L.TileLayer('//{s}.tile.cloudmade.com/%(api_key)s/997/256/{z}/{x}/{y}.png',
+			new L.TileLayer('http://{s}.tile.cloudmade.com/%(api_key)s/997/256/{z}/{x}/{y}.png',
 				{
 					attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery &copy; <a href="http://cloudmade.com">CloudMade</a>',
 					maxZoom: 30
