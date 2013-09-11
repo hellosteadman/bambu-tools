@@ -18,7 +18,7 @@ HEIGHT = str(int(float(WIDTH) / x * y))
 WIDTH = str(WIDTH)
 
 VIDEO_ENCODING_COMMAND = 'ffmpeg -i %s -s ' + WIDTH + 'x' + HEIGHT + ' -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -r 30000/1001 -b:v 200k -bt 240k -vcodec libx264 -vpre ipod' + WIDTH + ' -acodec libfaac -ac 2 -ar 48000 -ab 192k -y %s'
-AUDIO_ENCODING_COMMAND = 'ffmpeg -i %s %s -b 128k %s'
+AUDIO_ENCODING_COMMAND = 'ffmpeg -i %s %s -acodec libfaac -ac 2 -ar 48000 -ab 128k -y %s'
 THUMBNAIL_ENCODING_COMMAND = 'ffmpeg -i %s -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -f image2 -vframes 1 -y %s'
 
 def _run_command(command, extension, source):
@@ -93,7 +93,7 @@ def convert_video(source):
 	return _run_command(VIDEO_ENCODING_COMMAND, '.mp4', source)
 
 def convert_audio(source):
-	return _run_command(AUDIO_ENCODING_COMMAND, '.mp3', source)
+	return _run_command(AUDIO_ENCODING_COMMAND, '.aac', source)
 
 def create_thumbnail(source):
 	return _run_command(THUMBNAIL_ENCODING_COMMAND, '.jpg', source)
