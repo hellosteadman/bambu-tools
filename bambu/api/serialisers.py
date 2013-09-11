@@ -38,9 +38,17 @@ class JSONSerialiser(Serialiser):
 	def serialise(self, data):
 		from django.utils import simplejson
 		
-		return simplejson.dumps(
+		data = simplejson.dumps(
 			self._prepare(data)
 		)
+		
+		if self.request and self.request.GET.get('callback'):
+			return '%s(%s)' % (
+				self.request.GET['callback'],
+				data
+			)
+		else:
+			return data
 
 class XMLSerialiser(Serialiser):
 	def _write(self, writer, key, data):
