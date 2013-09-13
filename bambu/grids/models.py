@@ -191,27 +191,30 @@ class ModelGrid(Grid):
 		
 		return sorted(values)
 	
+	def search_query_set(self, queryset, criteria):
+		q = Q()
+		
+		try:
+			words = [w for w in shlex.split(str(criteria))]
+		except:
+			words = criteria.split(' ')
+		
+		for column in self.search:
+			for word in words:
+				q |= Q(
+					**{
+						'%s__icontains' % column: word
+					}
+				)
+		
+		return queryset.filter(q)
+	
 	def perform_filter(self, data, **options):
 		if isinstance(data, QuerySet):
 			data = data.filter(**options)
 		
 		search = self._GET.get(self.prefix and '%s-search' % (self.prefix) or 'search')
-		
-		try:
-			words = [w for w in shlex.split(str(search))]
-		except:
-			words = search.split(' ')
-		
 		if any(self.search) and search:
-			q = Q()
-			for column in self.search:
-				for word in words:
-					q |= Q(
-						**{
-							'%s__icontains' % column: word
-						}
-					)
-			
-			data = data.filter(q)
+			data = self.search_query_set(data, search)
 		
 		return data

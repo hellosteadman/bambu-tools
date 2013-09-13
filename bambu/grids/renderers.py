@@ -2,6 +2,7 @@ from django.utils.html import escape
 from django.utils.http import urlencode
 from django.utils.safestring import SafeString, SafeUnicode
 from django.utils import simplejson
+from django.conf import settings
 from django import forms
 from math import floor, ceil
 
@@ -333,7 +334,7 @@ class TableRenderer(Renderer):
 		return u'</tbody>' + super(TableRenderer, self).render_footer()
 
 class PaginationRenderer(object):
-	max_pagelinks = 5
+	max_pagelinks = getattr(settings, 'GRIDS_PAGINATION_LINKS', 5)
 	rpp_options = (10, 20, 50, 100, 'all')
 	
 	def __init__(self, grid):
@@ -568,7 +569,7 @@ class ModelFilterRenderer(FilterRenderer):
 	def _render_script(self, form_id):
 		portions = [super(ModelFilterRenderer, self)._render_script(form_id)]
 		
-		if any(self.grid.search):
+		if any(self.grid.search) and self.grid.search_autocomplete:
 			search_id = self.grid.prefix and '%s-search' % (self.grid.prefix) or 'search'
 			
 			portions.append('<script>$(document).ready(function() { ')

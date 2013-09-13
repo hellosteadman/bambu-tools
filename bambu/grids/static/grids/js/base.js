@@ -142,7 +142,8 @@ bambu.grids = {
 				url: url,
 				dataType: 'html',
 				success: function(html) {
-					var grid = $(html).find('#grid_' + id);
+					var dom = $(html);
+					var grid = dom.find('#grid_' + id);
 					
 					try {
 						console.log('Got AJAX response');
@@ -151,13 +152,19 @@ bambu.grids = {
 					}
 					
 					if(grid.length > 0) {
+						dom.filter('script').each(
+							function() {
+								$.globalEval(this.text || this.textContent || this.innerHTML || '');
+							}
+						);
+						
 						try {
 							console.log('Replacing grid with AJAXed version');
 						} catch(err) {
 							// Can't log to console
 						}
 						
-						$('#grid_' + id).html(grid.html()).find('.bambu-grid-filter-form :input').bind('change',
+						$('#grid_' + id).replaceWith(grid).find('.bambu-grid-filter-form :input').bind('change',
 							function(e) {
 								$(this).closest('.bambu-grid-filter-form').submit();
 							}

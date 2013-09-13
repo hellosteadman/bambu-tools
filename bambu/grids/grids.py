@@ -23,6 +23,8 @@ class Grid(object):
 	exclude = ()
 	attrs = ()
 	filter = ()
+	search = ()
+	search_autocomplete = True
 	classes = ('table', 'table-striped', 'table-bordered')
 	empty_label = u'There are no items in this view.'
 	ordering = None
