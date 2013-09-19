@@ -30,7 +30,6 @@
 					<a class="brand" href="{% url 'home' %}">{{ SITE.name }}</a>
 					
 					<div class="nav-collapse">
-						{% include 'bootstrap/navbar-brand.inc.html' %}
 						{% include 'menu.inc.html' %}
 						
 						{% if request.user.is_anonymous %}

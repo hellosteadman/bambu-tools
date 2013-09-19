@@ -1,4 +1,4 @@
-from bambu.blog.models import Comment
+from bambu.comments.models import Comment
 
 def latest(request):
 	return {
