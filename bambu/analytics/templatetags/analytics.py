@@ -14,6 +14,6 @@ def tracking(context):
 		try:
 			return request._analytics_handler.render(request)
 		except Exception, ex:
-			LOGGER.warn(ex, exc_info = ex)
+			LOGGER.warn('Error rendering analytics code', exc_info = True)
 	
 	return u''

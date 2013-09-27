@@ -61,27 +61,23 @@ class CronSite(object):
 				handler = self._registry.get(job.name)
 				if handler is None:
 					job.delete()
-		
-		for job in Job.objects.filter(running = False, **kwargs).select_for_update():	
-			handler = self._registry.get(job.name)
-			
-			with transaction.commit_on_success():
+					continue
+				
 				job.running = True
 				job.save()
-			
-			try:
-				if handler.transactional:
-					with transaction.commit_on_success():
+				
+				try:
+					if handler.transactional:
+						with transaction.commit_on_success():
+							handler.run(self.logger)
+					else:
 						handler.run(self.logger)
-				else:
-					handler.run(self.logger)
-			except Exception, ex:
-				if debug:
-					raise
-				else:
-					self.logger.error('Error running cron job', exc_info = ex)
-			finally:
-				with transaction.commit_on_success():
-					job.running = False
-					job.next_run = handler.next_run_date()
-					job.save()
+				except Exception, ex:
+					if debug:
+						raise
+					else:
+						self.logger.error('Error running cron job', exc_info = True)
+				
+				job.running = False
+				job.next_run = handler.next_run_date()
+				job.save()

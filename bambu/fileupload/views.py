@@ -40,7 +40,14 @@ def upload(request):
 	try:
 		module = import_module(module)
 	except ImportError, ex:
-		logger.error('Could not import module %s' % module, exc_info = ex)
+		logger.error('Could not import module', exc_info = True,
+			extra = {
+				'data': {
+					'module': module
+				}
+			}
+		)
+		
 		return HttpResponseBadRequest('Could not import module')
 	
 	try:
@@ -48,7 +55,7 @@ def upload(request):
 	except AttributeError, ex:
 		logger.error(
 			'Could not load handler %s from module %s' % (func, module.__name__),
-			exc_info = ex
+			exc_info = True
 		)
 		
 		return HttpResponseBadRequest('Could not load handler from module')
@@ -69,7 +76,7 @@ def upload(request):
 			# messages.success(request, '%s was uploaded successfully.' % f.name)
 		except Exception, ex:
 			messages.error(request, '%s was not uploaded.' % f.name)
-			logger.error('Error uploading file via %s handler' % handler, exc_info = ex)
+			logger.error('Error uploading file via %s handler' % handler, exc_info = True)
 			continue
 		
 		if url and isinstance(url, (str, unicode)):

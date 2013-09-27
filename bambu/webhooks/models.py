@@ -46,10 +46,12 @@ class Action(models.Model):
 				}
 			)
 		except:
-			LOGGER.warn('Unable to send webhook action "%s"' % self.receiver.hook,
-				exc_info = {
-					'url': self.receiver.url,
-					'hash': self.hash
+			LOGGER.warn('Unable to send webhook action',
+				exc_info = True,
+				extra = {
+					'data': {
+						'hook': self.receiver.hook
+					}
 				}
 			)
 		

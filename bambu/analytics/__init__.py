@@ -66,4 +66,11 @@ def track_event(request, event, **kwargs):
 	try:
 		request._analytics_handler.track(event, **kwargs)
 	except Exception, ex:
-		LOGGER.error((ex), exc_info = ex)
+		LOGGER.error('Error tracking analytics event', exc_info = True,
+			extra = {
+				'data': {
+					'event': event,
+					'args': kwargs
+				}
+			}
+		)

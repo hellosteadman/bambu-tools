@@ -34,6 +34,7 @@ class Command(BaseCommand):
 		logger = logging.getLogger('bambu.cron')
 		
 		if flag and path.exists(flag):
+			logger.debug('Cron flag file "%s" already set; abandoning' % flag)
 			return
 		
 		cron.autodiscover()

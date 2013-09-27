@@ -38,7 +38,7 @@
 			{% for field in form.visible_fields %}{% if field|is_datefield %}
 				$('#id_{{ field.html_name }}').datepicker(
 					{
-						format: 'dd/mm/yyyy'
+						dateFormat: 'dd/mm/yy'
 					}
 				);
 			{% endif %}{% endfor %}

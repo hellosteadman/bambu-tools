@@ -108,7 +108,7 @@ class ExportThread(Thread):
 				unicode(ex)
 			)
 			
-			self.handler.logger.error(ex, exc_info = ex)
+			self.handler.logger.error('Error exporting data', exc_info = True)
 			return
 		
 		self.callback(self.writer.stream)
@@ -171,7 +171,7 @@ class HandlerBase(object):
 					unicode(ex)
 				)
 				
-				self.logger.error(ex, exc_info = ex)
+				self.logger.error(ex, exc_info = True)
 				return
 			
 			if callback:
