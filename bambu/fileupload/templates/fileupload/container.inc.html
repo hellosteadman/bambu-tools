@@ -30,6 +30,7 @@
 				dataType: 'json',
 				url: '{% url 'fileupload' %}?handler={{ handler|urlencode }}&params={{ params|urlencode }}',
 				dropZone: $('#{{ id }}'),
+				pasteZone: $('#{{ id }}'),
 				singleFileUploads: false,
 				add: function(e, data) {
 					var addFiles = 0;
