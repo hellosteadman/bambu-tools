@@ -1,6 +1,7 @@
 from bambu.mapping.providers.base import ProviderBase
 from django.utils.http import urlencode
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 class OpenStreetMapProvider(ProviderBase):
 	def init_map(self):
@@ -91,10 +92,13 @@ class OpenStreetMapProvider(ProviderBase):
 		return 'function(marker) { %s.removeLayer(marker); }' % self.get_map_varname()
 	
 	def find_address(self):
+		url = reverse('bambu_mapping_json_funnel')
 		return """function(latitude, longitude, callback) {
 			$.getJSON(
-				'http://nominatim.openstreetmap.org/reverse?lat=' + latitude +
-				'&lon=' + longitude + '&format=json&json_callback=?',
+				'""" + url + """?url=' + escape(
+					'http://nominatim.openstreetmap.org/reverse?lat=' + latitude +
+					'&lon=' + longitude + '&format=json'
+				) + '&json_callback=?',
 				function(data) {
 					if(data.lat && data.lon) {
 						if(typeof callback !== 'undefined') {
@@ -114,10 +118,13 @@ class OpenStreetMapProvider(ProviderBase):
 		}"""
 	
 	def find_coords(self):
+		url = reverse('bambu_mapping_json_funnel')
 		return """function(address, callback) {
 			$.getJSON(
-				'http://nominatim.openstreetmap.org/search?q=' + address +
-				'&format=json&json_callback=?',
+				'""" + url + """?url=' + escape(
+					'http://nominatim.openstreetmap.org/search?q=' + address +
+					'&format=json'
+				) + '&json_callback=?',
 				function(data) {
 					if(data.length > 0) {
 						if(typeof callback !== 'undefined') {

@@ -70,7 +70,9 @@ class APIResponse(HttpResponse):
 			try:
 				page = paginator.page(page)
 			except EmptyPage:
-				page = None
+				return APIResponse(
+					Exception('page is empty')
+				)
 			except PageNotAnInteger:
 				return APIResponse(
 					Exception('page not an integer')
