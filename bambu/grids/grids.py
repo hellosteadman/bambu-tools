@@ -19,6 +19,7 @@ class Grid(object):
 	filter_renderer = FilterRenderer
 	column_attrs = ()
 	actions = ()
+	bulk_actions = ()
 	columns = ()
 	exclude = ()
 	attrs = ()

@@ -80,6 +80,9 @@ def _run_command(command, extension, source):
 	if success:
 		return dest
 	else:
+		if os.path.exists(dest):
+			os.remove(dest)
+		
 		if any(d):
 			logger.error('Conversion failed',
 				extra = {

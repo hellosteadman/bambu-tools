@@ -9,6 +9,7 @@ from django.forms.models import modelform_factory
 from django.http import Http404
 from bambu.api import helpers
 from bambu.api.transformers import library
+from bambu.api.exceptions import APIException
 
 class API(object):
 	parent = None
@@ -336,14 +337,14 @@ class ModelAPI(API):
 					
 					if order in fields or order == '?':
 						if order == '?' and direction == '-':
-							raise Exception(u'Cannot order negatively by random')
+							raise APIException(u'Cannot order negatively by random')
 						if any(orders):
-							raise Exception(u'Cannot order by random when already ordering by other fields')
+							raise APIException(u'Cannot order by random when already ordering by other fields')
 					else:
-						raise Exception(u'Cannot order by %s' % order)
+						raise APIException(u'Cannot order by %s' % order)
 					
 					if '?' in orders:
-						raise Exception(u'Cannot order by random when already ordering by other fields')
+						raise APIException(u'Cannot order by random when already ordering by other fields')
 					
 					orders.append(direction + order)
 				
@@ -377,7 +378,7 @@ class ModelAPI(API):
 						}
 					)
 			
-			raise Exception(errors)
+			raise APIException(errors)
 	
 	def get_object(self, request, object_id, **kwargs):
 		try:
