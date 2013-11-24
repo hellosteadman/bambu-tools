@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.2.9',
+	version = '3.3',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
@@ -42,6 +42,7 @@ setup(
 		'bambu.jwplayer', 'bambu.jwplayer.templatetags',
 		'bambu.mail', 'bambu.mail.newsletter',
 		'bambu.mapping', 'bambu.mapping.providers', 'bambu.mapping.templatetags',
+		'bambu.markup', 'bambu.markup.templatetags',
 		'bambu.minidetect',
 		'bambu.navigation', 'bambu.navigation.management', 'bambu.navigation.management.commands', 'bambu.navigation.templatetags',
 		'bambu.notifications', 'bambu.notifications.migrations', 'bambu.notifications.templatetags',

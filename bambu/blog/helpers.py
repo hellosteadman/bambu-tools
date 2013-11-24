@@ -73,7 +73,7 @@ def title_parts(**kwargs):
 def get_post_image(post):
 	image_types = (
 		'image/bmp', 'image/x-windows-bmp', 'image/gif',
-		'image/jpeg', 'image/pjpeg', 'image/png'
+		'image/jpeg', 'image/pjpeg', 'image/png', 'image/tiff'
 	)
 	
 	images = post.attachments.filter(mimetype__in = image_types)[:1]

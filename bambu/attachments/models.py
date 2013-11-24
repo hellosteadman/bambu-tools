@@ -43,7 +43,7 @@ class Attachment(models.Model):
 		
 		if self.mimetype in (
 			'image/bmp', 'image/x-windows-bmp', 'image/gif',
-			'image/jpeg', 'image/pjpeg', 'image/png'
+			'image/jpeg', 'image/pjpeg', 'image/png', 'image/tiff'
 		):
 			ctx['size'] = str(kwargs['width'])
 			return render_to_string(

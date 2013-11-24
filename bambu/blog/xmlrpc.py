@@ -136,6 +136,7 @@ def get_post(postid, username, password):
 			'video/x-msvideo',
 			'audio/mpeg3',
 			'audio/x-mpeg-3',
+			'audio/x-wav',
 			'video/mp4',
 			'video/x-m4v',
 			'video/mpeg'

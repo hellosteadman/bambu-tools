@@ -12,7 +12,7 @@ def get_plugins(obj, domain):
 		
 		for subkey, option in options.items():
 			plugin[subkey] = option % {
-				'link': 'http://%s%s' % (domain, obj.get_absolute_url()),
+				'link': '//%s%s' % (domain, obj.get_absolute_url()),
 				'embed': jwplayer_code(obj)
 			}
 			
@@ -34,7 +34,7 @@ def jwplayer_swf_url(obj, field = 'video', width = 640, height = 320, static_url
 	if not static_url:
 		static_url = settings.STATIC_URL
 		if not static_url.startswith('http://') and not static_url.startswith('https://'):
-			static_url = 'http://%s%s' % (site.domain, static_url)
+			static_url = '//%s%s' % (site.domain, static_url)
 	
 	try:
 		width = int(width)
@@ -90,7 +90,7 @@ def jwplayer_code(obj, field = 'video', **kwargs):
 	ctpk = kwargs.get('ct') or ContentType.objects.get_for_model(obj).pk
 	
 	return u'<iframe%(id)s width="%(width)d" height="%(height)d" ' \
-		u'src="http://%(domain)s%(url)s?width=%(width)d" ' \
+		u'src="//%(domain)s%(url)s?width=%(width)d" ' \
 		u'style="border-width:0;overflow:hidden;" frameborder="0"></iframe>' % {
 			'id': player_id,
 			'width': width,

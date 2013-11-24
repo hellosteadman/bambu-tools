@@ -374,7 +374,7 @@ class ModelAPI(API):
 					
 					errors.append(
 						{
-							field.name: inline_errors
+							field.name: ', '.join(inline_errors)
 						}
 					)
 			

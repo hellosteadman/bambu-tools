@@ -113,6 +113,7 @@ class BlogFeed(Feed):
 				'video/x-msvideo',
 				'audio/mpeg3',
 				'audio/x-mpeg-3',
+				'audio/x-wav',
 				'video/x-m4v',
 				'video/mp4',
 				'video/mpeg'

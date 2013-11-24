@@ -70,13 +70,29 @@ class APIResponse(HttpResponse):
 			try:
 				page = paginator.page(page)
 			except EmptyPage:
-				return APIResponse(
-					Exception('page is empty')
+				super(APIResponse, self).__init__(
+					serialiser.serialise(
+						{
+							'error': 'page argument empty'
+						}
+					),
+					mimetype = mimetype
 				)
+				
+				self.status_code = 400
+				return
 			except PageNotAnInteger:
-				return APIResponse(
-					Exception('page not an integer')
+				super(APIResponse, self).__init__(
+					serialiser.serialise(
+						{
+							'error': 'page argument not an integer'
+						}
+					),
+					mimetype = mimetype
 				)
+				
+				self.status_code = 400
+				return
 			
 			qs = request.GET.copy()
 			qs['rpp'] = rpp
