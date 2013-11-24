@@ -1,5 +1,10 @@
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.functional import update_wrapper
+
+try:
+	from django.utils.functional import update_wrapper
+except ImportError:
+	from functools import update_wrapper
+
 from django.utils.cache import patch_vary_headers
 from django.http import HttpResponse
 from django.contrib.auth.models import User

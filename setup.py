@@ -16,6 +16,7 @@ setup(
 		'oauth2>=1.5.211',
 		'pyquery>=1.2.4',
 		'python-dateutil>=1.5',
+		'markdown',
 		'requests>=1.1.0',
 		'sorl-thumbnail>=11.12',
 		'twitter>=1.9.1'

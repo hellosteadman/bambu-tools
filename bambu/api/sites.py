@@ -3,7 +3,12 @@ from django.db import transaction
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.utils.functional import update_wrapper
+
+try:
+	from django.utils.functional import update_wrapper
+except ImportError:
+	from functools import update_wrapper
+
 from django.utils.importlib import import_module
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
