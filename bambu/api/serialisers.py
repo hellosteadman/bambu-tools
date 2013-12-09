@@ -36,7 +36,10 @@ class Serialiser(object):
 
 class JSONSerialiser(Serialiser):
 	def serialise(self, data):
-		from django.utils import simplejson
+		try:
+			import json as simplejson
+		except ImportError:
+			from django.utils import simplejson
 		
 		data = simplejson.dumps(
 			self._prepare(data)

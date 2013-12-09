@@ -4,9 +4,13 @@ from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.utils.importlib import import_module
-from django.utils import simplejson
 from bambu.notifications.models import Notification
 from bambu.notifications.options import NotificationTemplate
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def notify(module, *users, **kwargs):
 	module, dot, kind = module.rpartition('.')

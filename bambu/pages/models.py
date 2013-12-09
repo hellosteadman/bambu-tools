@@ -3,7 +3,6 @@ from django.contrib.contenttypes import generic
 from django.template import Template, Context
 from bambu.attachments.models import Attachment
 from bambu.pages.managers import PageManager
-from bambu.preview.models import Preview
 import logging
 
 class Page(models.Model):

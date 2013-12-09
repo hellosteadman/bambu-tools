@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.utils.http import urlencode
 from bambu.saas.models import *
@@ -19,6 +18,11 @@ from bambu.saas.helpers import get_currency_symbol, format_price, fix_discount_c
 from bambu.saas.forms import *
 from bambu.saas.signals import plan_signup, newsletter_optin
 from bambu.payments.models import TaxRate, Payment
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def _plan_features(plan):
 	features = []

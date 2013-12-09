@@ -1,10 +1,14 @@
 from django.utils.html import escape
 from django.utils.http import urlencode
 from django.utils.safestring import SafeString, SafeUnicode
-from django.utils import simplejson
 from django.conf import settings
 from django import forms
 from math import floor, ceil
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def flatten_attrs(attrs):
 	portions = []

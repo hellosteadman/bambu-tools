@@ -5,10 +5,14 @@ from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
 from django.utils.importlib import import_module
-from django.utils import simplejson
 from urlparse import parse_qs
 from mimetypes import guess_type
 from logging import getLogger
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 HANDLERS = dict(getattr(settings, 'FILEUPLOAD_HANDLERS', ()))
 

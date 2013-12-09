@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.3',
+	version = '3.3.3',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',
@@ -49,7 +49,6 @@ setup(
 		'bambu.notifications', 'bambu.notifications.migrations', 'bambu.notifications.templatetags',
 		'bambu.pages', 'bambu.pages.migrations',
 		'bambu.payments', 'bambu.payments.gateways', 'bambu.payments.migrations',
-		'bambu.preview', 'bambu.preview.migrations',
 		'bambu.pusher', 'bambu.pusher.templatetags',
 		'bambu.oembed', 'bambu.oembed.migrations', 'bambu.oembed.templatetags',
 		'bambu.opengraph', 'bambu.opengraph.templatetags',
@@ -81,7 +80,6 @@ setup(
 			'templates/admin/blog/post/*.html',
 			'templates/blog/*.html',
 			'templates/search/indexes/blog/*.txt',
-			'templates/preview/blog/*.html',
 			'static/blog/*.js'
 		],
 		'bambu.bootstrap': [
@@ -274,7 +272,6 @@ setup(
 		],
 		'bambu.pages': [
 			'templates/pages/*.html',
-			'templates/preview/pages/*.html',
 			'templates/search/indexes/pages/*.txt'
 		],
 		'bambu.payments': [
@@ -285,13 +282,6 @@ setup(
 			'templates/payments/gateways/paymill/*.html',
 			'static/payments/*.png',
 			'static/payments/gateways/*.png'
-		],
-		'bambu.preview': [
-			'static/preview/img/*.gif',
-			'static/preview/css/*.css',
-			'static/preview/js/*.js',
-			'templates/admin/preview/*.html',
-			'templates/preview/*.html'
 		],
 		'bambu.pusher': [
 			'templates/pusher/*.html'

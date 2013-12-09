@@ -9,7 +9,6 @@ from bambu.blog.managers import *
 from bambu.blog import helpers
 from bambu.attachments.models import Attachment
 from bambu.attachments.helpers import upload_attachment_file
-from bambu.preview.models import Preview
 from mimetypes import guess_type
 from hashlib import md5
 
@@ -145,8 +144,6 @@ class Post(models.Model):
 			self.slug = slug
 		
 		super(Post, self).save(*args, **kwargs)
-		Preview.objects.clear_for_model(self, self.author)
-		
 		if publish and self.date <= now():
 			self.publish()
 	

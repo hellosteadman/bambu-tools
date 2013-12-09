@@ -1,11 +1,14 @@
 from django.contrib import admin
-from django.utils import simplejson
 from django.conf import settings
 from django import forms
 from bambu.pages.models import Page
 from bambu.attachments.admin import AttachmentInline
-from bambu.preview.admin import PreviewableModelAdmin
 from markitup.widgets import MarkItUpWidget
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 class PageAdminForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
@@ -73,7 +76,7 @@ class PageAdminForm(forms.ModelForm):
 			'blog/admin.js'
 		) or ()
 
-class PageAdmin(PreviewableModelAdmin):
+class PageAdmin(admin.ModelAdmin):
 	list_display = ('link_hierarchical', 'parent', 'order_field')
 	prepopulated_fields = {
 		'slug': ('name',)

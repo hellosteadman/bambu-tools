@@ -4,10 +4,14 @@ from django.contrib.auth.models import User
 from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.utils import simplejson
 from bambu.notifications.options import NotificationTemplate
 from bambu.notifications.settings import DELIVERY_METHODS
 import logging
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def deliver_notification_task(module, kind, context, actions, relevant_to):
 	mod = import_module('%s.notifications' % module)

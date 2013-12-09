@@ -78,5 +78,9 @@ class XMLParser(ParserBase):
 
 class JSONParser(ParserBase):
 	def _parse(self, stream):
-		from django.utils import simplejson
+		try:
+			import json as simplejson
+		except ImportError:
+			from django.utils import simplejson
+		
 		return simplejson.load(stream)

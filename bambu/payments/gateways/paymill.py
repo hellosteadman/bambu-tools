@@ -1,6 +1,5 @@
 from django.contrib.sites.models import Site
 from django.template.response import TemplateResponse
-from django.utils import simplejson
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now
@@ -8,6 +7,11 @@ from bambu.payments import gateways, states
 from bambu.payments.models import RemoteClient, RemoteOffer, RemoteSubscription, Payment
 from bambu.international.models import Country
 from urlparse import parse_qs
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 URL_CLIENTS = 'https://api.paymill.com/v2/clients'
 URL_CLIENT = 'https://api.paymill.com/v2/clients/%s'

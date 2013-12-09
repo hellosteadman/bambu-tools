@@ -96,7 +96,7 @@ def convert_video(source):
 	return _run_command(VIDEO_ENCODING_COMMAND, '.mp4', source)
 
 def convert_audio(source):
-	return _run_command(AUDIO_ENCODING_COMMAND, '.aac', source)
+	return _run_command(AUDIO_ENCODING_COMMAND, '.m4a', source)
 
 def create_thumbnail(source):
 	return _run_command(THUMBNAIL_ENCODING_COMMAND, '.jpg', source)

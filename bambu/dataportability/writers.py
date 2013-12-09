@@ -1,4 +1,8 @@
-from django.utils.simplejson import JSONEncoder
+try:
+	from json import JSONEncoder
+except ImportError:
+	from django.utils.simplejson import JSONEncoder
+
 from bambu.dataportability.simplexmlwriter import SimpleXMLWriter
 import logging
 

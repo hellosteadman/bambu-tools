@@ -1,5 +1,9 @@
-from django.utils import simplejson
 from bambu.webhooks.sites import WebHookSite, NotRegistered
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 site = WebHookSite()
 

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils import simplejson
 from django.utils.http import urlencode
 from django.utils.timezone import now
 import requests, time, hmac, hashlib, base64
@@ -10,6 +9,11 @@ SECRET = getattr(settings, 'PUSHER_SECRET', None)
 VERSION = '1.0'
 DOMAIN = 'api.pusherapp.com'
 PATH = '/apps/%s/events' % APP_ID
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def push(channel, event, **data):
 	json = simplejson.dumps(

@@ -4,7 +4,6 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.utils import simplejson
 from django.utils.importlib import import_module
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import linebreaks, urlize
@@ -14,6 +13,11 @@ from bambu.notifications.settings import DEFAULT_DELIVERY_METHODS
 from bambu.notifications.tasks import deliver_notification_task
 from markdown import markdown
 import logging
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 LOGGER = logging.getLogger('bambu.notifications')
 

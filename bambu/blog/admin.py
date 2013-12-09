@@ -7,9 +7,8 @@ from django.utils.translation import ugettext as _
 from bambu.blog.models import *
 from bambu.blog.forms import PostForm, UploadForm
 from bambu.attachments.admin import AttachmentInline
-from bambu.preview.admin import PreviewableModelAdmin
 
-class PostAdmin(PreviewableModelAdmin):
+class PostAdmin(admin.ModelAdmin):
 	list_display = ('title', 'date', 'published')
 	list_filter = ('published', 'categories')
 	date_hierarchy = 'date'

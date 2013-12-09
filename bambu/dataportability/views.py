@@ -2,11 +2,15 @@ from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from django.utils import simplejson
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from mimetypes import guess_type
 from bambu.dataportability.models import ImportJob, ExportJob
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 PUSHER_ENABLED = 'bambu.pusher' in settings.INSTALLED_APPS
 

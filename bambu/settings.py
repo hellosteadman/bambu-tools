@@ -66,5 +66,5 @@ PAYMENT_GATEWAYS = (
 	('bambu.payments.gateways.paypal.PayPalGateway', 'paypal'),
 )
 
-HAYSTACK_SITECONF = 'marksteadman.search'
+HAYSTACK_SITECONF = 'bambu.search'
 HAYSTACK_SEARCH_ENGINE = 'dummy'

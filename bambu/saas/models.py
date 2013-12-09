@@ -4,7 +4,6 @@ from django.utils.datastructures import SortedDict
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.timezone import get_current_timezone, now as rightnow
-from django.utils import simplejson
 from bambu.saas import helpers, receivers
 from bambu.saas.managers import PlanManager, UserPlanManager
 from bambu.mail.shortcuts import render_to_mail
@@ -13,6 +12,11 @@ from bambu.payments import signals as payment
 from datetime import datetime, timedelta
 from uuid import uuid4
 import logging
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 class Plan(models.Model):
 	name = models.CharField(max_length = 50)

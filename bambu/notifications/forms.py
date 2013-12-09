@@ -2,11 +2,15 @@ from django import forms
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
-from django.utils import simplejson
 from bambu.notifications.models import Notification
 from bambu.notifications.options import NotificationTemplate
 from bambu.notifications.settings import DEFAULT_DELIVERY_METHODS, DELIVERY_METHODS
 from copy import copy, deepcopy
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 def get_notifications(user):
 	notifications = {}

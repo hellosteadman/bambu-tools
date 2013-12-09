@@ -1,9 +1,13 @@
 from django.conf import settings
-from django.utils import simplejson
 from django.utils.http import urlencode
 from urllib2 import Request, urlopen, HTTPError
 from elementtree import ElementTree
 import re
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 URL_REGEX = re.compile(
     r'<p>(?P<url>(?:http|ftp)s?://' # http:// or https://
