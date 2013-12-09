@@ -11,12 +11,22 @@ if(!('grids' in bambu._events)) {
 }
 
 bambu.grids = {
-	init: function(id, pushState, basePath) {
-		try {
-			console.log('Setting up grid', id);
-		} catch (err) {
-			// Can't log to console
+	on: function(evt, func) {
+		if(!(evt in bambu._events.grids)) {
+			bambu._events.grids[evt] = [func];
+		} else {
+			bambu._events.grids[evt].push(func);
 		}
+	},
+	fire: function(evt, data) {
+		if(evt in bambu._events.grids) {
+			for(var i = 0; i < bambu._events.grids[evt].length; i ++) {
+				bambu._events.grids[evt][i](data);
+			}
+		}
+	},                              
+	init: function(id, pushState, basePath) {
+		console && console.log('Setting up grid', id);
 		
 		if(!basePath) {
 			basePath = '.';
@@ -36,7 +46,6 @@ bambu.grids = {
 				var parts = url.substr(q + 1).split('&');
 				
 				url = url.substr(0, q + 1);
-				
 				for(var i = 0; i < parts.length; i ++) {
 					var split = parts[i].split('=');
 					var key = split[0];
@@ -47,12 +56,7 @@ bambu.grids = {
 							continue;
 						}
 						
-						try {
-							console.log('Abandon ship. We seem to have some cross-grid contamination.');
-						} catch (err) {
-							// Can't log to console
-						}
-						
+						console && console.log('Abandon ship. We seem to have some cross-grid contamination.');
 						return;
 					}
 					
@@ -68,7 +72,7 @@ bambu.grids = {
 					grid: id
 				};
 				
-				console.log('Pushing state');
+				console && console.log('Pushing state');
 				window.history.pushState(data, '', url);
 			}
 			
@@ -77,12 +81,7 @@ bambu.grids = {
 		
 		$('#grid_' + id).find('.pagination a').bind('click',
 			function(e) {
-				try {
-					console.log('Responding to AJAX link');
-				} catch(err) {
-					// Can't log to console
-				}
-				
+				console && console.log('Responding to AJAX link');
 				e.preventDefault();
 				submitGrid($(this).attr('href'));
 			}
@@ -97,11 +96,7 @@ bambu.grids = {
 					return;
 				}
 				
-				try {
-					console.log('Responding to AJAX form action');
-				} catch(err) {
-					// Can't log to console
-				}
+				console && console.log('Responding to AJAX form action');
 				
 				$(this).data('submitting', true);
 				if(!url) {
@@ -145,39 +140,27 @@ bambu.grids = {
 					var dom = $(html);
 					var grid = dom.find('#grid_' + id);
 					
-					try {
-						console.log('Got AJAX response');
-					} catch(err) {
-						// Can't log to console
-					}
-					
+					console && console.log('Got AJAX response');
 					if(grid.length > 0) {
 						dom.filter('script').each(
 							function() {
 								$.globalEval(this.text || this.textContent || this.innerHTML || '');
 							}
-						);
+						);                             
 						
-						try {
-							console.log('Replacing grid with AJAXed version');
-						} catch(err) {
-							// Can't log to console
-						}
+						console && console.log('Replacing grid with AJAXed version');
 						
-						$('#grid_' + id).replaceWith(grid).find('.bambu-grid-filter-form :input').bind('change',
+						$('#grid_' + id).replaceWith(grid);
+						bambu.grids.init(id, pushState);
+						bambu.grids.fire('rebound', grid);
+						
+						grid.find('.bambu-grid-filter-form :input').bind('change',
 							function(e) {
 								$(this).closest('.bambu-grid-filter-form').submit();
 							}
 						);
-						
-						bambu.grids.init(id, pushState);
 					} else {
-						try {
-							console.log('Can\'t find the same grid in this response');
-						} catch(err) {
-							// Can't log to console
-						}
-						
+						console && console.log('Can\'t find the same grid in this response');
 						document.location = url;
 					}
 				}
