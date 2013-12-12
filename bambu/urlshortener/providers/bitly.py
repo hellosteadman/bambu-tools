@@ -30,6 +30,9 @@ class BitlyProvider(ProviderBase):
 		if json['status_code'] == 200:
 			return json['data']['url']
 		
+		if json.get('status_txt') == 'ALREADY_A_BITLY_LINK':
+			return url
+		
 		raise Exception(json)
 	
 	def unshorten(self, url):
