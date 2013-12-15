@@ -29,7 +29,12 @@ class RegistrationForm(forms.Form):
 		help_text = _('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
 		error_messages = {
 			'invalid': _('This value may contain only letters, numbers and @/./+/-/_ characters.')
-		}
+		},
+		widget = forms.TextInput(
+			attrs = {
+				'autocomplete': 'off'
+			}
+		)
 	)
 	
 	password1 = forms.CharField(label = _('Password'), widget = forms.PasswordInput)

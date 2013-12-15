@@ -93,10 +93,10 @@ def _get_plan_prices(current_plan = None):
 		except Price.DoesNotExist:
 			price_monthly = format_price(symbol, 0)
 			price_yearly = format_price(symbol, 0)
-
+		
 		prices[p.pk] = (
-			(1, _(u'Monthly (%s + %s)' % (price_monthly, tax_rate.shorthand)), price.monthly),
-			(12, _(u'Annually (%s + %s)' % (price_yearly, tax_rate.shorthand)), price.yearly)
+			(1, _(u'Monthly (%s + %s)' % (price_monthly, tax_rate.shorthand)), float(price.monthly)),
+			(12, _(u'Annually (%s + %s)' % (price_yearly, tax_rate.shorthand)), float(price.yearly))
 		)
 	
 	return prices

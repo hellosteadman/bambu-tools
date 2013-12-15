@@ -42,7 +42,7 @@ def format_price(symbol, price):
 			result = '%s.%d' % (separate_thousands(first), last)
 		else:
 			result = separate_thousands(int(price))
-			
+		
 		return symbol + result
 
 def feature_has_arguments(feature):
