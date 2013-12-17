@@ -24,6 +24,14 @@ import logging
 
 THROTTLE_REQUESTS = getattr(settings, 'API_THROTTLE_REQUESTS', 10000)
 THROTTLE_MINUTES = getattr(settings, 'API_THROTTLE_MINUTES', 60 * 24)
+DOCS_ROOT = getattr(settings, 'API_DOCS_ROOT', 'docs')
+DOCS_TITLE = getattr(settings, 'API_DOCS_TITLE', u'Developer resources')
+APPS_ROOT = getattr(settings, 'API_APPS_ROOT', 'apps')
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 class AlreadyRegistered(Exception):
 	pass
@@ -139,39 +147,39 @@ class APISite(object):
 		
 		urlpatterns = patterns('',
 			url(
-				r'^develop/api/$', self.docs_index_view,
+				r'^' + DOCS_ROOT + '/$', self.docs_index_view,
 				name = 'doc'
 			)
 		)
 		
-		if not self.auth.app_model is None:
+		if not self.auth.app_model is None and getattr(settings, 'API_APPS_MANAGEABLE', True):
 			urlpatterns += patterns('',
 				url(
-					r'^develop/apps/$', login_required(self.apps_view),
+					r'^' + APPS_ROOT + '/$', login_required(self.apps_view),
 					name = 'apps'
 				),
 				url(
-					r'^develop/apps/add/$', require_POST(login_required(self.add_app_view)),
+					r'^' + APPS_ROOT + '/add/$', require_POST(login_required(self.add_app_view)),
 					name = 'add_app'
 				),
 				url(
-					r'^develop/apps/(?P<pk>\d+)/$', login_required(self.edit_app_view),
+					r'^' + APPS_ROOT + '/(?P<pk>\d+)/$', login_required(self.edit_app_view),
 					name = 'edit_app'
 				),
 				url(
-					r'^develop/apps/(?P<pk>\d+)/delete/$', login_required(self.delete_app_view),
+					r'^' + APPS_ROOT + '/(?P<pk>\d+)/delete/$', login_required(self.delete_app_view),
 					name = 'delete_app'
 				),
 			)
 		
 		urlpatterns += patterns('',
 			url(
-				r'^develop/api/(?P<app_label>[\w]+)/(?P<model>[\w]+)/$',
+				r'^' + DOCS_ROOT + '/(?P<app_label>[\w]+)/(?P<model>[/\w]+)/$',
 				self.docs_model_view,
 				name = 'doc_model'
 			),
 			url(
-				r'^develop/api/(?P<app_label>[\w]+)/$',
+				r'^' + DOCS_ROOT + '/(?P<app_label>[\w]+)/$',
 				self.docs_app_view,
 				name = 'doc_appindex'
 			),
@@ -197,6 +205,21 @@ class APISite(object):
 	def _docs_list(self):
 		resdict = {}
 		
+		def get_children(parent, parent_url = ''):
+			for inline in parent.inline_instances:
+				yield {
+					'app_label': inline.model._meta.app_label,
+					'model': inline.model._meta.module_name,
+					'name': inline.model._meta.verbose_name_plural,
+					'url': reverse(
+						'api:doc_model', args = (
+							inline.model._meta.app_label,
+							parent_url + inline.model._meta.module_name
+						)
+					),
+					# 'children': get_children(inline, parent_url + inline.model._meta.module_name + '/')
+				}
+		
 		for (model, api) in self._registry.items():
 			reslist, app_title = resdict.get(
 				model._meta.app_label,
@@ -208,13 +231,16 @@ class APISite(object):
 			
 			reslist.append(
 				{
+					'app_label': model._meta.app_label,
+					'model': model._meta.module_name,
 					'name': model._meta.verbose_name_plural,
 					'url': reverse(
 						'api:doc_model', args = (
 							model._meta.app_label,
 							model._meta.module_name
 						)
-					)
+					),
+					'children': get_children(api, model._meta.module_name + '/')
 				}
 			)
 			
@@ -222,6 +248,7 @@ class APISite(object):
 		
 		for app_label, (reslist, app_title) in resdict.items():
 			yield {
+				'app_label': app_label,
 				'name': app_title,
 				'url': reverse('api:doc_appindex', args = [app_label]),
 				'children': reslist
@@ -240,12 +267,20 @@ class APISite(object):
 		opts = api.model._meta
 		
 		if api.parent:
+			args = []
+			i = 0
+			p = api.parent
+			while p:
+				i += 1
+				args.append(i)
+				p = p.parent
+			
 			return {
 				'list': {
 					'url': self._format_url(
 						reverse(
 							'api:%s_%s_list' % (opts.app_label, opts.module_name),
-							args = [67890, 'xml']
+							args = args + ['xml']
 						),
 						api.rel_field.name
 					),
@@ -253,16 +288,16 @@ class APISite(object):
 					'example': {
 						'url': reverse(
 							'api:%s_%s_list' % (opts.app_label, opts.module_name),
-							args = [1, 'json']
+							args = args + ['json']
 						),
-						'response': api.example_list_response
+						'response': simplejson.dumps(api.example_list_response())
 					}
 				},
 				'object': {
 					'url': self._format_url(
 						reverse(
 							'api:%s_%s_object' % (opts.app_label, opts.module_name),
-							args = [67890, 12345, 'xml']
+							args = args + [12345, 'xml']
 						),
 						api.rel_field.name
 					),
@@ -270,9 +305,9 @@ class APISite(object):
 					'example': {
 						'url': reverse(
 							'api:%s_%s_object' % (opts.app_label, opts.module_name),
-							args = [1, 1, 'json']
+							args = args + [67890, 'json']
 						),
-						'response': api.example_object_response
+						'response': simplejson.dumps(api.example_object_response())
 					}
 				}
 			}
@@ -291,7 +326,7 @@ class APISite(object):
 							'api:%s_%s_list' % (opts.app_label, opts.module_name),
 							args = ['json']
 						),
-						'response': api.example_list_response
+						'response': simplejson.dumps(api.example_list_response())
 					}
 				},
 				'object': {
@@ -307,7 +342,7 @@ class APISite(object):
 							'api:%s_%s_object' % (opts.app_label, opts.module_name),
 							args = [1, 'json']
 						),
-						'response': api.example_object_response
+						'response': simplejson.dumps(api.example_object_response())
 					}
 				}
 			}
@@ -319,16 +354,16 @@ class APISite(object):
 			request,
 			'api/doc/index.html',
 			{
-				'title_parts': ('Developer resources',),
+				'title_parts': (DOCS_TITLE,),
 				'breadcrumb_trail': (
-					('', u'Developer resources'),
+					('', DOCS_TITLE),
 				),
 				'resources': self._docs_list(),
 				'auth': {
 					'name': self.auth.verbose_name,
 					'doc': helpers.trim_indent(self.auth.__doc__)
 				},
-				'apps_supported': not self.auth.app_model is None,
+				'apps_supported': not self.auth.app_model is None and getattr(settings, 'API_APPS_MANAGEABLE', True),
 				'body_classes': ('api', 'api-docs-index')
 			}
 		)
@@ -341,15 +376,15 @@ class APISite(object):
 			request,
 			'api/apps/list.html',
 			{
-				'title_parts': ('Apps', 'Developer resources',),
+				'title_parts': ('Apps', DOCS_TITLE,),
 				'breadcrumb_trail': (
-					('../', u'Developer resources'),
+					('../', DOCS_TITLE),
 					('', u'Apps')
 				),
 				'resources': self._docs_list(),
 				'apps': request.user.owned_apps.all(),
 				'app_form': AppForm(),
-				'apps_supported': True,
+				'apps_supported': getattr(settings, 'API_APPS_MANAGEABLE', True),
 				'body_classes': ('api', 'api-apps')
 			}
 		)
@@ -376,15 +411,15 @@ class APISite(object):
 			request,
 			'api/apps/list.html',
 			{
-				'title_parts': ('Create app', 'Apps', 'Developer resources',),
+				'title_parts': ('Create app', 'Apps', DOCS_TITLE,),
 				'breadcrumb_trail': (
-					('../../', u'Developer resources'),
+					('../../', DOCS_TITLE),
 					('../', u'Apps'),
 					('', u'Create app')
 				),
 				'resources': self._docs_list(),
 				'app_form': form,
-				'apps_supported': True,
+				'apps_supported': getattr(settings, 'API_APPS_MANAGEABLE', True),
 				'body_classes': ('api', 'api-apps', 'api-apps-add')
 			}
 		)
@@ -410,16 +445,16 @@ class APISite(object):
 			request,
 			'api/apps/edit.html',
 			{
-				'title_parts': (app.name, 'Apps', 'Developer resources',),
+				'title_parts': (app.name, 'Apps', DOCS_TITLE,),
 				'breadcrumb_trail': (
-					('../../', u'Developer resources'),
+					('../../', DOCS_TITLE),
 					('../', u'Apps'),
 					('', app.name)
 				),
 				'resources': self._docs_list(),
 				'app': app,
 				'form': form,
-				'apps_supported': True,
+				'apps_supported': getattr(settings, 'API_APPS_MANAGEABLE', True),
 				'body_classes': ('api', 'api-apps', 'api-apps-edit')
 			}
 		)
@@ -442,16 +477,16 @@ class APISite(object):
 			request,
 			'api/apps/delete.html',
 			{
-				'title_parts': ('Delete?', app.name, 'Apps', 'Developer resources',),
+				'title_parts': ('Delete?', app.name, 'Apps', DOCS_TITLE,),
 				'breadcrumb_trail': (
-					('../../../', u'Developer resources'),
+					('../../../', DOCS_TITLE),
 					('../../', u'Apps'),
 					('../', app.name),
 					('', 'Delete?')
 				),
 				'resources': self._docs_list(),
 				'app': app,
-				'apps_supported': True,
+				'apps_supported': getattr(settings, 'API_APPS_MANAGEABLE', True),
 				'body_classes': ('api', 'api-apps', 'api-apps-delete')
 			}
 		)
@@ -490,17 +525,18 @@ class APISite(object):
 			{
 				'title_parts': (
 					app_title,
-					'Developer resources'
+					DOCS_TITLE
 				),
 				'breadcrumb_trail': (
-					('../', u'Developer resources'),
+					('../', DOCS_TITLE),
 					('', app_title)
 				),
 				'resources': self._docs_list(),
 				'name': app_title,
 				'apis': apis,
-				'apps_supported': not self.auth.app_model is None,
-				'body_classes': ('api', 'api-docs-app')
+				'apps_supported': not self.auth.app_model is None and getattr(settings, 'API_APPS_MANAGEABLE', True),
+				'body_classes': ('api', 'api-docs-app'),
+				'app_label': app_label
 			}
 		)
 	
@@ -508,13 +544,29 @@ class APISite(object):
 		from django.template.response import TemplateResponse
 		from django.http import Http404
 		
-		model = get_model(app_label, model)
+		model_parts = model.split('/')
+		model = get_model(app_label, model_parts.pop(0))
+		
 		if not model:
 			raise Http404('Model not found.')
 		
 		api = self._registry.get(model)
 		if not api:
 			raise Http404('API for model not found.')
+		
+		if any(model_parts):
+			found = False
+			while any(model_parts):
+				submodel = model_parts.pop(0)
+				for inline in api.inline_instances:
+					if inline.model._meta.module_name == submodel:
+						model = inline.model
+						api = inline
+						found = True
+						break
+			
+			if not found:
+				raise Http404('Submodel %s not found in %s.' % (submodel, model._meta.module_name))
 		
 		opts = model._meta
 		api_title = unicode(opts.verbose_name_plural.capitalize())
@@ -529,6 +581,7 @@ class APISite(object):
 					'name': inline.rel_name.capitalize(),
 					'doc': helpers.trim_indent(inline.__doc__),
 					'urls': self._docs_urls(inline),
+					'url': inline.model._meta.module_name + '/',
 					'verbose_name': inline.model._meta.verbose_name,
 					'verbose_name_plural': inline.model._meta.verbose_name_plural,
 					'formats': inline.allowed_formats
@@ -538,7 +591,7 @@ class APISite(object):
 		return TemplateResponse(
 			request,
 			(
-				'api/doc/%s/%s.html' % (app_label, model),
+				'api/doc/%s/%s.html' % (app_label, model._meta.module_name),
 				'api/doc/%s/model.html' % app_label,
 				'api/doc/model.html'
 			),
@@ -546,10 +599,10 @@ class APISite(object):
 				'title_parts': (
 					api_title,
 					app_title,
-					'Developer resources'
+					DOCS_TITLE
 				),
 				'breadcrumb_trail': (
-					('../../', u'Developer resources'),
+					('../../', DOCS_TITLE),
 					('../', app_title),
 					('', api_title)
 				),
@@ -561,7 +614,9 @@ class APISite(object):
 				'verbose_name': opts.verbose_name,
 				'verbose_name_plural': opts.verbose_name_plural,
 				'formats': api.allowed_formats,
-				'apps_supported': not self.auth.app_model is None,
-				'body_classes': ('api', 'api-docs-model')
+				'apps_supported': not self.auth.app_model is None and getattr(settings, 'API_APPS_MANAGEABLE', True),
+				'body_classes': ('api', 'api-docs-model'),
+				'app_label': app_label,
+				'model': model._meta.module_name
 			}
 		)

@@ -85,74 +85,14 @@ class ModelAPI(API):
 	def object_allowed_methods(self):
 		return [m for m in self.allowed_methods if m in ('GET', 'PUT', 'DELETE')]
 	
-	def make_example_object(self, model = None, pk = 1):
-		from django.contrib.webdesign import lorem_ipsum
-		from django.template.defaultfilters import slugify
-		import random
-		
-		model = model or self.model
-		opts = model._meta
-		fields = (field for field in opts.local_fields + opts.local_many_to_many)
-		kwargs = {
-			'id': pk
-		}
-		
-		for field in fields:
-			if hasattr(field, 'default') and field.default != models.fields.NOT_PROVIDED:
-				if isinstance(field, models.ForeignKey):
-					value = field.rel.to.objects.get(pk = field.default)
-				else:
-					value = field.default
-			elif hasattr(self, 'make_random_%s' % field.name):
-				value = getattr(self, 'make_random_%s' % field.name)()
-			else:
-				if isinstance(field, models.SlugField):
-					value = slugify(lorem_ipsum.words(2, False))
-				elif isinstance(field, models.CharField):
-					value = lorem_ipsum.words(5, False).capitalize()
-				elif isinstance(field, models.TextField):
-					value = lorem_ipsum.words(20).capitalize()
-				elif isinstance(field, models.IntegerField):
-					value = random.randint(1, 500)
-				elif isinstance(field, models.ForeignKey):
-					if not field.null:
-						value = self.make_example_object(field.rel.to)
-					else:
-						continue
-				elif isinstance(field, models.BooleanField):
-					value = field.default
-				elif isinstance(field, models.DateTimeField):
-					value = now()
-				elif isinstance(field, models.DateField):
-					value = now().date()
-				elif isinstance(field, models.FileField):
-					value = 'filename.dat'
-				elif isinstance(field, models.AutoField):
-					continue
-				elif isinstance(field, (models.ManyToManyField, models.fields.related.RelatedField)):
-					continue
-				else:
-					raise Exception(
-						'Don\'t know how to generate a default value for %s' % field
-					)
-			
-			kwargs[field.name] = value
-		
-		return model(**kwargs)
+	def example_object(self, index = 0):
+		return {}
 	
-	def example_list_response(self):
-		from bambu.api.serialisers import JSONSerialiser
-		
-		return JSONSerialiser().serialise(
-			[self.make_example_object(pk = i + 1) for i in range(3)]
-		)
+	def example_list_response(self, count = 3):
+		return [self.example_object(i) for i in range(0, count)]
 	
 	def example_object_response(self):
-		from bambu.api.serialisers import JSONSerialiser
-		
-		return JSONSerialiser(max_detail_level = 2).serialise(
-			self.make_example_object()
-		)
+		return self.example_object()
 	
 	def get_urls(self):
 		info = self.model._meta.app_label, self.model._meta.module_name

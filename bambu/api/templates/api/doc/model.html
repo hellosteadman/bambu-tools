@@ -46,45 +46,15 @@ Host: {{ SITE.domain }}</pre>
 		</div>
 	</div>
 	
-	{% for inline in inlines %}
-		{% if forloop.first %}<hr />{% endif %}
-		
-		<h2>{{ inline.name }}</h2>
-		{{ inline.doc|restructuredtext }}
-		{% include 'api/doc/endpoints.inc.html' with urls=inline.urls verbose_name=inline.verbose_name verbose_name_plural=inline.verbose_name_plural formats=inline.formats %}
-		
-		<h3>Examples</h3>
-
-		<ul class="nav nav-tabs">
-			<li class="active">
-				<a href="#inline-example-list" data-toggle="tab">{{ inline.verbose_name|capfirst }} list</a>
-			</li>
-
-			<li>
-				<a href="#inline-example-object" data-toggle="tab">Single {{ inline.verbose_name }}</a>
-			</li>
-		</ul>
-		
-		<div class="tab-content">
-			<div class="tab-pane active" id="inline-example-list">
-				<h4>Request</h4>
-				<pre>GET {{ inline.urls.list.example.url }}
-Host: {{ SITE.domain }}</pre>
-				
-				<h4>Response</h4>
-				<pre class="api-example prettyprint">{{ inline.urls.list.example.response|prettyjson }}</pre>
-			</div>
+	{% if inlines %}
+		{% for inline in inlines %}
+			<h3>
+				<a href="{{ inline.url }}">{{ inline.name }}</a>
+			</h3>
 			
-			<div class="tab-pane" id="inline-example-object">
-				<h4>Request</h4>
-				<pre>GET {{ inline.urls.object.example.url }}
-Host: {{ SITE.domain }}</pre>
-				
-				<h4>Response</h4>
-				<pre class="api-example prettyprint">{{ inline.urls.object.example.response|prettyjson }}</pre>
-			</div>
-		</div>
-	{% endfor %}
+			{{ inline.doc.splitlines.0|restructuredtext }}
+		{% endfor %}
+	{% endif %}
 {% endblock form_content %}
 
 {% block javascript %}
