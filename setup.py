@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.3.3.2',
+	version = '3.3.3.3',
 	description = 'Tools for Django webapps',
 	author = 'Mark Steadman',
 	author_email = 'mark@flamingtarball.com',

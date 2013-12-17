@@ -401,7 +401,8 @@ def reset_password(request, guid = None):
 			
 			return TemplateResponse(
 				request,
-				'saas/password-reset.html'
+				'saas/password-reset.html',
+				{}
 			)
 	
 	return TemplateResponse(
