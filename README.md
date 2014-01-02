@@ -16,10 +16,6 @@ Use Twitter's [Bootstrap](http://twitter.github.com/bootstrap/) CSS framework to
 
 A simple scheduling system that lets you define jobs that get performed at various intervals. Use a virtual "poor man's cron" or a single Django management command to run the jobs.
 
-## Megaphone
-
-Automatically post to Twitter, Facebook, LinkedIn and Buffer (with the option of creating your own providers) whenever certain custom-defined actions happen, like publishing a blog post or uploading a video. Register a model with ``bambu.megaphone`` and the app will automatically post your content to that serveice. You can connect your profiles up using the admin area, or let non-staff users set it up for themselves via their profile.
-
 ## SaaS and Payments
 
 Use this burgeoning toolset to build a SaaS (Software as a Service) package, which can take recurring payments (currently from PayPal).

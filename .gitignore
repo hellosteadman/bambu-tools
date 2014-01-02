@@ -1,4 +1,4 @@
 ._*
 *.pyc
-
-/PKG-INFO
+*/build/lib/*
+*/dist/*.tar.gz

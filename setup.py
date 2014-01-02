@@ -3,10 +3,10 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-tools',
-	version = '3.3.4',
+	version = '0.0.1',
 	description = 'Tools for Django webapps',
-	author = 'Mark Steadman',
-	author_email = 'mark@flamingtarball.com',
+	author = 'Steadman',
+	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-tools',
 	install_requires = [
 		'Django>=1.4',
