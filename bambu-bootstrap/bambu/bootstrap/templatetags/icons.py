@@ -1,15 +1,4 @@
-from django.template import Library
-from django.utils.safestring import mark_safe
+import warnings
 
-register = Library()
-
-@register.simple_tag()
-def icon(kind, colour = 'black'):
-	classes = ['icon-%s' % kind]
-	
-	if colour and colour != 'black':
-		classes.append('icon-%s' % colour)
-	
-	return mark_safe(
-		u'<i class="%s"></i>' % ' '.join(classes)
-	)
+warnings.warn('bootstrap.templatetags.icons has been deprecated. Use bootstrap.v2.templatetags.icons instead.')
+from bambu.bootstrap.v2.templatetags.icons import *

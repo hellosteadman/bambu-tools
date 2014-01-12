@@ -1,0 +1,6 @@
+{% for message in messages %}
+	<div class="alert{% for tag in message.tags.split %} alert-{% ifequal tag 'error' %}danger{% else %}{{ tag }}{% endifequal %}{% endfor %}">
+		<a class="close" data-dismiss="alert">&times;</a>
+		<span>{{ message }}</span>
+	</div>
+{% endfor %}

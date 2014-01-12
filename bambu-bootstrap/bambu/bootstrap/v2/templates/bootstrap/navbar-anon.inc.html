@@ -1,0 +1,7 @@
+{% load url from future %}
+<form id="navbar-login" method="post" action="{% url 'login' %}" class="navbar-form pull-right">
+	<input class="input-small" name="username" type="text" placeholder="Username" />
+	<input class="input-small" name="password" type="password" placeholder="Password" />
+	<button class="btn btn-primary" type="submit">Log in</button>
+	{% csrf_token %}
+</form>

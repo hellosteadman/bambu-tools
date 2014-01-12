@@ -1,0 +1,8 @@
+{% if breadcrumb_trail %}<ul class="breadcrumb" data-importance="2">
+	{% for item in breadcrumb_trail %}
+		<li>
+			{% if item.0 %}<a href="{{ item.0 }}">{{ item.1|truncatewords:3 }}</a>{% else %}{{ item.1 }}{% endif %}
+			{% if not forloop.last %}<span class="divider"></span>{% endif %}
+		</li>
+	{% endfor %}
+</ul>{% endif %}

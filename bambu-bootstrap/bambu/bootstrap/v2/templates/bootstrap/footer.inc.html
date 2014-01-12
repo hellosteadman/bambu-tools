@@ -1,0 +1,15 @@
+{% load cache bootstrap %}
+{% cache 600 'footer' request.user.is_authenticated %}
+	<p>
+		&copy; <a href="http://{{ SITE.domain }}">{{ SITE.name }}</a> {% now "Y" %}
+		
+		{% ifequal NAVIGATION 'true' %}
+			{% tryload navigation %}
+			{% trymenu 'footer' %}
+				<a href="{{ item.url }}">{{ item.title }}</a>{% if not forloop.last %} |{% endif %}
+			{% endtrymenu %}
+		{% endifequal %}
+		
+		{% block extra_footer %}{% endblock %}
+	</p>
+{% endcache %}

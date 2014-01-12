@@ -24,9 +24,11 @@
 		{% block after_header %}{% endblock after_header %}
 		
 		<div class="container" id="main-container">
-			{% if messages %}
-				{% include 'bootstrap/messages.inc.html' %}
-			{% endif %}
+			{% block messages %}
+				{% if messages %}
+					{% include 'bootstrap/messages.inc.html' %}
+				{% endif %}
+			{% endblock messages %}
 			
 			{% block breadcrumb_trail %}{% breadcrumb_trail %}{% endblock %}
 			

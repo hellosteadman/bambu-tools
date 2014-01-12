@@ -1,0 +1,47 @@
+{% load forms %}
+{% block non_field_errors %}
+	{% if form.non_field_errors %}
+		<div class="alert alert-error">
+			{% for error in form.non_field_errors %}
+			{{ error }}
+			{% endfor %}
+		</div>
+	{% endif %}
+{% endblock non_field_errors %}
+
+{% block fields %}
+	{% for field in form.visible_fields %}
+		{% ifnotequal field.name 'DELETE' %}
+			{% include 'field.inc.html' %}
+		{% endifnotequal %}
+	{% endfor %}
+{% endblock fields %}
+
+{% block fieldset %}
+	{% if form.DELETE %}
+		<div class="control-group">
+			<label class="control-label" for="id_{{ form.DELETE.html_name }}">Delete this item?</label>
+			<div class="controls delete-field">
+				<label class="checkbox">{{ form.DELETE }} <span>{{ form.DELETE.label }}</span></label></li>
+			</div>
+		</div>
+	{% endif %}
+{% endblock fieldset %}
+
+{% block hidden_fields %}
+	{{ form.hidden_fields|join:'' }}
+{% endblock hidden_fields %}
+
+<script>
+	$(document).ready(
+		function() {
+			{% for field in form.visible_fields %}{% if field|is_datefield %}
+				$('#id_{{ field.html_name }}').datepicker(
+					{
+						dateFormat: 'dd/mm/yy'
+					}
+				);
+			{% endif %}{% endfor %}
+		}
+	);
+</script>

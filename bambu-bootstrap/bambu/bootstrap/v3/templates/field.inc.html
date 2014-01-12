@@ -1,0 +1,45 @@
+{% load forms %}
+
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+	{% if field|is_checkbox %}
+		{% if style == 'horizontal' %}<div class="col-sm-8 col-sm-offset-4">{% endif %}
+			<div class="checkbox">
+				<label>{{ field }} {{ field.label }}</label>
+			</div>
+			
+			{% if field.errors %}
+				<p class="help-block">{{ field.errors|join:' ' }}</p>
+			{% endif %}
+			
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe|linebreaks }}
+				</div>
+			{% endif %}
+		{% if style == 'horizontal' %}</div>{% endif %}
+	{% else %}
+		<label class="control-label{% if style == 'horizontal' %} col-sm-4{% endif %}" for="id_{{ field.html_name }}">{{ field.label }} {% if field.field.required %}<sup class="required">*</sup>{% endif %}</label>
+		{% if style == 'horizontal' %}<div class="col-sm-8">{% endif %}
+			{% if field|is_clearable_filefield %}
+				<input type="file" name="{{ field.html_name }}" id="id_{{ field.html_name }}" />
+				<label class="checkbox">
+					<input type="checkbox" name="{{ field.html_name }}-clear" id="{{ field.html_name }}-clear_id" />
+					Remove this file
+					{% if field.value.url %}<a class="btn btn-small" href="{{ field.value.url }}" target="_blank">View file</a>{% endif %}
+				</label>
+			{% else %}
+				{{ field|bootstrapped }}
+			{% endif %}
+			
+			{% if field.errors %}
+				<p class="help-block">{{ field.errors|join:' ' }}</p>
+			{% endif %}
+			
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe|linebreaks }}
+				</div>
+			{% endif %}
+		{% if style == 'horizontal' %}</div>{% endif %}
+	{% endif %}
+</div>

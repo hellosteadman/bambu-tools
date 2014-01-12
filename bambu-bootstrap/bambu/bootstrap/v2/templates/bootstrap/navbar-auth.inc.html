@@ -1,0 +1,23 @@
+{% load bootstrap %}
+{% load url from future %}
+
+<ul class="nav navbar-nav pull-right">
+	<li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			Logged in as
+			<strong>{{ request.user.username }}</strong>
+			<b class="caret"></b>
+		</a>
+		
+		<ul class="dropdown-menu">
+			{% ifequal NAVIGATION 'true' %}
+				{% tryload navigation %}
+				{% trymenu 'profile' login=True %}
+					<li><a href="{{ item.url }}">{{ item.title }}</a></li>
+				{% endtrymenu %}
+			{% endifequal %}
+			
+			<li><a href="{% url 'logout' %}">Log out</a></li>
+		</ul>
+	</li>
+</ul>

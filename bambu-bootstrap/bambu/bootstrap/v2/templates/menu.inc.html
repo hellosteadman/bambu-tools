@@ -1,0 +1,10 @@
+{% load bootstrap %}
+
+{% ifequal NAVIGATION 'true' %}
+	{% tryload navigation %}
+	<ul class="nav">
+		{% trymenu 'navbar' %}
+			<li{% if item.active %} class="active{% if item.highlight %} highlight{% endif %}"{% endif %}><a href="{{ item.url }}"{% if item.description %} title="{{ item.description }}"{% endif %}>{{ item.title }}</a></li>
+		{% endtrymenu %}
+	</ul>
+{% endifequal %}

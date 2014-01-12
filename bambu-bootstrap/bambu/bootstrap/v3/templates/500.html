@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<title>Internal server error</title>
+		<link rel="stylesheet" href="{{ STATIC_URL|default:'/static/' }}bootstrap/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="{{ STATIC_URL|default:'/static/' }}bootstrap/css/bootstrap-responsive.min.css" />
+		
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/jquery.min.js"></script>
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/bootstrap.js"></script>
+		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/modernizr.js"></script>
+	</head>
+	
+	<body class="error-500">
+		<div class="container" id="main-container">
+			<div class="page-header" data-importance="2">
+				<h1>Sorry<small> Internal server error</small></h1>
+			</div>
+			
+			<div class="row">
+				<div class="span8">
+					<p>Sorry, but an internal server error has occurred.<br />The developers have been notified.</p>
+					<p>Please try <a href="/">returning to the home page</a>.</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
