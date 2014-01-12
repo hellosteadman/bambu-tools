@@ -17,6 +17,7 @@ class Attachment(models.Model):
 	title = models.CharField(max_length = 100)
 	description = models.TextField(null = True, blank = True)
 	featured = models.BooleanField(default = False, db_index = True)
+	saved = models.BooleanField(default = True, editable = False)
 	content_type = models.ForeignKey(ContentType)
 	object_id = models.PositiveIntegerField()
 	content_object = generic.GenericForeignKey()
