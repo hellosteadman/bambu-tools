@@ -41,7 +41,7 @@ class Post(models.Model):
 	slug = models.SlugField(max_length = 100, db_index = True)
 	date = models.DateTimeField(db_index = True)
 	published = models.BooleanField(default = True)
-	broadcast = models.BooleanField(editable = False)
+	broadcast = models.BooleanField(default = False, editable = False)
 	body = models.TextField()
 	css = models.TextField(null = True, blank = True)
 	tags = TaggableManager()
