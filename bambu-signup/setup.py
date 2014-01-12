@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-signup',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A fluid signup method for free web apps',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

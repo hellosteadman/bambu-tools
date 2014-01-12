@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-ffmpeg',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A shortcut function for converting video and audio files to HTML5-ready formats',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

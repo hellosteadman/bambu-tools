@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-notifications',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'Generic, developer-defined model notifications that can be delivered via a set of pluggable, provider-based endpoints (email, SMS, Pusher, etc)',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

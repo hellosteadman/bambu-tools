@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-enquiries',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A simple model and contact form',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

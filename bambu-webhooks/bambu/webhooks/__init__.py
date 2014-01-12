@@ -5,7 +5,7 @@ try:
 except ImportError:
 	from django.utils import simplejson
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 site = WebHookSite()
 
 def send(hook, user, data = {}, hash = None):

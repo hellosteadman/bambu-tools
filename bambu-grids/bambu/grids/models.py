@@ -1,4 +1,4 @@
-from django.db.models import Model, Manager, ManyToManyField, Q
+from django.db.models import Model, Manager, ManyToManyField, Q, CharField
 from django.db.models.query import QuerySet
 from django.utils.safestring import mark_safe
 from django.utils.datastructures import SortedDict
@@ -176,6 +176,16 @@ class ModelGrid(Grid):
 				field = f
 		
 		if field:
+			if isinstance(field, CharField) and not field.choices:
+				if any(self.data):
+					return set(
+						[
+							(v, v.capitalize()) for v in self.data.only('noun').values_list(field.name, flat = True).distinct()
+						]
+					)
+				
+				return []
+			
 			return field.get_choices()
 	
 	def _get_search_options(self):

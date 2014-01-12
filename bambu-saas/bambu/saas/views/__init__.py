@@ -246,12 +246,12 @@ def signup(request):
 				if 'challenge_words' in request.session:
 					del request.session['challenge_words']
 					request.session.modified = True
-			
+				
 				user = form.save()
 				plan = form.cleaned_data.get('plan',
 					Plan.objects.get(pk = settings.SAAS_DEFAULT_PLAN),
 				)
-			
+				
 				if 'bambu.analytics' in settings.INSTALLED_APPS:
 					from bambu.analytics import track_event, events
 					track_event(request, events.EVENT,
@@ -260,25 +260,25 @@ def signup(request):
 						option_label = plan.name,
 						option_value = user.pk
 					)
-			
+				
 				if form.cleaned_data.get('newsletter_optin'):
 					user.pending_newsletter_optins.create()
-			
+				
 				currency = getattr(settings, 'DEFAULT_CURRENCY', 'GBP')
 				price = plan.prices.get(currency = currency)
-			
+				
 				if price.monthly == 0:
 					user.email_validations.create()
 					for group in plan.groups.all():
 						user.groups.add(group)
-				
+					
 					return HttpResponseRedirect(
 						reverse('signup_complete')
 					)
 				else:
 					login(request, user)
 					request.session['PAYMENT_GATEWAY'] = form.cleaned_data['payment_gateway']
-				
+					
 					return HttpResponseRedirect(
 						reverse('signup_pay')
 					)

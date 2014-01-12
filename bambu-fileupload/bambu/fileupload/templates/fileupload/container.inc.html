@@ -2,7 +2,7 @@
 
 <div id="{{ id }}" class="fileupload-container">
 	<small>Drag a file here</small>
-	<span class="btn fileinput-button">
+	<span class="btn btn-default fileinput-button">
 		<span>Choose files</span>
 		<input id="{{ id }}_input" type="file" name="fileupload[]" multiple>
 	</span>
@@ -58,7 +58,7 @@
 					}
 					
 					$('#{{ id }}').addClass('full').removeClass('error').html(
-						'<div class="progress"><div class="bar"></div></div>' +
+						'<div class="progress"><div class="progress-bar"></div></div>' +
 						'<small>Calculating time remaining</small>'
 					);
 					
@@ -74,7 +74,7 @@
 						data.bitrate / 1024, 0
 					).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 					
-					$('#{{ id }} .progress .bar').css('width', progress + '%');
+					$('#{{ id }} .progress .progress-bar').css('width', progress + '%');
 					if(progress >= 100) {
 						$('#{{ id }} small').html('Finishing up');
 					} else {
@@ -84,7 +84,7 @@
 				done: function(e, data) {
 					$('#{{ id }}').removeClass('full').html(
 						'<small>Upload a new file</small>' +
-						'<span class="btn fileinput-button">' +
+						'<span class="btn btn-default fileinput-button">' +
 							'<span>Choose files</span>' +
 							'<input id="{{ id }}_input" type="file" name="fileupload[]" multiple>' +
 						'</span>'

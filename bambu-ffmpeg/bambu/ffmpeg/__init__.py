@@ -3,7 +3,7 @@ from django.conf import settings
 from pymediainfo import MediaInfo
 import os, subprocess, logging, mimetypes, time
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 ASPECT_RATIO = getattr(settings, 'FFMPEG_ASPECT_RATIO', '16:9')
 WIDTH = getattr(settings, 'FFMPEG_WIDTH', 640)
 
@@ -20,7 +20,7 @@ WIDTH = str(WIDTH)
 
 VIDEO_ENCODING_COMMAND = 'ffmpeg -i %s -s ' + WIDTH + 'x' + HEIGHT + ' -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -r 30000/1001 -b:v 200k -bt 240k -vcodec libx264 -vpre ipod' + WIDTH + ' -acodec libfaac -ac 2 -ar 48000 -ab 192k -y %s'
 AUDIO_ENCODING_COMMAND = 'ffmpeg -i %s %s -acodec libfaac -ac 2 -ar 48000 -ab 192k -y %s'
-THUMBNAIL_ENCODING_COMMAND = 'ffmpeg -i %s -vf "%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -f image2 -vframes 1 -y %s'
+THUMBNAIL_ENCODING_COMMAND = 'ffmpeg -i %%s -s ' + WIDTH + 'x' + HEIGHT + ' -vf "%%sscale=iw*sar:ih , pad=max(iw\,ih*(' + ASPECT_RATIO_SLASH + ')):ow/(' + ASPECT_RATIO_SLASH + '):(ow-iw)/2:(oh-ih)/2" -aspect ' + ASPECT_RATIO + ' -f image2 -vframes 1 -ss %s -y %%s'
 
 def _run_command(command, extension, source):
 	handles = []
@@ -99,5 +99,5 @@ def convert_video(source):
 def convert_audio(source):
 	return _run_command(AUDIO_ENCODING_COMMAND, '.m4a', source)
 
-def create_thumbnail(source):
-	return _run_command(THUMBNAIL_ENCODING_COMMAND, '.jpg', source)
+def create_thumbnail(source, start = 0):
+	return _run_command(THUMBNAIL_ENCODING_COMMAND % str(start), '.jpg', source)

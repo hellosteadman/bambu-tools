@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-navigation',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A set of template tags and settings for creating automatically-built menus',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

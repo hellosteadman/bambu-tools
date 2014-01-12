@@ -1,5 +1,12 @@
 from django.db import models
-from bambu.bootstrap.fontawesome import ICONS
+from django.conf import settings
+
+if 'bambu.bootstrap.v2' in settings.INSTALLED_APPS:
+	from bambu.bootstrap.v2.fontawesome import ICONS
+elif 'bambu.bootstrap.v3' in settings.INSTALLED_APPS:
+	from bambu.bootstrap.v3.fontawesome import ICONS
+else:
+	from bambu.bootstrap.fontawesome import ICONS
 
 class Category(models.Model):
 	name = models.CharField(max_length = 100)

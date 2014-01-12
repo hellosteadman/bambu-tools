@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-dataportability',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'Generic import and export tools',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

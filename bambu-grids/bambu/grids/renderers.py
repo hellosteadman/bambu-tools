@@ -343,12 +343,20 @@ class PaginationRenderer(object):
 	
 	def __init__(self, grid):
 		self.grid = grid
+		self.bootstrap_v3 = 'bambu.bootstrap.v3' in settings.INSTALLED_APPS
 	
 	def render(self, page):
-		portions = [u'<div class="pagination">']
+		if not self.bootstrap_v3:
+			portions = [u'<div class="pagination">']
+		else:
+			portions = []
 		
 		if page.has_other_pages():
-			portions.append(u'<ul>')
+			if self.bootstrap_v3:
+				portions.append(u'<ul class="pagination pull-left">')
+			else:
+				portions.append(u'<ul>')
+			
 			key = self.grid.prefix and '%s-page' % self.grid.prefix or 'page'
 			
 			if page.has_previous():
@@ -456,7 +464,11 @@ class PaginationRenderer(object):
 			)
 			
 			key = self.grid.prefix and '%s-rpp' % self.grid.prefix or 'rpp'
-			portions.append('<ul class="pull-right"><li><a title="Rows per page"><i class="icon-table"></i></a></li>')
+			portions.append(
+				'<ul class="pull-right%s"><li><a title="Rows per page"><i class="icon-table"></i></a></li>' % (
+					self.bootstrap_v3 and ' pagination' or ''
+				)
+			)
 			
 			for option in options:
 				portions.append(
@@ -471,8 +483,11 @@ class PaginationRenderer(object):
 					)
 				)
 			portions.append(u'</ul>')
-			
-		portions.append(u'<div class="clearfix"></div></div>')
+		
+		portions.append(u'<div class="clearfix"></div>')
+		if not self.bootstrap_v3:
+			portions.append(u'</div>')
+		
 		return ''.join(portions)
 
 class FilterRenderer(object):
@@ -513,12 +528,19 @@ class FilterRenderer(object):
 			value = data.get(name)
 			choices = self.grid._get_filter_choices(fieldname)
 			
+			func = getattr(self.grid, 'render_%s_filter' % fieldname, None)
+			if func:
+				f = func(name, value, choices)
+				if f:
+					fields += '<div class="form-group">%s</div>' % f
+					continue
+			
 			field = forms.ChoiceField(choices = choices)
 			field.widget.choices = [
 				('', '--- %s ---' % self.grid.get_friendly_name(fieldname))
 			] + field.widget.choices[1:]
 			
-			fields += field.widget.render(name, value)
+			fields += '<div class="form-group">%s</div>' % field.widget.render(name, value)
 		
 		return fields
 	
@@ -559,14 +581,17 @@ class ModelFilterRenderer(FilterRenderer):
 			name = self.grid.prefix and '%s-search' % (self.grid.prefix) or 'search'
 			value = data.get(name)
 			
-			fields += u'<input name="%(name)s" id="id_%(name)s" type="text"' % {'name': name}
+			fields += u'<div class="form-group pull-right">'
+			fields += u'<input name="%(name)s" id="id_%(name)s" type="search"' % {'name': name}
 			
 			if value:
 				fields += u' value="%s"' % value
 			
-			fields += u' class="pull-right" placeholder="Search %(model)s" autocomplete="off" />' % {
+			fields += u' class="form-control" placeholder="Search %(model)s" autocomplete="off" />' % {
 				'model': unicode(self.grid.model._meta.verbose_name_plural)
 			}
+			
+			fields += u'</div>'
 		
 		return fields + super(ModelFilterRenderer, self)._render_fields(data)
 	

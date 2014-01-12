@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-faq',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A simple set of models for a Frequently-Asked-Questions site',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

@@ -4,6 +4,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.conf import settings
+from django.utils.importlib import import_module
 
 def render_to_mail_task(subject, template, context, recipient, fail_silently = False):
 	from_email = getattr(settings, 'DEFAULT_FROM_EMAIL')
@@ -85,6 +86,21 @@ def render_to_mail_task(subject, template, context, recipient, fail_silently = F
 		if not fail_silently:
 			raise
 
+def subscribe_task(email, **kwargs):
+	provider = getattr(settings, 'NEWSLETTER_PROVIDER')
+	module, dot, klass = provider.rpartition('.')
+	ps = getattr(settings,
+		'NEWSLETTER_SETTINGS', {
+			klass: {}
+		}
+	).get(klass)
+	
+	module = import_module(module)
+	klass = getattr(module, klass)
+	provider = klass(**ps)
+	return provider.subscribe(email, **kwargs)
+
 if 'djcelery' in settings.INSTALLED_APPS:
 	from celery import task
 	render_to_mail_task = task(render_to_mail_task)
+	subscribe_task = task(subscribe_task)

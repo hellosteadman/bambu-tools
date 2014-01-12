@@ -119,7 +119,6 @@ class CycleNode(Node):
 				'revcounter0': len(items) - i - 1,
 				'first': i == 0,
 				'last': i + 1 == len(items),
-				'icon': item.get('icon', None),
 				'icon': item.get('icon') and mark_safe('<i class="icon-%s"></i>' % item['icon']) or ''
 			}
 			

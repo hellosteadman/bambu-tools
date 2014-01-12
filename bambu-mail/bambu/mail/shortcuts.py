@@ -1,6 +1,5 @@
-from bambu.mail.tasks import render_to_mail_task
+from bambu.mail.tasks import render_to_mail_task, subscribe_task
 from django.conf import settings
-from django.utils.importlib import import_module
 
 def render_to_mail(subject, template, context, recipient, fail_silently = False):
 	if 'djcelery' in settings.INSTALLED_APPS:
@@ -21,15 +20,13 @@ def render_to_mail(subject, template, context, recipient, fail_silently = False)
 		)
 
 def subscribe(email, **kwargs):
-	provider = getattr(settings, 'NEWSLETTER_PROVIDER')
-	module, dot, klass = provider.rpartition('.')
-	ps = getattr(settings,
-		'NEWSLETTER_SETTINGS', {
-			klass: {}
-		}
-	).get(klass)
-	
-	module = import_module(module)
-	klass = getattr(module, klass)
-	provider = klass(**ps)
-	return provider.subscribe(email, **kwargs)
+	if 'djcelery' in settings.INSTALLED_APPS:
+		subscribe_task.delay(
+			email,
+			**kwargs
+		)
+	else:
+		subscribe_task(
+			email,
+			**kwargs
+		)

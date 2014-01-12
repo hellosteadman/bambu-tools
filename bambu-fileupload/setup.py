@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-fileupload',
-	version = '0.0.1',
+	version = '0.0.2',
 	description = 'A wrapper around the jQuery.fileupload library',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
