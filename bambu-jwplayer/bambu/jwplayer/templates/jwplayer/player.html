@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>Player</title>
 		<script src="{{ STATIC_SECURE_URL }}jwplayer/jwplayer.js"></script>
+		<script src="{{ STATIC_SECURE_URL }}jwplayer/jwplayer.html5.js"></script>
 		<style>
 			html, body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
 			#player {
@@ -32,7 +33,7 @@
 			
 			jwplayer('player').setup(
 				{
-					'flashplayer': '{{ STATIC_SECURE_URL }}jwplayer/player.swf',
+					'flashplayer': '{{ STATIC_SECURE_URL }}jwplayer/jwplayer.flash.swf',
 					'width': {{ width }},
 					'height': {{ height }},
 					'file': '{{ video_name|safe }}',{% if thumbnail %}
