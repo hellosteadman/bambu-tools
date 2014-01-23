@@ -1,4 +1,4 @@
-<!DOCTYPE html>{% load analytics %}
+<!DOCTYPE html>{% load staticfiles %}
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -17,6 +17,6 @@
 	</head>
 	
 	<body style="height: 100%;">
-		<img id="not-found" src="{{ STATIC_URL }}jwplayer/404.png" />
+		<img id="not-found" src="{% static 'jwplayer/404.png' %}" />
 	</body>
 </html>
