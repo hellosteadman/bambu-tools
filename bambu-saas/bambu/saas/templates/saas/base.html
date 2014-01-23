@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block extra_head %}
 	{{ block.super }}
-	<link rel="stylesheet" href="{{ STATIC_URL }}saas/css/feature-list.css" />
+	<link rel="stylesheet" href="{% static 'saas/css/feature-list.css' %}" />
 {% endblock extra_head %}
