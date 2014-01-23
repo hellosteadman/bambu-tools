@@ -1,4 +1,4 @@
-{% load bootstrap cache enqueue %}<!DOCTYPE html>
+{% load bootstrap cache enqueue staticfiles %}<!DOCTYPE html>
 <html {% html_attrs %}>
 	<head{% block head_attrs %}{% endblock %}>
 		<meta charset="UTF-8" />
@@ -12,11 +12,11 @@
 		{% bootstrap_styles %}
 		{% typekit %}
 		
-		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/jquery.min.js"></script>
+		<script src="{% static 'bootstrap/js/jquery.js' %}"></script>
 		{% bootstrap_scripts %}
 		{% block extra_head %}{% endblock %}
 		{% enqueued_styles %}
-		<script src="{{ STATIC_URL|default:'/static/' }}bootstrap/js/modernizr.js"></script>
+		<script src="{% static 'bootstrap/js/modernizr.js' %}"></script>
 	</head>
 	
 	<body class="{% spaceless %}{% if request.user.is_authenticated%}logged-in{% else %}anonymous{% endif %} {% if popup %}popup{% endif %} {% for class in body_classes %}{{ class }} {% endfor %}{% endspaceless %}{% if request.mobile %} mobile mobile-{{ request.formfactor }}{% endif %}">

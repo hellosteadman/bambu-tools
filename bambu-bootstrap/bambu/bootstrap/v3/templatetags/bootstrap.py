@@ -24,9 +24,9 @@ def bootstrap_scripts():
 	
 	return '<script src="%s"></script>' % (
 		js_url and (
-			'%s%s' % ((settings.MEDIA_URL or '/media/'), js_url)
+			'%s%s' % ((getattr(settings, 'BOOTSTRAP_CSS_BASE', getattr(settings.MEDIA_URL, '/media/'))), js_url)
 		) or (
-			'%sbootstrap/js/bootstrap.min.js' % (settings.STATIC_URL or '/static/')
+			'%sbootstrap/js/bootstrap.js' % (settings.STATIC_URL or '/static/')
 		)
 	)
 
@@ -76,12 +76,6 @@ def html_attrs(context):
 	return ' '.join(
 		['%s="%s"' % t for t in tags]
 	)
-
-@register.inclusion_tag('bootstrap/jquery-ui.inc.html', takes_context = True)
-def jquery_ui(context):
-	return {
-		'STATIC_URL': context.get('STATIC_URL')
-	}
 
 @register.tag
 def tryload(parser, token):
