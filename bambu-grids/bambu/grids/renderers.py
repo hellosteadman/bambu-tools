@@ -137,7 +137,7 @@ class Renderer(object):
 			elif not rendered_dropdown:
 				portions.append('<div class="dropdown pull-right">&nbsp;')
 				portions.append('<a class="dropdown-toggle btn" role="button" data-toggle="dropdown">')
-				portions.append('<i class="icon-cog"></i></a>')
+				portions.append('<i class="fa fa-cog icon-cog"></i></a>')
 				portions.append('<ul class="dropdown-menu" role="menu">')
 				rendered_dropdown = True
 			
@@ -188,8 +188,9 @@ class Renderer(object):
 			colour = ''
 			if hasattr(func, 'icon_colour'):
 				colour = ' icon-%s' % func.icon_colour
+				colour = ' fa-%s' % func.icon_colour
 			
-			label = u'<span class="icon-%s%s"></span> %s' % (func.icon, colour, escape(label))
+			label = u'<span class="fa fa-%s icon-%s%s"></span> %s' % (func.icon, func.icon, colour, escape(label))
 		else:
 			label = escape(label)
 		
@@ -361,14 +362,14 @@ class PaginationRenderer(object):
 			
 			if page.has_previous():
 				portions.append(
-					u'<li class="prev"><a href="%s" title="Previous page"><i class="icon-chevron-left"></i></a></li>' % self.grid._context_sensitive_url(
+					u'<li class="prev"><a href="%s" title="Previous page"><i class="fa fa-chevron-left icon-chevron-left"></i></a></li>' % self.grid._context_sensitive_url(
 						**{
 							key: page.previous_page_number()
 						}
 					)
 				)
 			else:
-				portions.append(u'<li class="prev disabled"><a><i class="icon-chevron-left"></i></a></li>')
+				portions.append(u'<li class="prev disabled"><a><i class="fa fa-chevron-left icon-chevron-left"></i></a></li>')
 			
 			if page.paginator.num_pages > self.max_pagelinks:
 				minpage = ceil(float(page.number) - float(self.max_pagelinks) / 2.0)
@@ -434,12 +435,12 @@ class PaginationRenderer(object):
 			
 			if page.has_next():
 				portions.append(
-					u'<li class="next"><a href="%s" title="Next page"><i class="icon-chevron-right"></i></a></li>' % self.grid._context_sensitive_url(
+					u'<li class="next"><a href="%s" title="Next page"><i class="fa fa-chevron-right icon-chevron-right"></i></a></li>' % self.grid._context_sensitive_url(
 						**{key: page.next_page_number()}
 					)
 				)
 			else:
-				portions.append(u'<li class="next disabled"><a><i class="icon-chevron-right"></i></a></li>')
+				portions.append(u'<li class="next disabled"><a><i class="fa fa-chevron-right icon-chevron-right"></i></a></li>')
 			
 			portions.append(u'</ul>')
 		
@@ -465,7 +466,7 @@ class PaginationRenderer(object):
 			
 			key = self.grid.prefix and '%s-rpp' % self.grid.prefix or 'rpp'
 			portions.append(
-				'<ul class="pull-right%s"><li><a title="Rows per page"><i class="icon-table"></i></a></li>' % (
+				'<ul class="pull-right%s"><li><a title="Rows per page"><i class="fa fa-table icon-table"></i></a></li>' % (
 					self.bootstrap_v3 and ' pagination' or ''
 				)
 			)

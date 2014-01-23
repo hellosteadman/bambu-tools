@@ -102,7 +102,7 @@ class CycleNode(Node):
 					'active': selection == item['selection'],
 					'description': item.get('description'),
 					'highlight': item.get('highlight', False),
-					'icon': item.get('icon') and mark_safe('<i class="icon-%s"></i>' % item['icon']) or ''
+					'icon': item.get('icon') and mark_safe('<i class="fa fa-%(icon)s icon-%(icon)s"></i>' % item) or ''
 				}
 			)
 		
@@ -119,7 +119,7 @@ class CycleNode(Node):
 				'revcounter0': len(items) - i - 1,
 				'first': i == 0,
 				'last': i + 1 == len(items),
-				'icon': item.get('icon') and mark_safe('<i class="icon-%s"></i>' % item['icon']) or ''
+				'icon': item.get('icon') and mark_safe('<i class="fa fa-%(icon)s icon-%(icon)s"></i>' % item) or ''
 			}
 			
 			ret.append(
