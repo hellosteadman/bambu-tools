@@ -8,6 +8,7 @@ from django.forms import Form, ModelForm
 from django.forms.models import modelform_factory
 from django.http import Http404
 from bambu.api import helpers
+from bambu.api import decorators
 from bambu.api.transformers import library
 from bambu.api.exceptions import APIException
 
@@ -37,6 +38,7 @@ class ModelAPI(API):
 	allowed_formats = ('xml', 'json')
 	raw_id_fields = ()
 	readonly_fields = ()
+	return_values = {}
 	
 	def __init__(self, model, api_site):
 		super(ModelAPI, self).__init__(api_site)
@@ -96,29 +98,106 @@ class ModelAPI(API):
 	
 	def get_urls(self):
 		info = self.model._meta.app_label, self.model._meta.module_name
+		singular = unicode(self.model._meta.verbose_name)
+		plural = unicode(self.model._meta.verbose_name_plural)
+		
+		if singular.islower():
+			singular = singular.capitalize()
+		
+		if plural.islower():
+			plural = plural.capitalize()
+		
+		this = self
+		while this.parent:
+			parent_singular = unicode(this.parent.model._meta.verbose_name)
+			
+			if parent_singular.islower():
+				parent_singular = parent_singular.capitalize()
+			
+			singular = '%s: %s' % (parent_singular, singular)
+			plural = '%s: %s' % (parent_singular, plural)
+			this = this.parent
+		
+		plural = '%s: %s' % (self.model._meta.app_label.capitalize(), plural)
+		singular = '%s: %s' % (self.model._meta.app_label.capitalize(), singular)
+		
+		plural_view = single_view = helpers.wrap_api_function(
+			self.api_site, self.list_view, 1,
+			self.list_allowed_methods, self.prepare_output_data,
+			plural
+		)
+		
+		single_view = helpers.wrap_api_function(
+			self.api_site, self.object_view, 2,
+			self.object_allowed_methods, self.prepare_output_data,
+			singular
+		)
+		
+		single_view = decorators.argument('object_id', 'id', u'The ID of the %s to return' % self.model._meta.verbose_name)(single_view)
+		single_view = decorators.argument('format', 'str', u'The data format to return')(single_view)
+		plural_view = decorators.argument('format', 'str', u'The data format to return')(plural_view)
+		
+		if self.fields is None or not any(self.fields):
+			fields = []
+		else:
+			fields = list(self.fields)
+		
+		if self.exclude is None:
+			exclude = []
+		else:
+			exclude = list(self.exclude)
+		
+		returns = {}
+		for f in self.model._meta.local_fields:
+			if f.name in exclude:
+				continue
+			
+			if any(fields) and not f.name in fields:
+				continue
+			
+			ft = 'str'
+			if isinstance(f, models.IntegerField):
+				ft = 'int'
+			elif isinstance(f, models.DecimalField):
+				ft = 'float'
+			elif isinstance(f, models.BooleanField):
+				ft = 'bool'
+			elif isinstance(f, models.ForeignKey):
+				ft = 'int'
+			elif isinstance(f, models.ManyToManyField):
+				ft = 'list'
+			
+			description = self.return_values.get(f.name,
+				f.help_text or (u'The %s\'s %s' % (self.model._meta.verbose_name, f.verbose_name))
+			)
+			
+			returns[f.name] = (ft, description)
+		
+		single_view = decorators.returns(returns)(single_view)
+		plural_view = decorators.returns(returns)(plural_view)
 		
 		urlpatterns = patterns('',
 			url(r'^\.(?P<format>' + '|'.join(self.allowed_formats) + ')$',
-				helpers.wrap_api_function(
-					self.api_site, self.list_view, 1,
-					self.list_allowed_methods, self.prepare_output_data
-				),
+				plural_view,
 				name = '%s_%s_list' % info
 			),
 			url(r'^/(?P<object_id>\d+)\.(?P<format>' + '|'.join(self.allowed_formats) + ')$',
-				helpers.wrap_api_function(
-					self.api_site, self.object_view, 2,
-					self.object_allowed_methods, self.prepare_output_data
-				),
-				name = '%s_%s_object' % info
+				single_view,
+				name = '%s_%s_single' % info
 			)
 		)
 		
 		for inline in self.inline_instances:
+			vn = inline.rel_field.rel.to._meta.verbose_name
+			
 			urlpatterns += patterns('',
-				url(
-					r'^/(?P<' + inline.rel_field.name + '>\d+)/' + inline.rel_name,
-					include(inline.get_urls())
+				decorators.argument(
+					inline.rel_field.name, 'int', u'The ID of the parent %s' % vn
+				)(
+					url(
+						r'^/(?P<' + inline.rel_field.name + '>\d+)/' + inline.rel_name,
+						include(inline.get_urls())
+					)
 				)
 			)
 		

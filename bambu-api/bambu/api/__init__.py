@@ -8,6 +8,7 @@ __version__ = '0.0.1'
 from bambu.api.options import *
 from bambu.api.sites import APISite
 from bambu.api.exceptions import APIException
+from bambu.api.decorators import argument, returns, named
 from django.conf import settings
 from datetime import datetime
 

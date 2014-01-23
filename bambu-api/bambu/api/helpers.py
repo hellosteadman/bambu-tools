@@ -57,7 +57,7 @@ def form_initial_data(form_class, obj = None, **kwargs):
 	
 	return initial
 
-def wrap_api_function(site, view, detail_level, allowed_methods, processor):
+def wrap_api_function(site, view, detail_level, allowed_methods, processor, verbose_name = None):
 	"""
 	A decorator which wraps certain functions, so that a number of checks can be run before the function
 	is called (ie: checking that the HTTP method is allowed).
@@ -80,9 +80,13 @@ def wrap_api_function(site, view, detail_level, allowed_methods, processor):
 		
 		return response
 	
-	return csrf_exempt(
+	wrapped = csrf_exempt(
 		update_wrapper(wrapper, view)
 	)
+	
+	wrapped.api_verbose_name = verbose_name
+	wrapped.api_call_type = 'view'
+	return wrapped
 
 def wrap_api_page(site, view, allowed_methods):
 	"""
@@ -104,7 +108,9 @@ def wrap_api_page(site, view, allowed_methods):
 		
 		return response
 	
-	return update_wrapper(wrapper, view)
+	wrapped = update_wrapper(wrapper, view)
+	wrapped.api_call_type = 'page'
+	return wrapped
 
 def generate_random_key(length = 32):
 	"""

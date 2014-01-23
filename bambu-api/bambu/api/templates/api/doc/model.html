@@ -1,9 +1,9 @@
 {% extends 'api/doc/base.html' %}
-{% load markup prettycode %}
+{% load markup prettycode staticfiles %}
 
 {% block extra_head %}
 	{{ block.super }}
-	<link rel="stylesheet" href="{{ STATIC_URL }}api/js/google-prettify/prettify.css" />
+	<link rel="stylesheet" href="{% static 'api/js/google-prettify/prettify.css' %}" />
 {% endblock extra_head %}
 
 {% block form_content %}
@@ -59,7 +59,7 @@ Host: {{ SITE.domain }}</pre>
 
 {% block javascript %}
 	{{ block.super }}
-	<script src="{{ STATIC_URL }}api/js/google-prettify/prettify.js"></script>
+	<script src="{% static 'api/js/google-prettify/prettify.js' %}"></script>
 	
 	<script>
 		$(document).ready(prettyPrint);

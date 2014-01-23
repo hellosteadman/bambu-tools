@@ -296,7 +296,7 @@ class APISite(object):
 				'object': {
 					'url': self._format_url(
 						reverse(
-							'api:%s_%s_object' % (opts.app_label, opts.module_name),
+							'api:%s_%s_single' % (opts.app_label, opts.module_name),
 							args = args + [12345, 'xml']
 						),
 						api.rel_field.name
@@ -304,7 +304,7 @@ class APISite(object):
 					'allowed_methods': api.object_allowed_methods,
 					'example': {
 						'url': reverse(
-							'api:%s_%s_object' % (opts.app_label, opts.module_name),
+							'api:%s_%s_single' % (opts.app_label, opts.module_name),
 							args = args + [67890, 'json']
 						),
 						'response': simplejson.dumps(api.example_object_response())
@@ -332,14 +332,14 @@ class APISite(object):
 				'object': {
 					'url': self._format_url(
 						reverse(
-							'api:%s_%s_object' % (opts.app_label, opts.module_name),
+							'api:%s_%s_single' % (opts.app_label, opts.module_name),
 							args = [12345, 'xml']
 						)
 					),
 					'allowed_methods': api.object_allowed_methods,
 					'example': {
 						'url': reverse(
-							'api:%s_%s_object' % (opts.app_label, opts.module_name),
+							'api:%s_%s_single' % (opts.app_label, opts.module_name),
 							args = [1, 'json']
 						),
 						'response': simplejson.dumps(api.example_object_response())

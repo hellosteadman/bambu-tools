@@ -64,12 +64,14 @@ if ALLOW_USER_MANAGEMENT:
 				)
 	
 			return urlpatterns
-
+		
+		@api.argument('format', 'str', u'The data format to return')
 		def login_view(self, request):
 			return request.user
 
 		@anonymous
 		@transaction.commit_on_success
+		@api.argument('format', 'str', u'The data format to return')
 		def register_view(self, request):
 			form = UserRegistrationForm(request.POST)
 			if form.is_valid():
@@ -78,6 +80,7 @@ if ALLOW_USER_MANAGEMENT:
 				raise Exception(dict(form.errors.items()))
 		
 		@transaction.commit_on_success
+		@api.argument('format', 'str', u'The data format to return')
 		def unregister_view(self, request):
 			request.user.delete()
 			return True

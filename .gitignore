@@ -1,4 +1,5 @@
 ._*
+.DS_Store
 *.pyc
 */build/lib/*
 */dist/*.tar.gz
