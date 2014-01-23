@@ -473,7 +473,7 @@ class PaginationRenderer(object):
 			
 			for option in options:
 				portions.append(
-					u'<li%s><a class="btn" href="%s">%s</a></li>' % (
+					u'<li%s><a class="btn btn-default" href="%s">%s</a></li>' % (
 						option['selected'] and u' class="active"' or u'',
 						self.grid._context_sensitive_url(
 							**{
