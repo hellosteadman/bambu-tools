@@ -37,9 +37,9 @@ def bootstrap_scripts():
 
 	return '<script src="%s"></script>' % (
 		js_url and (
-			'%s%s' % ((settings.MEDIA_URL or '/media/'), js_url)
+			'%s%s' % ((getattr(settings, 'BOOTSTRAP_CSS_BASE', settings.MEDIA_URL or '/media/')), js_url)
 		) or (
-			'%sbootstrap/js/bootstrap.min.js' % (settings.STATIC_URL or '/static/')
+			'%sbootstrap/js/bootstrap.js' % (settings.STATIC_URL or '/static/')
 		)
 	)
 
