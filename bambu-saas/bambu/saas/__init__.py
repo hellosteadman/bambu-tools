@@ -1,4 +1,4 @@
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 def subusers(user):
 	from bambu.saas.models import UserPlan
