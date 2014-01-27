@@ -32,11 +32,8 @@ setup(
 		],
 		'bambu.bootstrap.v3': [
 			'static/bootstrap/css/*.css',
-			'static/bootstrap/css/jquery-ui/*.css',
-			'static/bootstrap/css/jquery-ui/images/*.png',
 			'static/bootstrap/js/*.js',
-			'static/bootstrap/img/*.png',
-			'static/bootstrap/font/*.*',
+			'static/bootstrap/fonts/*.*',
 			'templates/bootstrap/*.html',
 			'templates/search/*.html',
 			'templates/*.html'
