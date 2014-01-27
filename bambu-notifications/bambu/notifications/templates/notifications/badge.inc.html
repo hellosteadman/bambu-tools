@@ -5,12 +5,8 @@
 	</div>
 	
 	<div class="bambu-notifications-badge-popup" style="display: none;">
-		<div class="bambu-popup-header">
-			<h2>Notifications</h2>
-		</div>
-		
 		<div class="bambu-popup-body">
-			<ul class="unstyled">
+			<ul>
 				{% for notification in notifications %}
 					<li class="clearfix">
 						<a data-delete-notification="{{ notification.pk }}" class="close" href="{% url 'delete_notification' notification.pk %}">&times;</a>
@@ -78,19 +74,23 @@
 	</script>
 	
 	{% for notification in notifications %}
-		<div class="modal hide fade" id="notification-{{ notification.pk }}-modal">
-			<div class="modal-header">
-				<h2>Notification</h2>
-			</div>
-			
-			<div class="modal-body">
-				{{ notification.render_long }}
-			</div>
-			
-			<div class="modal-footer">
-				{% for action in notification.actions.all %}
-					<a class="btn{% if forloop.first %} btn-primary{% endif %}" href="{{ action }}">{{ action.title }}</a>
-				{% endfor %}
+		<div class="modal fade" id="notification-{{ notification.pk }}-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="modal-title">Notification</h3>
+					</div>
+					
+					<div class="modal-body">
+						{{ notification.render_long }}
+					</div>
+					
+					<div class="modal-footer">
+						{% for action in notification.actions.all %}
+							<a class="btn{% if forloop.first %} btn-primary{% endif %}" href="{{ action }}">{{ action.title }}</a>
+						{% endfor %}
+					</div>
+				</div>
 			</div>
 		</div>
 	{% endfor %}

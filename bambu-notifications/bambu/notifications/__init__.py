@@ -7,7 +7,7 @@ from django.utils.importlib import import_module
 from bambu.notifications.models import Notification
 from bambu.notifications.options import NotificationTemplate
 
-__version__ = '0.0.2'
+__version__ = '0.1'
 
 try:
 	import json as simplejson
