@@ -58,8 +58,8 @@ class BlockFormatter(FormatterBase):
 			self.rows += 1
 			html = '<div class="row"><!-- Start row -->'
 		
-		html += u'<div class="span%d"><! -- Column -->%s<!-- End column --></div>\n' % (
-			number, markdown(value)
+		html += u'<div class="span%d col-sm-%d"><! -- Column -->%s<!-- End column --></div>\n' % (
+			number, number, markdown(value)
 		)
 		
 		return html
