@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-markup',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'Replacements for Django\'s Markdown and reStructuredText support',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -13,8 +13,8 @@ setup(
 		'markdown',
 		'docutils'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.markup',
 		'bambu.markup.templatetags'
 	],
