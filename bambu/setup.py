@@ -7,7 +7,7 @@ setup(
     description = 'Namespace package for the Bambu Tools toolset',
     author = 'Steadman',
     author_email = 'mark@steadman.io',
-    url = 'http://pypi.python.org/pypi/bambu-analytics',
+    url = 'http://pypi.python.org/pypi/bambu',
     packages = ['bambu'],
     classifiers = [
         'Development Status :: 4 - Beta',
