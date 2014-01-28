@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-payments',
-	version = '0.1',
+	version = '0.2',
 	description = 'Pluggable, provider-based payment handling',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -12,6 +12,7 @@ setup(
 		'Django>=1.4',
 		'bambu-mail'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.payments',
 		'bambu.payments.gateways',
