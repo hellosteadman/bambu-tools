@@ -3,14 +3,14 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-faq',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'A simple set of models for a Frequently-Asked-Questions site',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-faq',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.faq',
 		'bambu.faq.migrations'
 	],
