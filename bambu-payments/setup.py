@@ -3,17 +3,17 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-payments',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'Pluggable, provider-based payment handling',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-payments',
 	install_requires = [
+		'bambu',
 		'Django>=1.4',
 		'bambu-mail'
 	],
 	packages = [
-		'bambu',
 		'bambu.payments',
 		'bambu.payments.gateways',
 		'bambu.payments.migrations'

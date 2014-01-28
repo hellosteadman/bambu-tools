@@ -1,6 +1,6 @@
 from django.conf import settings
 
-__version__ = '0.0.2'
+__version__ = '0.1'
 
 class PaymentSite(object):
 	_gateways = {}
