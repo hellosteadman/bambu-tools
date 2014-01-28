@@ -3,14 +3,13 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-analytics',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'Provides a simple, pluggable system for analytics.',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-analytics',
 	install_requires = ['Django>=1.4'],
 	packages = [
-		'bambu',
 		'bambu.analytics',
 		'bambu.analytics.providers',
 		'bambu.analytics.templatetags'

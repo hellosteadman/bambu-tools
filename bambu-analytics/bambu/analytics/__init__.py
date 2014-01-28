@@ -13,7 +13,7 @@ JavaScript and waits for the next page load to display it (similar to
 Django's messaging system).
 """
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 
 from django.conf import settings
 from django.utils.importlib import import_module
