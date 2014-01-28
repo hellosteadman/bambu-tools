@@ -3,14 +3,14 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-mapping',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'A pluggable, provider-based system for rendering maps',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-mapping',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.mapping',
 		'bambu.mapping.providers',
 		'bambu.mapping.templatetags'
