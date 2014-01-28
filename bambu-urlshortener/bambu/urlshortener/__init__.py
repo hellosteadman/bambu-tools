@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.importlib import import_module
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 URL_LENGTH = getattr(settings, 'SHORTURL_LENGTH', 7)
 
 def shorten(url):
