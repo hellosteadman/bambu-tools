@@ -3,14 +3,14 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-jwplayer',
-	version = '0.1',
+	version = '0.2',
 	description = 'A wrapper around the JWPlayer',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-jwplayer',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.jwplayer',
 		'bambu.jwplayer.templatetags'
 	],
