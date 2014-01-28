@@ -12,6 +12,7 @@ setup(
 		'Django>=1.4',
 		'requests'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.pusher',
 		'bambu.pusher.templatetags'
