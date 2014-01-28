@@ -1,9 +1,16 @@
-<script src="http://js.pusher.com/2.0/pusher.min.js"></script>
-<script>
-	Pusher.log = function(message) {
-	  if (window.console && window.console.log) window.console.log(message);
-	};
-	
-	{% if DEBUG %}WEB_SOCKET_DEBUG = true;{% endif %}
-	var pusher = new Pusher('{{ KEY }}');
-</script>
+{% if VERSION %}
+    {% if SSL %}
+    <script src="https://d3dy5gmtp8yhk7.cloudfront.net/{{ VERSION }}/pusher.min.js"></script>
+    {% else %}
+    <script src="http://js.pusher.com/{{ VERSION }}/pusher.min.js"></script>
+    {% endif %}
+
+    <script>
+    	Pusher.log = function(message) {
+    	  if (window.console && window.console.log) window.console.log(message);
+    	};
+    	
+    	{% if DEBUG %}WEB_SOCKET_DEBUG = true;{% endif %}
+    	var pusher = new Pusher('{{ KEY }}');
+    </script>
+{% endif %}

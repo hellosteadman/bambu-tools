@@ -3,7 +3,7 @@ from django.utils.http import urlencode
 from django.utils.timezone import now
 import requests, time, hmac, hashlib, base64
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 
 APP_ID = getattr(settings, 'PUSHER_APP_ID', None)
 KEY = getattr(settings, 'PUSHER_KEY', None)

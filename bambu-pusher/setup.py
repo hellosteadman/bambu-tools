@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-pusher',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'A wrapper around the Pusher API',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -13,7 +13,6 @@ setup(
 		'requests'
 	],
 	packages = [
-		'bambu',
 		'bambu.pusher',
 		'bambu.pusher.templatetags'
 	],
