@@ -2,7 +2,7 @@ from bambu.dataportability.handlers import *
 from bambu.dataportability.parsers import *
 from bambu.dataportability.exceptions import *
 
-__version__ = '0.0.2'
+__version__ = '0.1'
 
 PARSERS = (
 	('XML', ('application/xml', 'text/aml'), 'bambu.dataportability.parsers.XMLParser'),

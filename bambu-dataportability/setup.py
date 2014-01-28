@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-dataportability',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'Generic import and export tools',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -12,8 +12,8 @@ setup(
 		'Django>=1.4',
 		'bambu-mail'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.dataportability',
 		'bambu.dataportability.management',
 		'bambu.dataportability.management.commands',
