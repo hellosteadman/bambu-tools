@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-formatrules',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'Syntactical sugar ontop of Markdown for adding extra formatting, expressed in a human-readable way.',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -12,8 +12,8 @@ setup(
 		'Django>=1.4',
 		'markdown'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.formatrules',
 		'bambu.formatrules.formatters',
 		'bambu.formatrules.templatetags'
