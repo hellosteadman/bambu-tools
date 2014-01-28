@@ -9,6 +9,8 @@ try:
 except ImportError:
 	from django.utils import simplejson
 
+__version__ = '0.1'
+
 URL_REGEX = re.compile(
     r'<p>(?P<url>(?:http|ftp)s?://' # http:// or https://
     r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
