@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-comments',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'Generic model commenting',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -15,8 +15,8 @@ setup(
 		'markdown',
 		'bambu-mail'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.comments',
 		'bambu.comments.templatetags',
 		'bambu.comments.migrations'
