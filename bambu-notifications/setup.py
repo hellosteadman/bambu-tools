@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-notifications',
-	version = '0.1',
+	version = '0.2',
 	description = 'Generic, developer-defined model notifications that can be delivered via a set of pluggable, provider-based endpoints (email, SMS, Pusher, etc)',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -12,8 +12,8 @@ setup(
 		'Django>=1.4',
 		'markdown'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.notifications',
 		'bambu.notifications.migrations',
 		'bambu.notifications.templatetags'
