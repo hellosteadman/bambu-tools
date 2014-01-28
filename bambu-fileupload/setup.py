@@ -3,14 +3,14 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-fileupload',
-	version = '0.1',
+	version = '0.2',
 	description = 'A wrapper around the jQuery.fileupload library',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-fileupload',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.fileupload',
 		'bambu.fileupload.templatetags'
 	],
