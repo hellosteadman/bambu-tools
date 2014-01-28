@@ -13,6 +13,7 @@ setup(
 		'oauth',
 		'oauth2'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.api',
 		'bambu.api.auth',
