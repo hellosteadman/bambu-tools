@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-blog',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'A simple set of models for a basic blog, with some tools for custom-designed blog post writing',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -15,7 +15,6 @@ setup(
 		'django-taggit'
 	],
 	packages = [
-		'bambu',
 		'bambu.blog',
 		'bambu.blog.management',
 		'bambu.blog.management.commands',
