@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-pages',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'Tools for Django webapps',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -14,8 +14,8 @@ setup(
 		'bambu-markup',
 		'bambu-formatrules'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.pages',
 		'bambu.pages.migrations'
 	],
