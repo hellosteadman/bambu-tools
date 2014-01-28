@@ -9,6 +9,7 @@ setup(
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-attachments',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.attachments',
 		'bambu.attachments.migrations',
