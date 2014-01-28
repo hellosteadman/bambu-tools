@@ -14,6 +14,7 @@ setup(
 		'html2text',
 		'django-taggit'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.blog',
 		'bambu.blog.management',
