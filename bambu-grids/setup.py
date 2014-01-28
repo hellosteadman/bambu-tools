@@ -3,14 +3,14 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-grids',
-	version = '0.0.3',
+	version = '0.1',
 	description = 'Show tabular data with filtering options and support for AJAX and pushstate',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-grids',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.grids'
 	],
 	package_data = {
