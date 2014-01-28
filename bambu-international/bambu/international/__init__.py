@@ -3,7 +3,7 @@ from pygeoip import GeoIP, MEMORY_CACHE
 from os import path
 import threading, socket
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 
 def ip_to_country(ip_address):
 	db = GeoIP(
