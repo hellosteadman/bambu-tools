@@ -1,6 +1,6 @@
 from bambu.enqueue.helpers import enqueue
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 def enqueue_script_file(request, url):
 	enqueue(request, 'js', url, True)
 
