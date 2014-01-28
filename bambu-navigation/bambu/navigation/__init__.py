@@ -1,7 +1,7 @@
 from bambu.navigation.sites import NavigationSite
 from bambu.navigation.options import MenuBuilder
 
-__version__ = '0.0.2'
+__version__ = '0.1'
 
 DEFAULT_NAVIGATION_MENUS = (
 	('navbar', ('*', '-legal', '-api', '-profile')),
