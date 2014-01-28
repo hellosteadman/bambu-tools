@@ -3,7 +3,7 @@ from django.conf import settings
 from pymediainfo import MediaInfo
 import os, subprocess, logging, mimetypes, time
 
-__version__ = '0.0.2'
+__version__ = '0.1'
 ASPECT_RATIO = getattr(settings, 'FFMPEG_ASPECT_RATIO', '16:9')
 WIDTH = getattr(settings, 'FFMPEG_WIDTH', 640)
 
