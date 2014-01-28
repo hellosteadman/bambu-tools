@@ -3,13 +3,13 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-codemirror',
-	version = '0.0.1',
+	version = '0.1',
 	description = 'Adds static files for the CodeMirror editor',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-codemirror',
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.codemirror'
 	],
 	package_data = {
