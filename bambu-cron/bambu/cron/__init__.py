@@ -3,7 +3,7 @@ from bambu.cron.options import CronJob
 from bambu.cron.frequency import *
 from bambu.cron.weekdays import *
 
-__version__ = '0.0.1'
+__version__ = '0.1'
 def autodiscover():
 	from django.conf import settings
 	from django.utils.importlib import import_module
