@@ -9,7 +9,6 @@ setup(
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-payments',
 	install_requires = [
-		'bambu',
 		'Django>=1.4',
 		'bambu-mail'
 	],
