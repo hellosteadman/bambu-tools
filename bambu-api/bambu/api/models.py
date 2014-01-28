@@ -32,8 +32,8 @@ class App(models.Model):
 		)
 	)
 	
-	http_login = models.BooleanField(u'allow login via HTTP')
-	http_signup = models.BooleanField(u'allow signup via HTTP')
+	http_login = models.BooleanField(u'allow login via HTTP', default = False)
+	http_signup = models.BooleanField(u'allow signup via HTTP', default = False)
 	
 	def __unicode__(self):
 		return self.name

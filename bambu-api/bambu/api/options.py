@@ -329,7 +329,10 @@ class ModelAPI(API):
 					
 					qs = self.add_field_to_include_filter(qs, key, values)
 			
-			fields = [f.name for f in qs.query.select_fields] + list(qs.query.aggregate_select.keys())
+			if hasattr(qs.query, 'select_fields'):
+				fields = [f.name for f in qs.query.select_fields] + list(qs.query.aggregate_select.keys())
+			else:
+				fields = [f.field.name for f in qs.query.select] + list(qs.query.aggregate_select.keys())
 			
 			if not any(fields):
 				fields = [f.name for f in self.model._meta.local_fields]
