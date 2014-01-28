@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-webhooks',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'Create webhooks and allow users to assign URLs to them',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -12,8 +12,8 @@ setup(
 		'Django>=1.4',
 		'requests'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.webhooks',
 		'bambu.webhooks.migrations'
 	],
