@@ -9,6 +9,7 @@ setup(
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-analytics',
 	install_requires = ['Django>=1.4'],
+	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.analytics',
 		'bambu.analytics.providers',
