@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-enquiries',
-	version = '0.0.2',
+	version = '0.1',
 	description = 'A simple model and contact form',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
@@ -13,8 +13,8 @@ setup(
 		'requests',
 		'bambu-mail'
 	],
+	namespace_packages = ['bambu'],
 	packages = [
-		'bambu',
 		'bambu.enquiries',
 		'bambu.enquiries.migrations'
 	],
