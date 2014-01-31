@@ -15,7 +15,8 @@ setup(
 	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.mail',
-		'bambu.mail.newsletter'
+		'bambu.mail.newsletter',
+		'bambu.mail.backends'
 	],
 	package_data = {
 		'bambu.mail': [
