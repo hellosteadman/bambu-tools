@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-mail',
-	version = '0.2',
+	version = '0.2.1',
 	description = 'A shortcut function for sending template-based emails in HTML and plain-text format',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
