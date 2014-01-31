@@ -358,7 +358,9 @@ class PlanChangeForm(forms.Form):
 		return change
 
 class PasswordResetForm(forms.Form):
-	email = forms.EmailField(label = _('Email address'))
+	email = forms.EmailField(label = _('Email address'),
+		help_text = _('Enter your email address below and a new password will be sent to you.')
+	)
 
 class ProfileForm(forms.ModelForm):
 	first_name = forms.CharField(max_length = 20)

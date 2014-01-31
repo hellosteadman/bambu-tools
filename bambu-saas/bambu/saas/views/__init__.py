@@ -395,7 +395,8 @@ def reset_password(request, guid = None):
 		with transaction.commit_on_success():
 			try:
 				user = User.objects.get(email__iexact = form.cleaned_data['email'])
-				reset, created = user.password_resets.get_or_create()
+				user.password_resets.all().delete()
+				reset = user.password_resets.create()
 			except User.DoesNotExist:
 				pass
 			
