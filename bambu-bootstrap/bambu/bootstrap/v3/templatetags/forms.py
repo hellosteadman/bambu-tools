@@ -19,6 +19,9 @@ def is_clearable_filefield(field):
 
 @register.filter()
 def bootstrapped(field):
+	if isinstance(field, (str, unicode)):
+		return field
+	
 	if isinstance(field.field.widget, CheckboxSelectMultiple):
 		return mark_safe('<div class="checkbox">%s</div>' % field)
 	
