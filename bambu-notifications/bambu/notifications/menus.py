@@ -18,7 +18,7 @@ class HotificationsMenuBuilder(navigation.MenuBuilder):
 				'selection': 'profile:notifications',
 				'login': True,
 				'order': 20,
-				'icon': 'bell-alt'
+				'icon': 'bell'
 			}
 		)
 
