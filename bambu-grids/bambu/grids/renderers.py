@@ -128,23 +128,35 @@ class Renderer(object):
 		portions = []
 		visible_actions = getattr(self.grid, 'visible_actions', 1)
 		rendered_dropdown = False
+		added = 0
 		
 		for i, action in enumerate(self.grid.actions):
 			if visible_actions > 0:
-				portions.append(self.render_action(action, raw_data))
+				html = self.render_action(action, raw_data)
+				if not html:
+					continue
+				
+				portions.append(html)
 				visible_actions -= 1
+				added += 1
 				continue
-			elif not rendered_dropdown:
+			
+			html = self.render_action(action, raw_data, added)
+			if not html:
+				continue
+			
+			if not rendered_dropdown:
 				portions.append('<div class="dropdown pull-right">&nbsp;')
 				portions.append('<a class="dropdown-toggle btn" role="button" data-toggle="dropdown">')
 				portions.append('<i class="fa fa-cog icon-cog"></i></a>')
 				portions.append('<ul class="dropdown-menu" role="menu">')
 				rendered_dropdown = True
 			
-			portions.append('<li>%s</li>' % self.render_action(action, raw_data, i))
+			portions.append('<li>%s</li>' % html)
 			visible_actions -= 1
+			added += 1
 		
-		if len(self.grid.actions) > 1:
+		if rendered_dropdown:
 			portions.append('</ul></div>')
 		
 		return u''.join(portions)
@@ -153,7 +165,11 @@ class Renderer(object):
 		func = getattr(self.grid, action)
 		label = getattr(func, 'friendly_name', action.replace('_', ' ').capitalize())
 		perms = getattr(func, 'perms', [])
+		visible = getattr(func, 'visible', lambda obj: True)
 		bulk_title = getattr(func, 'bulk_title', '')
+		
+		if not visible(obj):
+			return u''
 		
 		if self.grid._user:
 			for perm in perms:
@@ -170,7 +186,7 @@ class Renderer(object):
 		if hasattr(func, 'classes'):
 			classes = func.classes
 		else:
-			classes = (attrs.get('class') or 'btn').split(' ')
+			classes = (attrs.get('class') or 'btn btn-default').split(' ')
 		
 		if index > 0:
 			new_classes = []
