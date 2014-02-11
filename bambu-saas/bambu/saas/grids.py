@@ -77,7 +77,6 @@ class SubuserGrid(grids.ModelGrid):
 		return reverse('profile_delete_subuser', args = [obj.username])
 	remove.classes = ('btn', 'btn-danger')
 	remove.icon = 'remove'
-	remove.icon_colour = 'white'
 
 class InvitationGrid(grids.ModelGrid):
 	model = Invitation
@@ -140,10 +139,8 @@ class InvitationGrid(grids.ModelGrid):
 		return reverse('profile_resend_invitation', args = [obj.guid])
 	resend.classes = ('btn',)
 	resend.icon = 'envelope'
-	resend.icon_colour = 'white'
 	
 	def remove(self, obj):
 		return reverse('profile_delete_invitation', args = [obj.guid])
 	remove.classes = ('btn', 'btn-danger')
 	remove.icon = 'remove'
-	remove.icon_colour = 'white'
