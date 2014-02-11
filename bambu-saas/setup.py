@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-saas',
-	version = '0.2',
+	version = '0.2.1',
 	description = 'A set of models, templates, views and helpers to manage the plans-and-pricing side of a paid-for web app',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
