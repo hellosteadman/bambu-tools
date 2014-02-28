@@ -4,13 +4,13 @@ class EnqueueMiddleware(object):
 			return response
 		
 		queues = getattr(request, 'queues', {})
-		
-		css = list(response.context_data.get('enqueued_styles') or [])
-		css.extend(queues.get('css') or [])
-		response.context_data['enqueued_styles'] = css
-		
-		scripts = list(response.context_data.get('enqueued_scripts') or [])
-		scripts.extend(queues.get('js') or [])
-		response.context_data['enqueued_scripts'] = scripts
+		if response.context_data:
+			css = list(response.context_data.get('enqueued_styles') or [])
+			css.extend(queues.get('css') or [])
+			response.context_data['enqueued_styles'] = css
+			
+			scripts = list(response.context_data.get('enqueued_scripts') or [])
+			scripts.extend(queues.get('js') or [])
+			response.context_data['enqueued_scripts'] = scripts
 		
 		return response

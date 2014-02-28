@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-enqueue',
-	version = '0.1',
+	version = '0.2',
 	description = 'Enqueue CSS and JavaScript (inspired by WordPress)',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
