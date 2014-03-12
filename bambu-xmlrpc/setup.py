@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-xmlrpc',
-	version = '0.1',
+	version = '0.1.1',
 	description = 'An extensible XML-RPC provider',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',

@@ -2,7 +2,7 @@ from django.template.response import TemplateResponse
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from xmlrpclib import Fault
 
-__version__ = '0.1'
+__version__ = '0.1.1'
 dispatcher = SimpleXMLRPCDispatcher(allow_none = False, encoding = None)
 
 def handler(namespace = ''):
