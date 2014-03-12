@@ -8,7 +8,7 @@ def dispatch(request):
 		response = HttpResponse(mimetype = 'application/xml')
 		response.write(
 			dispatcher._marshaled_dispatch(
-				getattr(request, 'body', request.raw_post_data)
+				getattr(request, 'body', getattr(request, 'raw_post_data'))
 			)
 		)
 	else:
