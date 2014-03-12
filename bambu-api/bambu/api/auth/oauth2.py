@@ -216,7 +216,7 @@ class OAuthAuthentication(AuthenticationBase):
 					args = '?%s' % token.to_string(only_key = True)
 					return HttpResponseRedirect(callback + args)
 				else:
-					return HttpResponse(token.to_string(only_key = True), mimetype = 'text/plain')
+					return HttpResponse(token.to_string(only_key = True), content_type = 'text/plain')
 			elif form.is_valid():
 				token = oauth_server.authorize_token(token, form.get_user())
 				
@@ -224,7 +224,7 @@ class OAuthAuthentication(AuthenticationBase):
 					args = '?%s' % token.to_string(only_key = True)
 					return HttpResponseRedirect(callback + args)
 				else:
-					return HttpResponse(token.to_string(only_key = True), mimetype = 'text/plain')
+					return HttpResponse(token.to_string(only_key = True), content_type = 'text/plain')
 			else:
 				response = TemplateResponse(
 					request,

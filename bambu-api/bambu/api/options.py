@@ -416,9 +416,9 @@ class ModelAPI(API):
 				obj.delete()
 				return ['OK']
 		elif request.method == 'PUT':
-			request.method = "POST"
+			request.method = 'POST'
 			request._load_post_and_files()
-			request.method = "PUT"
+			request.method = 'PUT'
 			
 			form_class = self.get_form(request, obj)
 			data = self.prepare_initial_data(form_class, obj)
