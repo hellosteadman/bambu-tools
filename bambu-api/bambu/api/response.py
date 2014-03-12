@@ -7,7 +7,7 @@ from django.utils.http import urlencode
 from bambu.api import serialisers
 from bambu.api.exceptions import APIException
 
-PAGE_LIMIT = getattr(settings, 'API_PAGE_LIMIT', None)
+PAGE_LIMIT = getattr(settings, 'API_PAGE_LIMIT', 100)
 
 SERIALISERS = {
 	'json': serialisers.JSONSerialiser,
@@ -47,7 +47,7 @@ class APIResponse(HttpResponse):
 			)
 			
 			super(APIResponse, self).__init__(
-				data, mimetype = mimetype
+				data, content_type = mimetype
 			)
 			
 			self.status_code = 400
@@ -55,14 +55,19 @@ class APIResponse(HttpResponse):
 		
 		headers = {}
 		if hasattr(data, '__iter__') and not isinstance(data, dict):
-			page = request.GET.get('page', 1)
-			rpp = request.GET.get('rpp', PAGE_LIMIT)
+			page = request.GET.get('page') or 1
+			rpp = request.GET.get('rpp') or PAGE_LIMIT
 			
 			try:
 				rpp = int(rpp)
-			except ValueError:
-				return APIResponse(
-					Exception('rpp not an integer')
+			except (ValueError, TypeError):
+				super(APIResponse, self).__init__(
+					serialiser.serialise(
+						{
+							'error': 'page not an integer'
+						}
+					),
+					content_type = mimetype
 				)
 			
 			paginator = Paginator(data, rpp)
@@ -76,7 +81,7 @@ class APIResponse(HttpResponse):
 							'error': 'page argument empty'
 						}
 					),
-					mimetype = mimetype
+					content_type = mimetype
 				)
 				
 				self.status_code = 400
@@ -88,7 +93,7 @@ class APIResponse(HttpResponse):
 							'error': 'page argument not an integer'
 						}
 					),
-					mimetype = mimetype
+					content_type = mimetype
 				)
 				
 				self.status_code = 400
@@ -118,14 +123,14 @@ class APIResponse(HttpResponse):
 			)
 			
 			super(APIResponse, self).__init__(
-				data, mimetype = mimetype
+				data, content_type = mimetype
 			)
 			
 			self.status_code = 400
 			return
 		
 		super(APIResponse, self).__init__(
-			content, mimetype = mimetype
+			content, content_type = mimetype
 		)
 		
 		for key, value in headers.items():
