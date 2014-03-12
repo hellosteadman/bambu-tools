@@ -56,7 +56,11 @@ def bootstrap_title(context, separator = ' | '):
 	title_parts = context.get('title_parts')
 	
 	if title_parts:
-		return separator.join(title_parts) + separator + SITE.name
+		return u''.join(
+			separator.join(
+				[unicode(u) for u in list(title_parts) + [SITE.name]]
+			)
+		)
 	else:
 		return SITE.name
 

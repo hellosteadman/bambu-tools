@@ -46,7 +46,7 @@ def body_classes(func, *classes):
 									content[after_class:]
 								)
 							)
-		elif not response.context_data is None:
+		elif response.context_data is None:
 			body_classes = list(response.context_data.get('body_classes', []))
 			body_classes.extend(classes)
 			
