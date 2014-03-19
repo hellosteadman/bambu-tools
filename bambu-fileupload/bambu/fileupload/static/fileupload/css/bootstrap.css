@@ -45,7 +45,109 @@
 .fileinput-button {
 	text-align: center;
 	margin: 0 auto 0 auto;
-	width: 100px;
+	width: 110px;
 	display: block;
 	float: none;
+}
+
+.fileupload-filelist {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.fileupload-filelist li {
+	margin: 4px;
+	list-style-type: none;
+	border: 1px dashed rgba(0, 0, 0, 0.25);
+	background: #f4f4f4;
+	position: relative;
+}
+
+.fileupload-filelist li.file a {
+	display: block;
+	padding: 5px;
+}
+
+.fileupload-filelist li a:hover {
+	background-color: #eee;
+	text-decoration: none;
+}
+
+.fileupload-filelist li.file a.download {
+	background: url('../img/filetypes/_blank.png') 4px 6px no-repeat;
+	line-height: 16px; padding-left: 24px;
+	text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
+
+.fileupload-filelist li.file.dwg a.download { background-image: url('../img/filetypes/dwg.png'); }
+.fileupload-filelist li.file.js a.download { background-image: url('../img/filetypes/js.png'); }
+.fileupload-filelist li.file.pdf a.download { background-image: url('../img/filetypes/pdf.png'); }
+.fileupload-filelist li.file.tga a.download { background-image: url('../img/filetypes/tga.png'); }
+.fileupload-filelist li.file.aac a.download { background-image: url('../img/filetypes/aac.png'); }
+.fileupload-filelist li.file.dxf a.download { background-image: url('../img/filetypes/dxf.png'); }
+.fileupload-filelist li.file.key a.download { background-image: url('../img/filetypes/key.png'); }
+.fileupload-filelist li.file.php a.download { background-image: url('../img/filetypes/php.png'); }
+.fileupload-filelist li.file.tgz a.download { background-image: url('../img/filetypes/tgz.png'); }
+.fileupload-filelist li.file.ai a.download { background-image: url('../img/filetypes/ai.png'); }
+.fileupload-filelist li.file.eps a.download { background-image: url('../img/filetypes/eps.png'); }
+.fileupload-filelist li.file.less a.download { background-image: url('../img/filetypes/less.png'); }
+.fileupload-filelist li.file.png a.download { background-image: url('../img/filetypes/png.png'); }
+.fileupload-filelist li.file.tiff a.download { background-image: url('../img/filetypes/tiff.png'); }
+.fileupload-filelist li.file.aiff a.download { background-image: url('../img/filetypes/aiff.png'); }
+.fileupload-filelist li.file.exe a.download { background-image: url('../img/filetypes/exe.png'); }
+.fileupload-filelist li.file.mid a.download { background-image: url('../img/filetypes/mid.png'); }
+.fileupload-filelist li.file.ppt a.download { background-image: url('../img/filetypes/ppt.png'); }
+.fileupload-filelist li.file.txt a.download { background-image: url('../img/filetypes/txt.png'); }
+.fileupload-filelist li.file.avi a.download { background-image: url('../img/filetypes/avi.png'); }
+.fileupload-filelist li.file.flv a.download { background-image: url('../img/filetypes/flv.png'); }
+.fileupload-filelist li.file.mp3 a.download { background-image: url('../img/filetypes/mp3.png'); }
+.fileupload-filelist li.file.psd a.download { background-image: url('../img/filetypes/psd.png'); }
+.fileupload-filelist li.file.wav a.download { background-image: url('../img/filetypes/wav.png'); }
+.fileupload-filelist li.file.bmp a.download { background-image: url('../img/filetypes/bmp.png'); }
+.fileupload-filelist li.file.gif a.download { background-image: url('../img/filetypes/gif.png'); }
+.fileupload-filelist li.file.mp4 a.download { background-image: url('../img/filetypes/mp4.png'); }
+.fileupload-filelist li.file.py a.download { background-image: url('../img/filetypes/py.png'); }
+.fileupload-filelist li.file.xls a.download { background-image: url('../img/filetypes/xls.png'); }
+.fileupload-filelist li.file.c a.download { background-image: url('../img/filetypes/c.png'); }
+.fileupload-filelist li.file.h a.download { background-image: url('../img/filetypes/h.png'); }
+.fileupload-filelist li.file.mpg a.download { background-image: url('../img/filetypes/mpg.png'); }
+.fileupload-filelist li.file.qt a.download { background-image: url('../img/filetypes/qt.png'); }
+.fileupload-filelist li.file.xlsx a.download { background-image: url('../img/filetypes/xlsx.png'); }
+.fileupload-filelist li.file.cpp a.download { background-image: url('../img/filetypes/cpp.png'); }
+.fileupload-filelist li.file.hpp a.download { background-image: url('../img/filetypes/hpp.png'); }
+.fileupload-filelist li.file.odf a.download { background-image: url('../img/filetypes/odf.png'); }
+.fileupload-filelist li.file.rar a.download { background-image: url('../img/filetypes/rar.png'); }
+.fileupload-filelist li.file.xml a.download { background-image: url('../img/filetypes/xml.png'); }
+.fileupload-filelist li.file.css a.download { background-image: url('../img/filetypes/css.png'); }
+.fileupload-filelist li.file.html a.download { background-image: url('../img/filetypes/html.png'); }
+.fileupload-filelist li.file.ods a.download { background-image: url('../img/filetypes/ods.png'); }
+.fileupload-filelist li.file.rb a.download { background-image: url('../img/filetypes/rb.png'); }
+.fileupload-filelist li.file.yml a.download { background-image: url('../img/filetypes/yml.png'); }
+.fileupload-filelist li.file.dat a.download { background-image: url('../img/filetypes/dat.png'); }
+.fileupload-filelist li.file.ics a.download { background-image: url('../img/filetypes/ics.png'); }
+.fileupload-filelist li.file.odt a.download { background-image: url('../img/filetypes/odt.png'); }
+.fileupload-filelist li.file.rtf a.download { background-image: url('../img/filetypes/rtf.png'); }
+.fileupload-filelist li.file.zip a.download { background-image: url('../img/filetypes/zip.png'); }
+.fileupload-filelist li.file.dmg a.download { background-image: url('../img/filetypes/dmg.png'); }
+.fileupload-filelist li.file.iso a.download { background-image: url('../img/filetypes/iso.png'); }
+.fileupload-filelist li.file.otp a.download { background-image: url('../img/filetypes/otp.png'); }
+.fileupload-filelist li.file.sass a.download { background-image: url('../img/filetypes/sass.png'); }
+.fileupload-filelist li.file.doc a.download { background-image: url('../img/filetypes/doc.png'); }
+.fileupload-filelist li.file.java a.download { background-image: url('../img/filetypes/java.png'); }
+.fileupload-filelist li.file.ots a.download { background-image: url('../img/filetypes/ots.png'); }
+.fileupload-filelist li.file.scss a.download { background-image: url('../img/filetypes/scss.png'); }
+.fileupload-filelist li.file.dotx a.download { background-image: url('../img/filetypes/dotx.png'); }
+.fileupload-filelist li.file.jpg a.download { background-image: url('../img/filetypes/jpg.png'); }
+.fileupload-filelist li.file.ott a.download { background-image: url('../img/filetypes/ott.png'); }
+.fileupload-filelist li.file.sql a.download { background-image: url('../img/filetypes/sql.png'); }
+
+.fileupload-filelist li.file .fileupload-delete {
+	display: inline;
+	padding: 5px;
+	float: right;
+	color: #666;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
