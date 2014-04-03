@@ -1,5 +1,6 @@
-from django.db.models.base import ModelBase
 from django.db import transaction
+from django.db.models.base import ModelBase
+from django.db.models import Model
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -16,10 +17,13 @@ from django.contrib.auth.models import AnonymousUser
 from django.views.decorators.http import require_POST
 from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.db.models import get_model
-from bambu.api.options import *
-from bambu.api.response import APIResponse
 from bambu.api import transformers, helpers
 from bambu.api.exceptions import APIException
+from bambu.api.options import *
+from bambu.api.requests import InternalRequest
+from bambu.api.response import APIResponse
+from bambu.api.transformers import library
+from collections import Iterable
 import logging
 
 THROTTLE_REQUESTS = getattr(settings, 'API_THROTTLE_REQUESTS', 10000)
@@ -43,19 +47,19 @@ class APISite(object):
 	_registry = {}
 	app_name = 'api'
 	name = 'api'
-	
+
 	def __init__(self):
 		self.logger = logging.getLogger('bambu.api')
-		
+
 		auth = getattr(settings, 'API_AUTH_BACKEND', 'bambu.api.auth.http.HTTPAuthentication')
 		mod, dot, klass = auth.rpartition('.')
 		mod = import_module(mod)
 		self.auth = getattr(mod, klass)()
-	
+
 	def register(self, model_or_iterable, api_class = None, **options):
 		if isinstance(model_or_iterable, ModelBase):
 			model_or_iterable = [model_or_iterable]
-		
+
 		for model in model_or_iterable:
 			if model._meta.abstract:
 				raise ImproperlyConfigured(
@@ -63,95 +67,121 @@ class APISite(object):
 						model.__name__
 					)
 				)
-			
+
 			if model in self._registry:
 				raise AlreadyRegistered('Model %s already registered.' % model)
-			
+
 			if not api_class:
 				api_class = ModelAPI
-			
+
 			self._registry[model] = api_class(model, self)
 			transformers.library.register(
 				model,
 				transformers.ModelTransformer(api_class.fields, api_class.exclude)
 			)
-	
+
 	def unregister(self, model):
 		if not model in self._registry:
 			raise NotRegistered('Model %s not registered.' % model)
-		
+
 		del self._registry[model]
-	
+
 	def api_view(self, view, request, format, *args, **kwargs):
 		if not getattr(view, '_allow_anonymous', False):
 			if not self.auth.authenticate(request):
 				return self.auth.challenge(request)
-			
+
 			request.user = self.auth.user
 		else:
 			request.user = AnonymousUser()
-		
+
 		if getattr(request, 'app', None):
 			if not request.app.log_request():
 				return APIResponse(
 					format, request,
 					Exception(u'Maximum number of requests received in %d minute period' % THROTTLE_MINUTES)
 				)
-		
+
 		detail_level = kwargs.pop('detail_level', 2)
 		processor = kwargs.pop('processor', None)
-		
+
 		try:
 			data = view(request, *args, **kwargs)
 		except APIException, ex:
 			return APIResponse(format, request, ex)
-		
+
+		if isinstance(request, InternalRequest):
+			def _make_dict(obj, level = 1):
+				if isinstance(obj, Model):
+					if processor and level == 1:
+						return processor(request, obj, level)
+					else:
+						return library.transform(obj, max_detail_level)
+				elif isinstance(obj, dict):
+					return obj
+
+				return unicode(obj)
+
+			def _prepare(data):
+				if data:
+					if isinstance(data, Iterable):
+						if not isinstance(data, dict):
+							return [
+								_make_dict(v) for v in data
+							]
+
+					return _make_dict(data)
+
+				return []
+
+			return _prepare(data)
+
 		return APIResponse(format, request, data,
 			detail_level = detail_level,
 			processor = processor
 		)
-	
+
 	def api_page(self, view, request, *args, **kwargs):
 		if not getattr(view, '_allow_anonymous', False):
 			if not self.auth.authenticate(request):
 				return self.auth.challenge(request)
-			
+
 			request.user = self.auth.user
 		else:
 			request.user = AnonymousUser()
-		
+
 		if getattr(request, 'app', None):
 			if not request.app.log_request():
 				return HttpResponseBadRequest(
 					u'Maximum number of requests received in %d minute period' % THROTTLE_MINUTES
 				)
-		
+
 		try:
 			return view(request, *args, **kwargs)
 		except Exception, ex:
 			if settings.DEBUG:
 				raise
-			
+
 			return HttpResponseBadRequest(
 				unicode(ex)
 			)
-	
+
 	def get_urls(self):
 		from django.conf.urls import patterns, url, include
-		
+
 		def wrap(view):
 			def wrapper(*args, **kwargs):
 				return self.api_view(view, *args, **kwargs)
-			
+
 			return update_wrapper(wrapper, view)
-		
+
 		urlpatterns = patterns('',
 			url(
 				r'^' + DOCS_ROOT + '/$', self.docs_index_view,
 				name = 'doc'
 			)
 		)
-		
+
 		if not self.auth.app_model is None and getattr(settings, 'API_APPS_MANAGEABLE', True):
 			urlpatterns += patterns('',
 				url(
@@ -171,7 +201,7 @@ class APISite(object):
 					name = 'delete_app'
 				),
 			)
-		
+
 		urlpatterns += patterns('',
 			url(
 				r'^' + DOCS_ROOT + '/(?P<app_label>[\w]+)/(?P<model>[/\w]+)/$',
@@ -185,7 +215,7 @@ class APISite(object):
 			),
 			url(r'^api/', include(self.auth.get_urls()))
 		)
-		
+
 		for model, model_api in self._registry.iteritems():
 			urlpatterns += patterns('',
 				url(
@@ -195,16 +225,16 @@ class APISite(object):
 					include(model_api.urls)
 				)
 			)
-		
+
 		return urlpatterns
-	
+
 	@property
 	def urls(self):
 		return self.get_urls(), self.app_name, self.name
-	
+
 	def _docs_list(self):
 		resdict = {}
-		
+
 		def get_children(parent, parent_url = ''):
 			for inline in parent.inline_instances:
 				yield {
@@ -219,16 +249,16 @@ class APISite(object):
 					),
 					# 'children': get_children(inline, parent_url + inline.model._meta.module_name + '/')
 				}
-		
+
 		for (model, api) in self._registry.items():
 			reslist, app_title = resdict.get(
 				model._meta.app_label,
 				([], model._meta.app_label.capitalize())
 			)
-			
+
 			if hasattr(api, 'app_label_verbose'):
 				app_title = api.app_label_verbose
-			
+
 			reslist.append(
 				{
 					'app_label': model._meta.app_label,
@@ -243,9 +273,9 @@ class APISite(object):
 					'children': get_children(api, model._meta.module_name + '/')
 				}
 			)
-			
+
 			resdict[model._meta.app_label] = (reslist, app_title)
-		
+
 		for app_label, (reslist, app_title) in resdict.items():
 			yield {
 				'app_label': app_label,
@@ -253,7 +283,7 @@ class APISite(object):
 				'url': reverse('api:doc_appindex', args = [app_label]),
 				'children': reslist
 			}
-	
+
 	def _format_url(self, url, parent_id = None):
 		return url.replace(
 			'12345', '<b>&lt;id&gt;</b>'
@@ -262,10 +292,10 @@ class APISite(object):
 		).replace(
 			'xml', '<b>&lt;format&gt;</b>'
 		)
-	
+
 	def _docs_urls(self, api):
 		opts = api.model._meta
-		
+
 		if api.parent:
 			args = []
 			i = 0
@@ -274,7 +304,7 @@ class APISite(object):
 				i += 1
 				args.append(i)
 				p = p.parent
-			
+
 			return {
 				'list': {
 					'url': self._format_url(
@@ -346,10 +376,10 @@ class APISite(object):
 					}
 				}
 			}
-	
+
 	def docs_index_view(self, request):
 		from django.template.response import TemplateResponse
-		
+
 		return TemplateResponse(
 			request,
 			'api/doc/index.html',
@@ -367,10 +397,10 @@ class APISite(object):
 				'body_classes': ('api', 'api-docs-index')
 			}
 		)
-	
+
 	def apps_view(self, request):
 		from django.template.response import TemplateResponse
-		
+
 		AppForm = self.auth.get_editor_form()
 		return TemplateResponse(
 			request,
@@ -388,25 +418,25 @@ class APISite(object):
 				'body_classes': ('api', 'api-apps')
 			}
 		)
-	
+
 	@transaction.commit_on_success
 	def add_app_view(self, request):
 		from django.template.response import TemplateResponse
 		from django.contrib import messages
-		
+
 		AppForm = self.auth.get_editor_form()
 		form = AppForm(request.POST)
-		
+
 		if form.is_valid():
 			app = form.save(commit = False)
 			app.admin = request.user
 			app.save()
-			
+
 			messages.success(request, 'Your app has been updated successfully.')
 			return HttpResponseRedirect(
 				reverse('api:edit_app', args = [app.pk])
 			)
-		
+
 		return TemplateResponse(
 			request,
 			'api/apps/list.html',
@@ -423,24 +453,24 @@ class APISite(object):
 				'body_classes': ('api', 'api-apps', 'api-apps-add')
 			}
 		)
-	
+
 	@transaction.commit_on_success
 	def edit_app_view(self, request, pk):
 		from django.template.response import TemplateResponse
 		from django.shortcuts import get_object_or_404
 		from django.contrib import messages
-		
+
 		App = get_model(*self.auth.app_model.split('.'))
 		AppForm = self.auth.get_editor_form()
-		
+
 		app = get_object_or_404(App, admin = request.user, pk = pk)
 		form = AppForm(instance = app, data = request.POST or None)
-		
+
 		if request.method == 'POST' and form.is_valid():
 			app = form.save()
 			messages.success(request, 'Your app has been updated successfully.')
 			return HttpResponseRedirect('../')
-		
+
 		return TemplateResponse(
 			request,
 			'api/apps/edit.html',
@@ -458,21 +488,21 @@ class APISite(object):
 				'body_classes': ('api', 'api-apps', 'api-apps-edit')
 			}
 		)
-	
+
 	def delete_app_view(self, request, pk):
 		from django.template.response import TemplateResponse
 		from django.shortcuts import get_object_or_404
 		from django.contrib import messages
-		
+
 		App = get_model(*self.auth.app_model.split('.'))
 		app = get_object_or_404(App, admin = request.user, pk = pk)
-		
+
 		if request.GET.get('confirm') == '1':
 			with transaction.commit_on_success():
 				app.delete()
 				messages.success(request, 'Your app has been deleted successfully.')
 				return HttpResponseRedirect('../../')
-		
+
 		return TemplateResponse(
 			request,
 			'api/apps/delete.html',
@@ -490,18 +520,18 @@ class APISite(object):
 				'body_classes': ('api', 'api-apps', 'api-apps-delete')
 			}
 		)
-	
+
 	def docs_app_view(self, request, app_label):
 		from django.template.response import TemplateResponse
-		
+
 		apis = []
 		app_title = app_label.replace('_', ' ').capitalize()
-		
+
 		for model in self._registry.keys():
 			if model._meta.app_label == app_label:
 				opts = model._meta
 				api = self._registry[model]
-				
+
 				apis.append(
 					{
 						'title': unicode(opts.verbose_name_plural.capitalize()),
@@ -509,13 +539,13 @@ class APISite(object):
 						'url': '%s/' % opts.module_name
 					}
 				)
-				
+
 				if hasattr(api, 'app_label_verbose'):
 					app_title = api.app_label_verbose
-				
+
 		if not any(apis):
 			raise Http404('App not found.')
-		
+
 		return TemplateResponse(
 			request,
 			(
@@ -539,21 +569,21 @@ class APISite(object):
 				'app_label': app_label
 			}
 		)
-	
+
 	def docs_model_view(self, request, app_label, model):
 		from django.template.response import TemplateResponse
 		from django.http import Http404
-		
+
 		model_parts = model.split('/')
 		model = get_model(app_label, model_parts.pop(0))
-		
+
 		if not model:
 			raise Http404('Model not found.')
-		
+
 		api = self._registry.get(model)
 		if not api:
 			raise Http404('API for model not found.')
-		
+
 		if any(model_parts):
 			found = False
 			while any(model_parts):
@@ -564,16 +594,16 @@ class APISite(object):
 						api = inline
 						found = True
 						break
-			
+
 			if not found:
 				raise Http404('Submodel %s not found in %s.' % (submodel, model._meta.module_name))
-		
+
 		opts = model._meta
 		api_title = unicode(opts.verbose_name_plural.capitalize())
 		app_title = getattr(api, 'app_label_verbose',
 			app_label.replace('_', ' ').capitalize()
 		)
-		
+
 		inlines = []
 		for inline in api.inline_instances:
 			inlines.append(
@@ -587,7 +617,7 @@ class APISite(object):
 					'formats': inline.allowed_formats
 				}
 			)
-		
+
 		return TemplateResponse(
 			request,
 			(

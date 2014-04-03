@@ -1,16 +1,23 @@
 from django.db.models import Model
-from collections import Iterable
 from bambu.api.transformers import library
+from bambu.api.xml import XMLWriter
+from collections import Iterable
+from StringIO import StringIO
+
+try:
+	import json as simplejson
+except ImportError:
+	from django.utils import simplejson
 
 class Serialiser(object):
 	def __init__(self, request = None, processor = None, max_detail_level = 1):
 		self.max_detail_level = max_detail_level
 		self.processor = processor
 		self.request = request
-	
+
 	def serialise(self, data):
 		raise NotImplementedError('Not implemented.')
-	
+
 	def _prepare(self, data):
 		if data:
 			if isinstance(data, Iterable):
@@ -18,11 +25,11 @@ class Serialiser(object):
 					return [
 						self._make_dict(v) for v in data
 					]
-			
+
 			return self._make_dict(data)
-		
+
 		return []
-	
+
 	def _make_dict(self, obj, level = 1):
 		if isinstance(obj, Model):
 			if self.processor and level == 1:
@@ -31,20 +38,15 @@ class Serialiser(object):
 				return library.transform(obj, self.max_detail_level)
 		elif isinstance(obj, dict):
 			return obj
-		
+
 		return unicode(obj)
 
 class JSONSerialiser(Serialiser):
 	def serialise(self, data):
-		try:
-			import json as simplejson
-		except ImportError:
-			from django.utils import simplejson
-		
 		data = simplejson.dumps(
 			self._prepare(data)
 		)
-		
+
 		if self.request and self.request.GET.get('callback'):
 			return '%s(%s)' % (
 				self.request.GET['callback'],
@@ -56,7 +58,7 @@ class JSONSerialiser(Serialiser):
 class XMLSerialiser(Serialiser):
 	def _write(self, writer, key, data):
 		key_checked = self._check_key(key)
-		
+
 		if isinstance(data, dict):
 			writer.start(key_checked)
 			for (subkey, subdata) in data.items():
@@ -67,24 +69,21 @@ class XMLSerialiser(Serialiser):
 				self._write(writer, key_checked, subdata)
 		elif not data is None:
 			writer.element(key_checked, unicode(data))
-	
+
 	def _check_key(self, key):
 		if not key:
 			return None
-		
+
 		if key[0].isdigit():
 			return '_%s' % key
 		else:
 			return key
-	
+
 	def serialise(self, data):
-		from bambu.api.xml import XMLWriter
-		from StringIO import StringIO
-		
 		data = self._prepare(data)
 		string = StringIO()
 		writer = XMLWriter(string)
-		
+
 		if isinstance(data, dict):
 			writer.start('result')
 			for (key, subdata) in data.items():
@@ -106,10 +105,10 @@ class XMLSerialiser(Serialiser):
 					writer.end('result')
 				else:
 					writer.element('result', d)
-			
+
 			writer.end('results')
 		elif not data is None:
 			writer.element('result', unicode(data))
-		
+
 		string.seek(0)
 		return string.read()

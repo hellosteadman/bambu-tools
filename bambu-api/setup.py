@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-api',
-	version = '0.4',
+	version = '0.5',
 	description = 'Quickly expose your models to a JSON or XML API, authenticated via HTTP or OAuth.',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
