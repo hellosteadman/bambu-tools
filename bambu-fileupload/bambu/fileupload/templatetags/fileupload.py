@@ -29,39 +29,39 @@ def fileupload_scripts():
 def fileupload_container(context, handler = 'attachments', parameters = '', callback_js = None):
 	if not handler in HANDLERS:
 		raise Exception('File uploaded handler %s not recognised' % handler)
-	
+
 	h = HANDLERS[handler]
 	deletable = False
 	listable = False
-	
+
 	if isinstance(h, (list, tuple)):
 		h = list(h)
 		func = h.pop(0)
 		deletable = len(h) > 1
 		listable = len(h) > 2
-		
+
 		if any(h) and not callback_js:
 			callback_js = h.pop(0)
 	else:
 		func = h
-	
+
 	if not callback_js:
 		callback_js = '(function(e) { window.location.href = document.location; })'
-	
+
 	module, dot, func = func.rpartition('.')
-	
+
 	try:
 		module = import_module(module)
 	except ImportError, ex:
 		raise Exception('Could not import module %s' % module, ex)
-	
+
 	try:
 		func = getattr(module, func)
 	except AttributeError, ex:
 		raise Exception(
 			'Could not load handler %s from module %s' % (func, module.__name__), ex
 		)
-	
+
 	if 'request' in context:
 		request = context['request']
 		if request.method == 'POST' and '_bambu_fileupload_guid' in request.POST:
@@ -70,7 +70,10 @@ def fileupload_container(context, handler = 'attachments', parameters = '', call
 			guid = unicode(uuid4())
 	else:
 		guid = None
-	
+
+	if not parameters:
+		parameters = 'guid=%s' % guid
+
 	container_id = 'bambu_fileupload_%s' % ''.join(random.sample(string.digits + string.letters, 6))
 	script = """<script>jQuery(document).ready(
 		function($) {
@@ -83,8 +86,7 @@ def fileupload_container(context, handler = 'attachments', parameters = '', call
 		urlencode(
 			{
 				'handler': handler,
-				'params': parameters,
-				'guid': guid
+				'params': parameters
 			}
 		),
 		callback_js,
@@ -93,8 +95,7 @@ def fileupload_container(context, handler = 'attachments', parameters = '', call
 			urlencode(
 				{
 					'handler': handler,
-					'params': parameters,
-					'guid': guid
+					'params': parameters
 				}
 			)
 		) or '',
@@ -104,17 +105,16 @@ def fileupload_container(context, handler = 'attachments', parameters = '', call
 				urlencode(
 					{
 						'handler': handler,
-						'params': parameters,
-						'guid': guid
+						'params': parameters
 					}
 				)
 			)
 		) or ''
 	)
-	
+
 	if guid:
 		script = u'<input name="_bambu_fileupload_guid" value="%s" type="hidden" />%s' % (guid, script)
-	
+
 	return {
 		'id': container_id,
 		'guid': guid,

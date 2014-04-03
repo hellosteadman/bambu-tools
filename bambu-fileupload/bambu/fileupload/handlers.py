@@ -12,7 +12,7 @@ import os
 @transaction.commit_on_success()
 def upload_attachment(request, file, *args, **kwargs):
 	context, created = FileUploadContext.objects.select_for_update().get_or_create(
-		uuid = request.GET.get('guid'),
+		uuid = u''.join(kwargs['guid']),
 		user = request.user
 	)
 

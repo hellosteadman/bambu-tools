@@ -88,12 +88,11 @@ def upload(request):
 		except Exception, ex:
 			if settings.DEBUG:
 				raise
-			
+
 			messages.error(request, '%s was not uploaded.' % f.name)
 			logger.error('Error uploading file via %s handler' % handler, exc_info = True)
 			continue
 
-		print url
 		if url and isinstance(url, (str, unicode)):
 			success += 1
 			mimetype, encoding = guess_type(url)
