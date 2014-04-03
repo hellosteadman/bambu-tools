@@ -1,4 +1,5 @@
 from django.core.files import File
+from django.http import HttpRequest
 
 __version__ = '0.3'
 
@@ -17,9 +18,17 @@ DEFAULT_HANDLERS = (
 class FileUploadError(Exception):
 	pass
 
-def get_ajax_uploads(request):
+def get_ajax_uploads(request_or_guid):
 	from bambu.fileupload.models import FileUploadContext
-	guid = request.POST.get('_bambu_fileupload_guid')
+	if isinstance(request_or_guid, (str, unicode)):
+		guid = request_or_guid
+	elif isinstance(request_or_guid, HttpRequest):
+		guid = request_or_guid.POST.get('_bambu_fileupload_guid')
+	else:
+		raise TypeError(
+			'Argument must be an HttpRequest object or a string ' \
+			'containing a file-upload context'
+		)
 
 	if guid:
 		context = FileUploadContext.objects.get(uuid = guid)
@@ -33,9 +42,17 @@ def get_ajax_uploads(request):
 				a.file.size
 			)
 
-def clear_ajax_uploads(request):
+def clear_ajax_uploads(request_or_guid):
 	from bambu.fileupload.models import FileUploadContext
-	guid = request.POST.get('_bambu_fileupload_guid')
+	if isinstance(request_or_guid, (str, unicode)):
+		guid = request_or_guid
+	elif isinstance(request_or_guid, HttpRequest):
+		guid = request_or_guid.POST.get('_bambu_fileupload_guid')
+	else:
+		raise TypeError(
+			'Argument must be an HttpRequest object or a string ' \
+			'containing a file-upload context'
+		)
 
 	if guid:
 		try:
@@ -45,9 +62,17 @@ def clear_ajax_uploads(request):
 
 		context.attachments.all().delete()
 
-def ajax_upload_count(request):
+def ajax_upload_count(request_or_guid):
 	from bambu.fileupload.models import FileUploadContext
-	guid = request.POST.get('_bambu_fileupload_guid')
+	if isinstance(request_or_guid, (str, unicode)):
+		guid = request_or_guid
+	elif isinstance(request_or_guid, HttpRequest):
+		guid = request_or_guid.POST.get('_bambu_fileupload_guid')
+	else:
+		raise TypeError(
+			'Argument must be an HttpRequest object or a string ' \
+			'containing a file-upload context'
+		)
 
 	if guid:
 		try:
