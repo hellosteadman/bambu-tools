@@ -1,0 +1,35 @@
+{% extends 'buffer/base.html' %}
+{% load i18n icons %}
+
+{% block page_header %}
+    <h1>{% trans 'Your Buffer profiles' %}</h1>
+    <p>{% trans 'Select the Buffer profiles you want to automatically post to.' %}</p>
+{% endblock page_header %}
+
+{% block form_content %}
+    <form method="post">
+        <ul class="media-list">
+            {% for profile in profiles %}
+                <li class="media">
+                    <div class="pull-left">
+                        <img class="media-object" src="{{ profile.avatar }}" alt="{{ profile }}" width="50" height="50" />
+                    </div>
+
+                    <div class="media-body">
+                        <div class="checkbox">
+                            <label>
+                                <input name="profiles" type="checkbox" value="{{ profile.pk }}"{% if profile.selected %} checked{% endif %} />
+                                <span class="h4">{{ profile }}</span><br />
+                                {% icon profile.icon %} <span class="p">{{ profile.service }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% csrf_token %}
+        <button class="btn btn-primary">{% trans 'Save settings' %}</button>
+        <a class="btn btn-default" href="{% url 'buffer_refresh' %}">{% icon 'refresh' %} {% trans 'Reload my Buffer profiles' %}</a>
+    </form>
+{% endblock form_content %}
