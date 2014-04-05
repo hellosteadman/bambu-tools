@@ -20,17 +20,17 @@ COMMENTS_MODEL = getattr(settings, 'BLOG_COMMENTS_MODEL', 'comments.Comment')
 class Category(models.Model):
 	name = models.CharField(max_length = 100, db_index = True)
 	slug = models.SlugField(max_length = 100, unique = True)
-	
+
 	def __unicode__(self):
 		return self.name
-	
+
 	@property
 	def post_percent(self):
 		count = float(getattr(self, 'post_count', self.posts.live().count()))
 		all_count = float(Post.objects.live().count())
-		
+
 		return count / all_count * 100.0
-	
+
 	class Meta:
 		ordering = ('name',)
 		verbose_name_plural = 'categories'
@@ -43,16 +43,17 @@ class Post(models.Model):
 	published = models.BooleanField(default = True)
 	broadcast = models.BooleanField(default = False, editable = False)
 	body = models.TextField()
+	excerpt = models.TextField(null = True, blank = True, editable = False)
 	css = models.TextField(null = True, blank = True)
 	tags = TaggableManager()
 	categories = models.ManyToManyField(Category, related_name = 'posts',
 		null = True, blank = True
 	)
-	
+
 	attachments = generic.GenericRelation(Attachment)
 	comments = generic.GenericRelation(COMMENTS_MODEL)
 	objects = PostManager()
-	
+
 	@models.permalink
 	def get_absolute_url(self):
 		return (
@@ -63,39 +64,22 @@ class Post(models.Model):
 				self.slug
 			)
 		)
-	
+
 	def __unicode__(self):
 		return self.title or u'(Untitled)'
-	
-	@property
-	def excerpt(self):
-		for line in self.body.splitlines():
-			if not line:
-				continue
-			
-			if line.startswith('http://') or line.startswith('http://'):
-				continue
-			
-			if line.startswith('[') and line.endswith(']'):
-				continue
 
-			if line.startswith('#') or line.startswith('>'):
-				continue
-			
-			return line
-	
 	def next_post(self):
 		try:
 			return Post.objects.live().filter(date__gt = self.date)[0]
 		except:
 			pass
-	
+
 	def previous_post(self):
 		try:
 			return Post.objects.live().filter(date__lt = self.date).latest()
 		except:
 			pass
-	
+
 	def render_css(self):
 		template = Template(self.css)
 		context = Context(
@@ -106,15 +90,15 @@ class Post(models.Model):
 				'id': self.pk
 			}
 		)
-		
+
 		return template.render(context)
-	
+
 	def featured_attachment(self):
 		try:
 			return self.attachments.filter(featured = True)[0]
 		except IndexError:
 			return None
-	
+
 	def save(self, *args, **kwargs):
 		publish = False
 		if self.pk:
@@ -123,7 +107,7 @@ class Post(models.Model):
 				publish = True
 		elif self.published:
 			publish = True
-		
+
 		if not self.slug and not self.title:
 			slug = str(
 				Post.objects.filter(
@@ -132,7 +116,7 @@ class Post(models.Model):
 					date__day = self.date.day
 				).count() + 1
 			)
-			
+
 			while Post.objects.filter(
 				date__year = self.date.year,
 				date__month = self.date.month,
@@ -140,13 +124,24 @@ class Post(models.Model):
 				slug = slug
 			).exists():
 				slug = str(int(slug) + 1)
-			
+
 			self.slug = slug
-		
+
+		if self.body:
+			from pyquery import PyQuery
+			from django.template.defaultfilters import truncatewords
+
+			doc = PyQuery('<body>%s</body>' % self.body)
+			for p in doc('p'):
+				if not p.text or (p.text.startswith('http://') or p.text.startswith('https://') or (p.text.startswith('[') and p.text.endswith(']'))):
+					PyQuery(p).remove()
+
+			self.excerpt = truncatewords(doc('p').text(), 30)
+
 		super(Post, self).save(*args, **kwargs)
 		if publish and self.date <= now():
 			self.publish()
-	
+
 	def publish(self):
 		if 'bambu.webhooks' in settings.INSTALLED_APPS:
 			webhooks.send('post_published', self.author,
@@ -164,20 +159,20 @@ class Post(models.Model):
 				},
 				md5('blogpost:%d' % self.pk).hexdigest()
 			)
-		
+
 		self.broadcast = True
-	
+
 	class Meta:
 		ordering = ('-date',)
 		get_latest_by = 'date'
-	
+
 	class QuerySet(models.query.QuerySet):
 		def live(self):
 			return self.filter(
 				date__lte = now(),
 				published = True
 			)
-		
+
 		def css(self, rendered = False):
 			if rendered:
 				return '\n\n'.join(
@@ -197,10 +192,10 @@ class PostUpload(models.Model):
 	url = models.CharField(max_length = 255, db_index = True)
 	size = models.PositiveIntegerField(editable = False)
 	mimetype = models.CharField(max_length = 50, editable = False, db_index = True)
-	
+
 	def __unicode__(self):
 		return self.title
-	
+
 	def convert_to_attachment(self, post):
 		with transaction.commit_on_success():
 			attachment = post.attachments.create(
@@ -208,21 +203,21 @@ class PostUpload(models.Model):
 				size = self.size,
 				mimetype = self.file.size
 			)
-		
+
 			self.delete()
-		
+
 		return attachment
-	
+
 	def save(self, *args, **kwargs):
 		if self.file and not self.mimetype:
 			self.mimetype, encoding = guess_type(self.file.name)
-		
+
 		if not self.size:
 			self.size = self.file.size
-		
+
 		self.url = self.file.url
 		super(PostUpload, self).save(*args, **kwargs)
-	
+
 	class Meta:
 		db_table = 'blog_post_upload'
 
