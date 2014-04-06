@@ -11,7 +11,9 @@ setup(
 	namespace_packages = ['bambu'],
 	packages = [
 		'bambu.buffer',
-        'bambu.buffer.migrations'
+        'bambu.buffer.migrations',
+		'bambu.buffer.management',
+		'bambu.buffer.management.commands'
 	],
     package_data = {
         'bambu.buffer': [
