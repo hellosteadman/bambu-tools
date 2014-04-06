@@ -1,4 +1,5 @@
 from django.conf import settings as s
+from django.utils.timezone import now
 
 CLIENT_ID = s.BUFFER_CLIENT_ID
 CLIENT_SECRET = s.BUFFER_CLIENT_SECRET
@@ -17,6 +18,21 @@ UPDATED_MESSAGE = getattr(s, 'BUFFER_UPDATED_MESSAGE',
 
 REFRESHED_MESSAGES = getattr(s, 'BUFFER_REFRESHED_MESSAGES',
     u'Your Buffer profiles have been refreshed.'
+)
+
+AUTOPOST_MODELS = getattr(s, 'BUFFER_AUTOPOST_MODELS',
+    (
+        (
+            'blog.Post',
+            'author', {
+                'published': True,
+                'date__lte': now
+            },
+            {
+                'top': True
+            }
+        ),
+    )
 )
 
 TIMEOUT = getattr(s, 'BUFFER_TIMEOUT', 5)

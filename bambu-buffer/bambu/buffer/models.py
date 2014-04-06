@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import pytz
 from bambu.buffer.settings import PROFILES_URL, TIMEOUT
-from bambu.buffer import log
+from bambu.buffer import log, helpers
 from datetime import datetime, timedelta
 import requests, json
 
@@ -106,3 +106,10 @@ class BufferProfile(models.Model):
 
     class Meta:
         db_table = 'buffer_profile'
+
+class BufferedItem(models.Model):
+    content_type = models.ForeignKey('contenttypes.ContentType')
+    object_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('content_type', 'object_id')

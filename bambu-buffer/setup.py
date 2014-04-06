@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-buffer',
-	version = '0.1',
+	version = '0.2',
 	description = 'Post to Buffer and manage profile settings through a Django-powered site',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
