@@ -1,4 +1,3 @@
-# Bambu AJAX
+# Bambu Buffer
 
-AJAX utility functions that can be accessed via a single URL
-(ala WordPress admin-ajax.php)
+Post to Buffer and manage profile settings through a Django-powered site.
