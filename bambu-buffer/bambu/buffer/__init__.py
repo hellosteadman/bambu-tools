@@ -1,14 +1,16 @@
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db.models import Model
 from bambu.buffer.exceptions import *
-from bambu.buffer.models import BufferToken, BufferProfile
-from bambu.buffer.settings import POST_URL, TIMEOUT
-from bambu.buffer import log
+from bambu.buffer.models import BufferToken, BufferProfile, BufferedItem
+from bambu.buffer.settings import POST_URL, TIMEOUT, AUTOPOST_MODELS
+from bambu.buffer.sites import BufferSite
 from datetime import datetime, date
 from threading import Thread
 import requests
 
 __version__ = '0.2'
+site = BufferSite()
 
 class BufferThread(Thread):
     def __init__(self, token, data, *args, **kwargs):
@@ -17,6 +19,8 @@ class BufferThread(Thread):
         super(BufferThread, self).__init__(*args, **kwargs)
 
     def run(self):
+        from bambu.buffer import log
+
         response = requests.post(
             '%s?access_token=%s' % (POST_URL, self.token),
             self.data,
@@ -36,23 +40,39 @@ def post(item, author, **kwargs):
         url = kwargs.get('url')
     elif isinstance(item, Model):
         url = u'http://%s%s' % (
-            site.domain, item.get_absolute_url()
+            Site.objects.get_current().domain, item.get_absolute_url()
+        )
+
+        content_type = ContentType.objects.get_for_model(item)
+        if BufferedItem.objects.filter(
+            object_id = item.pk,
+            content_type = content_type
+        ).exists():
+            print '%s %d has already been sent to Buffer' % (
+                unicode(item._meta.verbose_name).capitalize(),
+                item.pk
+            )
+
+            return
+
+        BufferedItem.objects.create(
+            content_type = content_type,
+            object_id = item.pk
         )
     else:
         url = None
 
-    site = Site.objects.get_current()
     data = {
-        'text': kwargs.get('text') or unicode(item),
+        'text': u'%s%s' % (
+            unicode(kwargs.get('text') or item),
+            url and (u' %s' % url) or u''
+        ),
         'profile_ids[]': kwargs.get('profile_ids') or BufferProfile.objects.filter(
             service__token = token,
             selected = True
         ).values_list('remote_id', flat = True),
         'media[description]': kwargs.get('description')
     }
-
-    if url:
-        data['media[link]'] = url
 
     if 'picture' in kwargs:
         data['media[picture]'] = kwargs['picture']
@@ -85,3 +105,5 @@ def post(item, author, **kwargs):
                 )
 
     BufferThread(token.token, data).start()
+
+site.hookup_signals(AUTOPOST_MODELS)
