@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-bootstrap',
-	version = '0.2',
+	version = '0.2.1',
 	description = 'Use Twitter\'s Bootstrap CSS framework to build your app. All the views Bambu uses all extend a base template which you create, that can be based on a skeleton Bootstrap template. Shortcut tags let you easily add breadcrumb trails and icons to your apps.',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
