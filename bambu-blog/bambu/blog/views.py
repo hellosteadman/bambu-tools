@@ -36,10 +36,10 @@ def _context(request):
 		).annotate(
 			post_count = Count('posts')
 		)
-	
+
 	def dates():
 		return Post.objects.live().dates('date', 'month').reverse()
-	
+
 	return {
 		'categories': categories,
 		'dates': dates,
@@ -51,7 +51,7 @@ def posts(request, **kwargs):
 	templates = ['blog/posts.html']
 	context = _context(request)
 	breadcrumb_trail = []
-	
+
 	if 'year' in kwargs:
 		if 'month' in kwargs:
 			if 'day' in kwargs:
@@ -62,16 +62,16 @@ def posts(request, **kwargs):
 				).replace(
 					tzinfo = get_current_timezone()
 				)
-				
+
 				context['day'] = date.strftime('%B %d, %Y')
-				
+
 				breadcrumb_trail = (
 					('../../../', u'Blog'),
 					('../../', date.strftime('%Y')),
 					('../', date.strftime('%B')),
 					('', date.strftime('%d'))
 				)
-				
+
 				templates.insert(0, 'blog/posts-day.html')
 			else:
 				date = datetime(
@@ -81,20 +81,20 @@ def posts(request, **kwargs):
 				).replace(
 					tzinfo = get_current_timezone()
 				)
-				
+
 				context['month'] = date.strftime('%B %Y')
-				
+
 				breadcrumb_trail = (
 					('../../', u'Blog'),
 					('../', date.strftime('%Y')),
 					('', date.strftime('%B'))
 				)
-				
+
 				templates.insert(0, 'blog/posts-month.html')
 		else:
 			context['year'] = kwargs['year']
 			templates.insert(0, 'blog/posts-year.html')
-			
+
 			breadcrumb_trail = (
 				('../', u'Blog'),
 				('', int(kwargs['year'])),
@@ -103,7 +103,7 @@ def posts(request, **kwargs):
 		breadcrumb_trail = (
 			('', u'Blog'),
 		)
-	
+
 	if 'category' in kwargs:
 		category = get_object_or_404(Category, slug = kwargs['category'])
 		context['category'] = category
@@ -128,26 +128,30 @@ def posts(request, **kwargs):
 			('../', u'Blog'),
 			('', author.get_full_name() or author.username)
 		)
-	
+
 	posts = view_filter(**kwargs)
 	paginator = Paginator(posts, POSTS_PER_PAGE)
 	page = request.GET.get('page')
-	
+
 	try:
 		posts = paginator.page(page)
 	except PageNotAnInteger:
 		posts = paginator.page(1)
 	except EmptyPage:
 		posts = paginator.page(paginator.num_pages)
-	
+
 	context['page'] = posts
 	context['breadcrumb_trail'] = breadcrumb_trail
 	context['title_parts'] = title_parts(**kwargs)
-	
+	context['body_classes'] = ['page-%d' % posts.number]
+
+	if any(posts.object_list) and posts.object_list[0].attachments.filter(featured = True).exists():
+		context['body_classes'].append('first-post-has-featured-attachment')
+
 	context['enqueued_styles'] = [
 		enqueue_css_block(request, posts.object_list.css(True))
 	]
-	
+
 	return TemplateResponse(
 		request,
 		templates,
@@ -162,20 +166,20 @@ def post(request, year, month, day, slug):
 		'date__day': int(day),
 		'slug': slug
 	}
-	
+
 	now = rightnow()
 	if not request.user.is_staff:
 		kwargs['date__lte'] = now
 		kwargs['published'] = True
-	
+
 	try:
 		post = Post.objects.select_related().get(**kwargs)
 	except:
 		raise Http404('No Post matches the given query.')
-	
+
 	if not post.published or post.date > now:
 		preview = True
-	
+
 	context = _context(request)
 	context['post'] = post
 	context['day'] = post.date.strftime('%B %d, %Y')
@@ -186,35 +190,38 @@ def post(request, year, month, day, slug):
 		('../', post.date.strftime('%d')),
 		('', unicode(post))
 	)
-	
+
 	context['title_parts'] = (unicode(post), u'Blog')
 	context['newer_posts'] = Post.objects.filter(date__gt = post.date).live()
 	context['older_posts'] = Post.objects.filter(date__lt = post.date).live()
-	
+
 	if not request.GET.get('comment-sent'):
 		initial = {}
-		
+
 		if request.user.is_authenticated():
 			initial = {
 				'name': request.user.get_full_name() or request.user.username,
 				'email': request.user.email,
 				'website': 'http://%s/' % Site.objects.get_current().domain
 			}
-		
+
 		context['comment_form'] = COMMENTS_FORM_CLASS(initial = initial)
-	
+
 	context['body_classes'] = ['post-%s' % post.pk, 'post-%s' % post.slug]
 	if preview:
 		context['body_classes'].append('post-preview')
 		context['preview'] = True
-	
+
 	if post.css:
 		context['enqueued_styles'] = [
 			enqueue_css_block(request, post.render_css)
 		]
-		
+
 		context['body_classes'].append('post-custom-css')
-	
+
+	if post.attachments.filter(featured = True).exists():
+		context['body_classes'].append('post-featured-attachment')
+
 	return TemplateResponse(
 		request,
 		'blog/post.html',
@@ -232,11 +239,11 @@ def post_comment(request, year, month, day, slug):
 		)
 	except Post.DoesNotExist:
 		raise Http404('Post not found.')
-	
+
 	form = COMMENTS_FORM_CLASS(request.POST)
 	if request.POST.get('h0n3ytr4p'):
 		return HttpResponse('')
-	
+
 	if form.is_valid():
 		comment = form.save(commit = False)
 		with transaction.commit_on_success():
@@ -246,27 +253,27 @@ def post_comment(request, year, month, day, slug):
 				)
 			else:
 				comment.content_type = ContentType.objects.get_for_model(post)
-			
+
 			if request.POST.get('object_id'):
 				comment.object_id = comment.content_type.get_object_for_this_type(
 					pk = int(request.POST['object_id'])
 				).pk
 			else:
 				comment.object_id = post.pk
-			
+
 			comment.spam = comment.check_for_spam(request)
 			comment.save()
-			
+
 			messages.add_message(
 				request,
 				messages.SUCCESS,
 				u'Your comment has been submitted successfully.'
 			)
-			
+
 			return HttpResponseRedirect(
 				'%s?comment-sent=true' % post.get_absolute_url()
 			)
-	
+
 	context = _context(request)
 	context['post'] = post
 	context['day'] = post.date.strftime('%B %d, %Y')
@@ -280,19 +287,19 @@ def post_comment(request, year, month, day, slug):
 		('../', unicode(post)),
 		('', u'Post comment')
 	)
-	
+
 	context['title_parts'] = (unicode(post), u'Blog')
 	context['comment_form'] = form
 	context['comment_form_action'] = '.'
 	context['body_classes'] = ['post-%s' % post.pk, 'post-%s' % post.slug]
-	
+
 	if post.css:
 		context['enqueued_styles'] = [
 			enqueue_css_block(request, post.css)
 		]
-		
+
 		context['body_classes'].append('post-custom-css')
-	
+
 	return TemplateResponse(
 		request,
 		'blog/post.html',
