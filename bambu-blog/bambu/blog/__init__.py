@@ -4,7 +4,7 @@ from django.template.defaultfilters import truncatewords
 from html2text import html2text
 import string
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 EXCERPT_LENGTH = getattr(settings, 'BLOG_EXCERPT_LENGTH', 30)
 
 def plainify(html):
