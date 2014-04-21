@@ -1,0 +1,87 @@
+<script>
+    {% include 'analytics/bambu.inc.js' %}
+    (
+        function(i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function() {
+                (i[r].q = i[r].q || []).push(arguments)
+            },
+            i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m);
+        }
+    )(
+        window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'
+    );
+
+    bambu.analytics.on('track',
+        function(v) {
+            switch(v.event) {
+                case bambu.analytics.PAGE:
+                    if(typeof(v.args) == 'object') {
+                        ga('send', 'pageview',
+                            {
+                                'page': typeof(v.args.url) != 'undefined' ? v.args.url : null,
+                                'title': typeof(v.args.title) != 'undefined' ? v.args.title : window.title
+                            }
+                        );
+
+                        {% if DEBUG %}if(console) {
+                            console.log('Analytics event:', 'pageview',
+                                {
+                                    'page': typeof(v.args.url) != 'undefined' ? v.args.url : null,
+                                    'title': typeof(v.args.title) != 'undefined' ? v.args.title : window.title
+                                }
+                            );
+                        }{% endif %}
+                    } else {
+                        ga('send', 'pageview');
+                        {% if DEBUG %}if(console) {
+                            console.log('Analytics event:', 'pageview');
+                        }{% endif %}
+                    }
+
+                    break;
+                case bambu.analytics.EVENT:
+                    if(typeof(v.args) == 'object') {
+                        ga('send',
+                            {
+                                'hitType': 'event',
+                                'eventCategory': typeof(v.args.category) != 'undefined' ? v.args.category : null,
+                                'eventAction': typeof(v.args.action) != 'undefined' ? v.args.action : null,
+                                'page': typeof(v.args.url) != 'undefined' ? v.args.url : null,
+                                'nonInteraction': v.args.count_bounces === false,
+                                'eventLabel': typeof(v.args.option_label) != 'undefined' ? v.args.option_label : null,
+                                'eventValue': typeof(v.args.option_value) != 'undefined' ? v.args.option_value : null
+                            }
+                        );
+
+                        {% if DEBUG %}if(console) {
+                            console.log('Analytics event:',
+                                {
+                                    'hitType': 'event',
+                                    'eventCategory': typeof(v.args.category) != 'undefined' ? v.args.category : null,
+                                    'eventAction': typeof(v.args.action) != 'undefined' ? v.args.action : null,
+                                    'page': typeof(v.args.url) != 'undefined' ? v.args.url : null,
+                                    'nonInteraction': v.args.count_bounces === false,
+                                    'eventLabel': typeof(v.args.option_label) != 'undefined' ? v.args.option_label : null,
+                                    'eventValue': typeof(v.args.option_value) != 'undefined' ? v.args.option_value : null
+                                }
+                            );
+                        }{% endif %}
+                    }
+
+                    break;
+            }
+        }
+    );
+
+    ga('create', '{{ id }}', '{{ domain }}');
+    {% for item in queue %}ga({{ item|join:', ' }});
+    {% if DEBUG %}if(console) {
+        console.log('Analytics event:', {{ item|join:', ' }});
+    }{% endif %}
+    {% endfor %}
+</script>

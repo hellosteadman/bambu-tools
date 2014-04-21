@@ -13,13 +13,12 @@ JavaScript and waits for the next page load to display it (similar to
 Django's messaging system).
 """
 
-__version__ = '0.1'
+__version__ = '0.2'
 
-from django.conf import settings
 from django.utils.importlib import import_module
+from bambu.analytics import settings
 from logging import getLogger
 
-PROVIDER = getattr(settings, 'ANALYTICS_PROVIDER', 'bambu.analytics.providers.google.GoogleAnalyticsProvider')
 LOGGER = getLogger('bambu.analytics')
 
 def _init_tracker(request):
@@ -27,15 +26,10 @@ def _init_tracker(request):
 	Setup tracking on a request
 	"""
 	if not getattr(request, '_analytics_handler', None):
-		module, dot, klass = PROVIDER.rpartition('.')
+		module, dot, klass = settings.PROVIDER.rpartition('.')
 		module = import_module(module)
-		
-		ps = getattr(settings,
-			'ANALYTICS_SETTINGS', {
-				klass: {}
-			}
-		).get(klass)
-		
+		ps = settings.get(klass)
+
 		klass = getattr(module, klass)
 		request._analytics_handler = klass(**ps)
 
@@ -45,17 +39,17 @@ def add_events_from_redirect(request):
 	to the current event queue for this request
 	"""
 	events = request.session.get('bambu.analytics.events', [])
-	
+
 	if any(events):
 		_init_tracker(request)
 		request._analytics_handler.events.extend(
 			[e for e in events]
 		)
-		
+
 		del request.session['bambu.analytics.events']
 		request.session.modified = True
 		return True
-	
+
 	return False
 
 def track_event(request, event, **kwargs):
@@ -64,7 +58,7 @@ def track_event(request, event, **kwargs):
 	on the event being tracked. Supported events can be found in `bambu.analytics.events`
 	"""
 	_init_tracker(request)
-	
+
 	try:
 		request._analytics_handler.track(event, **kwargs)
 	except Exception, ex:
