@@ -3,7 +3,7 @@ from django.conf import settings
 from pymediainfo import MediaInfo
 import os, subprocess, logging, mimetypes, time
 
-__version__ = '0.1'
+__version__ = '0.11'
 ASPECT_RATIO = getattr(settings, 'FFMPEG_ASPECT_RATIO', '16:9')
 WIDTH = getattr(settings, 'FFMPEG_WIDTH', 640)
 
@@ -27,11 +27,11 @@ def _run_command(command, extension, source):
 	logger = logging.getLogger('bambu.ffmpeg')
 	logging.info('Started encode')
 	transpose = ''
-	
+
 	try:
 		info = MediaInfo.parse(source)
 		video_tracks = [t for t in info.tracks if t.track_type == 'Video']
-		
+
 		for video in video_tracks:
 			if video.rotation == '90.000':
 				transpose = 'transpose=1,'
@@ -41,56 +41,67 @@ def _run_command(command, extension, source):
 				transpose = 'transpose=2,'
 	except OSError:
 		logger.warn('Mediainfo library not installed')
-	
+
 	d = {}
-	
+	handle, dest = mkstemp(
+		extension,
+		dir = settings.TEMP_DIR
+	)
+
+	os.close(handle)
+	c = command % (source, transpose, dest)
+
 	try:
-		handle, dest = mkstemp(
-			extension,
-			dir = settings.TEMP_DIR
-		)
-		
-		os.close(handle)
 		output = subprocess.Popen(
-			command % (source, transpose, dest),
+			c,
 			shell = True,
 			stdout = subprocess.PIPE
 		).stdout.read()
-		
-		if os.stat(dest).st_size > 0:
+
+		if os.path.exists(dest) and os.stat(dest).st_size > 0:
 			f = open(dest, 'r')
 			handles.append(f)
 			success = True
 		else:
 			success = False
-		
+
 		d = {
-			'command': command % (source, transpose, dest),
+			'command': c,
 			'source': source,
 			'dest': dest,
 			'extension': extension,
 			'output': output
 		}
-		
+
 		for f in handles:
 			f.close()
 	except Exception, ex:
-		logger.error('Error encoding: %s' % unicode(ex))
+		logger.error('Error converting', exc_info = True,
+			extra = {
+				'data': {
+					'command': c,
+					'source': source,
+					'dest': dest,
+					'extension': extension
+				}
+			}
+		)
+
 		success = False
-	
+
 	if success:
 		return dest
 	else:
 		if os.path.exists(dest):
 			os.remove(dest)
-		
+
 		if any(d):
 			logger.error('Conversion failed',
 				extra = {
 					'data': d
 				}
 			)
-		
+
 		return None
 
 def convert_video(source):
