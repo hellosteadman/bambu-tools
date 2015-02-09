@@ -3,5 +3,3 @@
 *.pyc
 */build/lib/*
 */dist/*.tar.gz
-/bambu-ajax/
-/bambu-analytics/
