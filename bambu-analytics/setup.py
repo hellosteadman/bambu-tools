@@ -17,7 +17,8 @@ setup(
 	],
 	package_data = {
 		'bambu.analytics': [
-			'templates/analytics/*.html'
+			'templates/analytics/*.html',
+			'templates/analytics/*.js'
 		]
 	},
 	classifiers = [
