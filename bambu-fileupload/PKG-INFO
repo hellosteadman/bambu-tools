@@ -1,0 +1,13 @@
+Metadata-Version: 1.1
+Name: bambu-fileupload
+Version: 0.3
+Summary: A wrapper around the jQuery.fileupload library
+Home-page: http://pypi.python.org/pypi/bambu-fileupload
+Author: Steadman
+Author-email: mark@steadman.io
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
