@@ -3,5 +3,5 @@ from bambu import api
 
 api.autodiscover()
 urlpatterns = patterns('',
-	url(r'^', include(api.site.urls))
+    url(r'^', include(api.site.urls))
 )
