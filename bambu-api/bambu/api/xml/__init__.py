@@ -90,25 +90,25 @@
 import re, sys, string
 
 try:
-    unicode("")
+	unicode("")
 except NameError:
-    def encode(s, encoding):
-        # 1.5.2: application must use the right encoding
-        return s
-    _escape = re.compile(r"[&<>\"\x80-\xff]+") # 1.5.2
+	def encode(s, encoding):
+		# 1.5.2: application must use the right encoding
+		return s
+	_escape = re.compile(r"[&<>\"\x80-\xff]+") # 1.5.2
 else:
-    def encode(s, encoding):
-        return s.encode(encoding)
-    _escape = re.compile(eval(r'u"[&<>\"\u0080-\uffff]+"'))
+	def encode(s, encoding):
+		return s.encode(encoding)
+	_escape = re.compile(eval(r'u"[&<>\"\u0080-\uffff]+"'))
 
 def encode_entity(text, pattern=_escape):
-    # map reserved and non-ascii characters to numerical entities
-    def escape_entities(m):
-        out = []
-        for char in m.group():
-            out.append("&#%d;" % ord(char))
-        return string.join(out, "")
-    return encode(pattern.sub(escape_entities, text), "ascii")
+	# map reserved and non-ascii characters to numerical entities
+	def escape_entities(m):
+		out = []
+		for char in m.group():
+			out.append("&#%d;" % ord(char))
+		return string.join(out, "")
+	return encode(pattern.sub(escape_entities, text), "ascii")
 
 del _escape
 
@@ -117,177 +117,177 @@ del _escape
 # (or "utf-16")
 
 def escape_cdata(s, encoding=None, replace=string.replace):
-    s = replace(s, "&", "&amp;")
-    s = replace(s, "<", "&lt;")
-    s = replace(s, ">", "&gt;")
-    if encoding:
-        try:
-            return encode(s, encoding)
-        except UnicodeError:
-            return encode_entity(s)
-    return s
+	s = replace(s, "&", "&amp;")
+	s = replace(s, "<", "&lt;")
+	s = replace(s, ">", "&gt;")
+	if encoding:
+		try:
+			return encode(s, encoding)
+		except UnicodeError:
+			return encode_entity(s)
+	return s
 
 def escape_attrib(s, encoding=None, replace=string.replace):
-    s = replace(s, "&", "&amp;")
-    s = replace(s, "'", "&apos;")
-    s = replace(s, "\"", "&quot;")
-    s = replace(s, "<", "&lt;")
-    s = replace(s, ">", "&gt;")
-    if encoding:
-        try:
-            return encode(s, encoding)
-        except UnicodeError:
-            return encode_entity(s)
-    return s
+	s = replace(s, "&", "&amp;")
+	s = replace(s, "'", "&apos;")
+	s = replace(s, "\"", "&quot;")
+	s = replace(s, "<", "&lt;")
+	s = replace(s, ">", "&gt;")
+	if encoding:
+		try:
+			return encode(s, encoding)
+		except UnicodeError:
+			return encode_entity(s)
+	return s
 
 ##
 # XML writer class.
 #
 # @param file A file or file-like object.  This object must implement
-#    a <b>write</b> method that takes an 8-bit string.
+#	a <b>write</b> method that takes an 8-bit string.
 # @param encoding Optional encoding.
 
 class XMLWriter:
 
-    def __init__(self, file, encoding="us-ascii"):
-        if not hasattr(file, "write"):
-            file = open(file, "w")
-        self.__write = file.write
-        if hasattr(file, "flush"):
-            self.flush = file.flush
-        self.__open = 0 # true if start tag is open
-        self.__tags = []
-        self.__data = []
-        self.__encoding = encoding
+	def __init__(self, file, encoding="us-ascii"):
+		if not hasattr(file, "write"):
+			file = open(file, "w")
+		self.__write = file.write
+		if hasattr(file, "flush"):
+			self.flush = file.flush
+		self.__open = 0 # true if start tag is open
+		self.__tags = []
+		self.__data = []
+		self.__encoding = encoding
 
-    def __flush(self):
-        # flush internal buffers
-        if self.__open:
-            self.__write(">")
-            self.__open = 0
-        if self.__data:
-            data = string.join(self.__data, "")
-            self.__write(escape_cdata(data, self.__encoding))
-            self.__data = []
+	def __flush(self):
+		# flush internal buffers
+		if self.__open:
+			self.__write(">")
+			self.__open = 0
+		if self.__data:
+			data = string.join(self.__data, "")
+			self.__write(escape_cdata(data, self.__encoding))
+			self.__data = []
 
-    ##
-    # Writes an XML declaration.
+	##
+	# Writes an XML declaration.
 
-    def declaration(self):
-        encoding = self.__encoding
-        if encoding == "us-ascii" or encoding == "utf-8":
-            self.__write("<?xml version='1.0'?>\n")
-        else:
-            self.__write("<?xml version='1.0' encoding='%s'?>\n" % encoding)
+	def declaration(self):
+		encoding = self.__encoding
+		if encoding == "us-ascii" or encoding == "utf-8":
+			self.__write("<?xml version='1.0'?>\n")
+		else:
+			self.__write("<?xml version='1.0' encoding='%s'?>\n" % encoding)
 
-    ##
-    # Opens a new element.  Attributes can be given as keyword
-    # arguments, or as a string/string dictionary. You can pass in
-    # 8-bit strings or Unicode strings; the former are assumed to use
-    # the encoding passed to the constructor.  The method returns an
-    # opaque identifier that can be passed to the <b>close</b> method,
-    # to close all open elements up to and including this one.
-    #
-    # @param tag Element tag.
-    # @param attrib Attribute dictionary.  Alternatively, attributes
-    #    can be given as keyword arguments.
-    # @return An element identifier.
+	##
+	# Opens a new element.  Attributes can be given as keyword
+	# arguments, or as a string/string dictionary. You can pass in
+	# 8-bit strings or Unicode strings; the former are assumed to use
+	# the encoding passed to the constructor.  The method returns an
+	# opaque identifier that can be passed to the <b>close</b> method,
+	# to close all open elements up to and including this one.
+	#
+	# @param tag Element tag.
+	# @param attrib Attribute dictionary.  Alternatively, attributes
+	#	can be given as keyword arguments.
+	# @return An element identifier.
 
-    def start(self, tag, attrib={}, **extra):
-        self.__flush()
-        tag = escape_cdata(tag, self.__encoding)
-        self.__data = []
-        self.__tags.append(tag)
-        self.__write("<%s" % tag)
-        if attrib or extra:
-            attrib = attrib.copy()
-            attrib.update(extra)
-            attrib = attrib.items()
-            attrib.sort()
-            for k, v in attrib:
-                k = escape_cdata(k, self.__encoding)
-                v = escape_attrib(v, self.__encoding)
-                self.__write(" %s=\"%s\"" % (k, v))
-        self.__open = 1
-        return len(self.__tags)-1
+	def start(self, tag, attrib={}, **extra):
+		self.__flush()
+		tag = escape_cdata(tag, self.__encoding)
+		self.__data = []
+		self.__tags.append(tag)
+		self.__write("<%s" % tag)
+		if attrib or extra:
+			attrib = attrib.copy()
+			attrib.update(extra)
+			attrib = attrib.items()
+			attrib.sort()
+			for k, v in attrib:
+				k = escape_cdata(k, self.__encoding)
+				v = escape_attrib(v, self.__encoding)
+				self.__write(" %s=\"%s\"" % (k, v))
+		self.__open = 1
+		return len(self.__tags)-1
 
-    ##
-    # Adds a comment to the output stream.
-    #
-    # @param comment Comment text, as an 8-bit string or Unicode string.
+	##
+	# Adds a comment to the output stream.
+	#
+	# @param comment Comment text, as an 8-bit string or Unicode string.
 
-    def comment(self, comment):
-        self.__flush()
-        self.__write("<!-- %s -->\n" % escape_cdata(comment, self.__encoding))
+	def comment(self, comment):
+		self.__flush()
+		self.__write("<!-- %s -->\n" % escape_cdata(comment, self.__encoding))
 
-    ##
-    # Adds character data to the output stream.
-    #
-    # @param text Character data, as an 8-bit string or Unicode string.
+	##
+	# Adds character data to the output stream.
+	#
+	# @param text Character data, as an 8-bit string or Unicode string.
 
-    def data(self, text):
-        self.__data.append(text)
-    
-    ##
-    # Adds unparsed character data to the output stream.
-    #
-    # @param text Character data, as an 8-bit string or Unicode string.
-    
-    def cdata(self, text):
-        try:
-            text = encode(text, self.__encoding)
-        except UnicodeError:
-            text = encode_entity(text)
-        
-        self.__flush()
-        self.__write('<![CDATA[%s]]>' % text)
+	def data(self, text):
+		self.__data.append(text)
+	
+	##
+	# Adds unparsed character data to the output stream.
+	#
+	# @param text Character data, as an 8-bit string or Unicode string.
+	
+	def cdata(self, text):
+		try:
+			text = encode(text, self.__encoding)
+		except UnicodeError:
+			text = encode_entity(text)
+		
+		self.__flush()
+		self.__write('<![CDATA[%s]]>' % text)
 
-    ##
-    # Closes the current element (opened by the most recent call to
-    # <b>start</b>).
-    #
-    # @param tag Element tag.  If given, the tag must match the start
-    #    tag.  If omitted, the current element is closed.
+	##
+	# Closes the current element (opened by the most recent call to
+	# <b>start</b>).
+	#
+	# @param tag Element tag.  If given, the tag must match the start
+	#	tag.  If omitted, the current element is closed.
 
-    def end(self, tag=None):
-        if tag:
-            assert self.__tags, "unbalanced end(%s)" % tag
-            assert escape_cdata(tag, self.__encoding) == self.__tags[-1],\
-                   "expected end(%s), got %s" % (self.__tags[-1], tag)
-        else:
-            assert self.__tags, "unbalanced end()"
-        tag = self.__tags.pop()
-        if self.__data:
-            self.__flush()
-        elif self.__open:
-            self.__open = 0
-            self.__write(" />")
-            return
-        self.__write("</%s>" % tag)
+	def end(self, tag=None):
+		if tag:
+			assert self.__tags, "unbalanced end(%s)" % tag
+			assert escape_cdata(tag, self.__encoding) == self.__tags[-1],\
+				   "expected end(%s), got %s" % (self.__tags[-1], tag)
+		else:
+			assert self.__tags, "unbalanced end()"
+		tag = self.__tags.pop()
+		if self.__data:
+			self.__flush()
+		elif self.__open:
+			self.__open = 0
+			self.__write(" />")
+			return
+		self.__write("</%s>" % tag)
 
-    ##
-    # Closes open elements, up to (and including) the element identified
-    # by the given identifier.
-    #
-    # @param id Element identifier, as returned by the <b>start</b> method.
+	##
+	# Closes open elements, up to (and including) the element identified
+	# by the given identifier.
+	#
+	# @param id Element identifier, as returned by the <b>start</b> method.
 
-    def close(self, id):
-        while len(self.__tags) > id:
-            self.end()
-    
-    ##
-    # Adds an entire element.  This is the same as calling <b>start</b>,
-    # <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
-    # can be omitted.
+	def close(self, id):
+		while len(self.__tags) > id:
+			self.end()
+	
+	##
+	# Adds an entire element.  This is the same as calling <b>start</b>,
+	# <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
+	# can be omitted.
 
-    def element(self, tag, text=None, attrib={}, **extra):
-        apply(self.start, (tag, attrib), extra)
-        if text:
-            self.data(text)
-        self.end()
+	def element(self, tag, text=None, attrib={}, **extra):
+		apply(self.start, (tag, attrib), extra)
+		if text:
+			self.data(text)
+		self.end()
 
-    ##
-    # Flushes the output stream.
+	##
+	# Flushes the output stream.
 
-    def flush(self):
-        pass # replaced by the constructor
+	def flush(self):
+		pass # replaced by the constructor
