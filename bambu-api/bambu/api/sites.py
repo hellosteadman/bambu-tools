@@ -158,8 +158,13 @@ class APISite(object):
                     raise Exception('page argument not an integer')
 
                 return _prepare(page.object_list)
-            
+
             return _prepare(data)
+
+        return APIResponse(format, request, data,
+            detail_level = detail_level,
+            processor = processor
+        )
 
     def api_page(self, view, request, *args, **kwargs):
         if not getattr(view, '_allow_anonymous', False):

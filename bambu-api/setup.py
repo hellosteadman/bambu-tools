@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from setuptools import setup
+from os import path
 
 setup(
 	name = 'bambu-api',
-	version = '0.5.1',
+	version = '0.5.2',
 	description = 'Quickly expose your models to a JSON or XML API, authenticated via HTTP or OAuth.',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
 	url = 'http://pypi.python.org/pypi/bambu-analytics',
+	long_description = open(path.join(path.dirname(__file__), 'README')).read(),
 	install_requires = [
 		'Django>=1.4',
 		'oauth',
@@ -23,8 +25,6 @@ setup(
 	],
 	package_data = {
 		'bambu.api': [
-			'static/api/js/google-prettify/*.js',
-			'static/api/js/google-prettify/*.css',
 			'templates/api/*.html',
 			'templates/api/apps/*.html',
 			'templates/api/auth/*.html',
