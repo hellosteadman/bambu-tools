@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-grids',
-	version = '0.2',
+	version = '0.2.1',
 	description = 'Show tabular data with filtering options and support for AJAX and pushstate',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
