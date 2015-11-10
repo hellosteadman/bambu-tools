@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-pages',
-	version = '0.2',
+	version = '0.3',
 	description = 'Tools for Django webapps',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
