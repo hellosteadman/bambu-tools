@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = 'bambu-comments',
-	version = '0.1',
+	version = '0.2',
 	description = 'Generic model commenting',
 	author = 'Steadman',
 	author_email = 'mark@steadman.io',
